@@ -35,14 +35,15 @@ namespace common
  * Do not use this class directly; use an iterator returned by
  * TraceSet methods.
  *
- * Because of a limitation in Babeltrace, i.e. two BT iterators cannot
- * exist concurrently in a single BT context, a trace set iterator doesn't
- * own its BT iterator. This means:
+ * Because of a limitation in libbabeltrace, i.e. two BT iterators
+ * cannot exist concurrently in a single BT context, a trace set
+ * iterator doesn't own its BT iterator. This means:
  *
- *   * the interval BT iterator won't be destroyed in the trace
+ *   * the internal BT iterator won't be destroyed in the trace
  *     set iterator's destructor
  *   * copying a trace set iterator is okay, but all iterators obtained
- *     from a given trace set will always be synchronized (moved together)
+ *     from a given trace set will always be synchronized (moved
+ *     together)
  *
  * @author Philippe Proulx
  */
@@ -61,20 +62,30 @@ public:
     bool operator!=(const TraceSetIterator& rhs);
 
     /**
-     * Return the event currently pointed to by this iterator.
+     * Returns the event currently pointed to by this iterator.
      *
      * The event stays valid as long as this iterator and any other
-     * iterator for the same trace set remain untouched.
+     * iterator for the same trace set remain untouched. Do NOT use
+     * an event object after having called operator++().
      *
      * @returns Current event
      */
     Event& operator*();
 
 private:
+    // libbabeltrace CTF iterator
     ::bt_ctf_iter* _btCtfIter;
+
+    // libbabeltrace iterator
     ::bt_iter* _btIter;
+
+    // current libbabeltrace event
     ::bt_ctf_event* _btEvent;
+
+    // our only Event object (constantly updated, not reallocated)
     std::unique_ptr<Event> _event;
+
+    // the value factory used by this iterator and its event
     EventValueFactory _valueFactory;
 };
 

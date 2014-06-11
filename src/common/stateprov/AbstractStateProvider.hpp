@@ -18,6 +18,7 @@
 #ifndef _TIBEE_COMMON_ABSTRACTSTATEPROVIDER_HPP
 #define _TIBEE_COMMON_ABSTRACTSTATEPROVIDER_HPP
 
+#include <boost/utility.hpp>
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -38,7 +39,8 @@ namespace common
  *
  * @author Philippe Proulx
  */
-class AbstractStateProvider
+class AbstractStateProvider :
+    boost::noncopyable
 {
 public:
     /// Unique pointer to abstract state provider

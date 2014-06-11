@@ -18,6 +18,7 @@
 #ifndef _TIBEE_COMMON_ABSTRACTEVENTVALUE_HPP
 #define _TIBEE_COMMON_ABSTRACTEVENTVALUE_HPP
 
+#include <boost/utility.hpp>
 #include <memory>
 
 #include <common/trace/EventValueType.hpp>
@@ -40,7 +41,8 @@ class DictEventValue;
  *
  * @author Philippe Proulx
  */
-class AbstractEventValue
+class AbstractEventValue :
+    boost::noncopyable
 {
 public:
     /// Unique pointer to abstract event value
