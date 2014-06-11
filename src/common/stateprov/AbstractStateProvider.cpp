@@ -125,10 +125,6 @@ bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceT
                                                        const std::string& eventNameRe,
                                                        const OnEventFunc& onEvent)
 {
-    const auto& tracesInfos = _curTraceSet->getTracesInfos();
-
-    bool matchLatch = false;
-
     // try building/compiling regular expressions now
     boost::regex traceTypeBre;
     boost::regex eventNameBre;
@@ -139,6 +135,11 @@ bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceT
     } catch (const std::exception& ex) {
         return false;
     }
+
+    // find matches
+    const auto& tracesInfos = _curTraceSet->getTracesInfos();
+
+    bool matchLatch = false;
 
     for (const auto& traceInfos : tracesInfos) {
         EventIdCallbackMap callbackMap;

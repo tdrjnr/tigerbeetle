@@ -78,19 +78,19 @@ DynamicLibraryStateProvider::~DynamicLibraryStateProvider()
 void DynamicLibraryStateProvider::onInitImpl(CurrentState& state,
                                              const TraceSet* traceSet)
 {
-    // delegate
     if (_dlOnInit) {
-        // build temporary configuration façade
+        // build temporary state provider façade
         DynamicLibraryStateProvider::StateProviderConfig config {this};
 
+        // delegate
         _dlOnInit(state, traceSet, config);
     }
 }
 
 void DynamicLibraryStateProvider::onFiniImpl(CurrentState& state)
 {
-    // delegate
     if (_dlOnFini) {
+        // delegate
         _dlOnFini(state);
     }
 }

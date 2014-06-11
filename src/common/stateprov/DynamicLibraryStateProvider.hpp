@@ -31,8 +31,8 @@ namespace common
 {
 
 /**
- * A state provider which loads a dynamic library and calls specific
- * functions to obtain state informations.
+ * A state provider which loads a dynamic library, finds specific
+ * symbols and call them to obtain state informations.
  *
  * @author Philippe Proulx
  */
@@ -42,6 +42,11 @@ class DynamicLibraryStateProvider :
 public:
     /**
      * This is a façade for dynamically loaded state providers.
+     *
+     * It's safer to pass this to dynamically loaded state providers
+     * than the whole DynamicLibraryStateProvider since the set of
+     * methods are limited here. Also, this restricted interface is
+     * simpler to understand.
      */
     class StateProviderConfig
     {
@@ -49,6 +54,9 @@ public:
 
     public:
         /**
+         * Calls to this method are delegated to
+         * AbstractStateProvider::registerEventCallback().
+         *
          * @see AbstractStateProvider::registerEventCallback()
          */
         bool registerEventCallback(const std::string& traceType,
@@ -56,6 +64,9 @@ public:
                                    const OnEventFunc& onEvent);
 
         /**
+         * Calls to this method are delegated to
+         * AbstractStateProvider::registerEventCallbackRegex().
+         *
          * @see AbstractStateProvider::registerEventCallbackRegex()
          */
         bool registerEventCallbackRegex(const std::string& traceType,
@@ -63,9 +74,21 @@ public:
                                         const OnEventFunc& onEvent);
 
     private:
+        /**
+         * Builds a state provider configuration.
+         *
+         * This constructor is private to only allow the
+         * DynamicLibraryStateProvider parent to build this.
+         *
+         * Methods of StateProviderConfig are forwarded to the
+         * DynamicLibraryStateProvider parent.
+         *
+         * @param stateProvider Parent dynamic library state provider
+         */
         StateProviderConfig(DynamicLibraryStateProvider* stateProvider);
 
     private:
+        // state provider parent
         DynamicLibraryStateProvider* _stateProvider;
     };
 

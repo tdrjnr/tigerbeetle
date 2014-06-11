@@ -149,9 +149,35 @@ protected:
                                     const OnEventFunc& onEvent);
 
 private:
+    /**
+     * Optional initialization implementation for a concrete state
+     * provider.
+     *
+     * Internally called by onInit(), this is called before processing
+     * any event so that the implementor may set initial state values
+     * and prepare stuff for the upcoming trace set traversal.
+     *
+     * This method is where a concrete state provider wants to call
+     * registerEventCallback() or registerEventCallbackRegex() to
+     * subscribe to specific events.
+     *
+     * @param state    Current state (empty when getting it)
+     * @param traceSet Trace set used for this state construction
+     */
     virtual void onInitImpl(CurrentState& state,
                             const TraceSet* traceSet);
 
+    /**
+     * Optional finalization implementation for a concrete state
+     * provider.
+     *
+     * Internally called by onFini(), this is called after having
+     * processed all events so that the implementor may finalize the
+     * state, potentially reducing it knowing that all events have
+     * been processed.
+     *
+     * @param state    Current state
+     */
     virtual void onFiniImpl(CurrentState& state);
 
     /**
@@ -168,11 +194,17 @@ private:
                                  const std::string& candidate);
 
 private:
+    // (event ID -> event callback) map
     typedef std::unordered_map<event_id_t, OnEventFunc> EventIdCallbackMap;
+
+    // (trace ID -> (event ID -> event callback)) map
     typedef std::unordered_map<trace_id_t, EventIdCallbackMap> TraceIdEventIdCallbackMap;
 
 private:
+    // master event callback map for this state provider
     TraceIdEventIdCallbackMap _infamousMap;
+
+    // current trace set, valid between onInit() and onFini() incl.
     const TraceSet* _curTraceSet;
 };
 
