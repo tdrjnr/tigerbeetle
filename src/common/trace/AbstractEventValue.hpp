@@ -19,6 +19,7 @@
 #define _TIBEE_COMMON_ABSTRACTEVENTVALUE_HPP
 
 #include <boost/utility.hpp>
+#include <cstdint>
 #include <memory>
 
 #include <common/trace/EventValueType.hpp>
@@ -28,6 +29,7 @@ namespace tibee
 namespace common
 {
 
+class EventValueFactory;
 class SintEventValue;
 class UintEventValue;
 class FloatEventValue;
@@ -52,10 +54,13 @@ public:
     /**
      * Builds an event value with type \p type.
      *
-     * @param type Event value type
+     * @param type         Event value type
+     * @param valueFactory Value factory used to create other event values
      */
-    AbstractEventValue(EventValueType type) :
-        _type {type}
+    AbstractEventValue(EventValueType type,
+                       const EventValueFactory* valueFactory) :
+        _type {type},
+        _valueFactory {valueFactory}
     {
     }
 
@@ -89,7 +94,18 @@ public:
      *
      * @returns This event value as a signed integer event value
      */
-    const SintEventValue* asSint() const;
+    const SintEventValue* asSintValue() const;
+
+    /**
+     * Applies asSintValue() and returns the actual integer value of
+     * this object.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not SintEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as a signed integer
+     */
+    std::int64_t asSint() const;
 
     /**
      * Statically casts this event value to an unsigned integer event
@@ -99,7 +115,18 @@ public:
      *
      * @returns This event value as an unsigned integer event value
      */
-    const UintEventValue* asUint() const;
+    const UintEventValue* asUintValue() const;
+
+    /**
+     * Applies asUintValue() and returns the actual integer value of
+     * this object.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not UintEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as an unsigned integer
+     */
+    std::uint64_t asUint() const;
 
     /**
      * Statically casts this event value to a floating point number
@@ -109,7 +136,18 @@ public:
      *
      * @returns This event value as a floating point number event value
      */
-    const FloatEventValue* asFloat() const;
+    const FloatEventValue* asFloatValue() const;
+
+    /**
+     * Applies asFloatValue() and returns the actual floating point number
+     * value of this object.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not FloatEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as a floating point number
+     */
+    double asFloat() const;
 
     /**
      * Statically casts this event value to an enumeration event
@@ -119,7 +157,29 @@ public:
      *
      * @returns This event value as an enumeration event value
      */
-    const EnumEventValue* asEnum() const;
+    const EnumEventValue* asEnumValue() const;
+
+    /**
+     * Applies asEnumValue() and returns the actual integer value of
+     * the enumeration.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not EnumEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as an enumeration integer value
+     */
+    std::uint64_t asEnumInt() const;
+
+    /**
+     * Applies asEnumValue() and returns the actual string label of
+     * the enumeration.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not EnumEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as an enumeration string label
+     */
+    const char* asEnumLabel() const;
 
     /**
      * Statically casts this event value to a string event
@@ -129,7 +189,18 @@ public:
      *
      * @returns This event value as a string event value
      */
-    const StringEventValue* asString() const;
+    const StringEventValue* asStringValue() const;
+
+    /**
+     * Applies asStringValue() and returns the actual string value of
+     * this object.
+     *
+     * No runtime check is performed, so if the actual event value type
+     * is not StringEventValue, the behaviour is undefined.
+     *
+     * @returns This event value as a string value
+     */
+    const char* asString() const;
 
     /**
      * Statically casts this event value to an array event
@@ -221,11 +292,70 @@ public:
         return _type == EventValueType::DICT;
     }
 
+    /**
+     * Returns whether or not this is a null event value.
+     *
+     * @returns True if this is a null event value
+     */
+    bool isNull() const
+    {
+        return _type == EventValueType::NUL;
+    }
+
+    /**
+     * This is a convenience method which returns the field of this
+     * event value having the name \p name. If this event value type is
+     * not DictEventValue, it shall return a null event value.
+     *
+     * If there's no such field with name \p name, the method shall
+     * return a null event value.
+     *
+     * This method is not very efficient since it searches linearly
+     * through the keys of a dictionary. Should you know the field
+     * index in advance, prefer using operator[](std::size_t).
+     *
+     * @param name Name of field value to retrieve
+     * @returns    Retrieved field value or null event value if not found
+     */
+    const AbstractEventValue& operator[](const char* name) const;
+
+    /**
+     * @see operator[](const char*)
+     */
+    const AbstractEventValue& operator[](const std::string& name) const;
+
+    /**
+     * This is a convenience method which returns the field of this
+     * event value at index \p index. If this event value type is
+     * not ArrayEventValue nor DictEventValue, it shall return a null
+     * event value.
+     *
+     * Same as operator[](const char* name), but using the numeric
+     * index of the field value to retrieve.
+     *
+     * If the supplied index \p index is greater or equal than the
+     * dictionary/array size, this method shall return a null event
+     * value.
+     *
+     * @param index Index of field value to retrieve
+     * @returns     Retrieved field value or null event value if not found
+     */
+    const AbstractEventValue& operator[](std::size_t index) const;
+
+protected:
+    const EventValueFactory* getValueFactory() const
+    {
+        return _valueFactory;
+    }
+
 private:
     virtual std::string toStringImpl() const = 0;
+    virtual const AbstractEventValue& getFieldImpl(const char* name) const;
+    virtual const AbstractEventValue& getFieldImpl(std::size_t index) const;
 
 private:
     EventValueType _type;
+    const EventValueFactory* _valueFactory;
 };
 
 }

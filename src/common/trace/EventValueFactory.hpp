@@ -32,6 +32,7 @@
 #include <common/trace/EnumEventValue.hpp>
 #include <common/trace/ArrayEventValue.hpp>
 #include <common/trace/DictEventValue.hpp>
+#include <common/trace/NullEventValue.hpp>
 
 namespace tibee
 {
@@ -80,6 +81,18 @@ public:
      */
     void resetPools();
 
+    /**
+     * Returns the null event value "singleton".
+     *
+     * This singleton is always valid when this factory exists.
+     *
+     * @returns Null event value singleton
+     */
+    const NullEventValue* getNull() const
+    {
+        return _null.get();
+    }
+
 private:
     typedef std::function<const AbstractEventValue* (const ::bt_definition*, const ::bt_ctf_event* ev)> BuildValueFunc;
 
@@ -98,6 +111,9 @@ private:
     EventValuePool<SintEventValue> _sintPool;
     EventValuePool<StringEventValue> _stringPool;
     EventValuePool<UintEventValue> _uintPool;
+
+    // null event value "singleton", always valid when this factory exists
+    std::unique_ptr<NullEventValue> _null;
 };
 
 }

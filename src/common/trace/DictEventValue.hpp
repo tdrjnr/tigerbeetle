@@ -51,7 +51,7 @@ public:
      *
      * @param def          BT field definition
      * @param ev           BT event
-     * @param valueFactory Factory to be used for building other values
+     * @param valueFactory Value factory used to create other event values
      */
     DictEventValue(const ::bt_definition* def, const ::bt_ctf_event* ev,
                    const EventValueFactory* valueFactory);
@@ -94,15 +94,7 @@ public:
      *
      * @returns Event value at index \p index
      */
-    const AbstractEventValue* operator[](std::size_t index) const;
-
-    /**
-     * @see operator[]()
-     */
-    const AbstractEventValue* get(std::size_t index) const
-    {
-        return this->operator[](index);
-    }
+    const AbstractEventValue* get(std::size_t index) const;
 
     /**
      * Convenience method which builds a (key name -> event value) map
@@ -118,12 +110,13 @@ public:
 private:
     void buildCache();
     std::string toStringImpl() const;
+    const AbstractEventValue& getFieldImpl(const char* name) const;
+    const AbstractEventValue& getFieldImpl(std::size_t index) const;
 
 private:
     const ::bt_definition* _btDef;
     const ::bt_declaration* _btDecl;
     const ::bt_ctf_event* _btEvent;
-    const EventValueFactory* _valueFactory;
     ::bt_definition const* const* _btFieldList;
     std::size_t _size;
 };

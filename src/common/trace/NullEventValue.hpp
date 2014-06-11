@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_SINTEVENTVALUE_HPP
-#define _TIBEE_COMMON_SINTEVENTVALUE_HPP
+#ifndef _TIBEE_COMMON_NULLEVENTVALUE_HPP
+#define _TIBEE_COMMON_NULLEVENTVALUE_HPP
 
-#include <cstdint>
+#include <string>
 #include <babeltrace/ctf/events.h>
 
-#include <common/trace/AbstractIntegerEventValue.hpp>
+#include <common/trace/AbstractEventValue.hpp>
 #include <common/trace/EventValueType.hpp>
 
 namespace tibee
@@ -30,29 +30,21 @@ namespace common
 {
 
 /**
- * Event value carrying a signed integer.
+ * Null event value: used by methods returning references to signify
+ * "no value".
  *
  * @author Philippe Proulx
  */
-class SintEventValue :
-    public AbstractIntegerEventValue
+class NullEventValue :
+    public AbstractEventValue
 {
 public:
     /**
-     * Builds a signed integer value out of a field definition.
+     * Builds an enumeration item value out of a field definition.
      *
-     * @param def          BT field definition
      * @param valueFactory Value factory used to create other event values
      */
-    SintEventValue(const ::bt_definition* def,
-                   const EventValueFactory* valueFactory);
-
-    /**
-     * Returns the signed integer value.
-     *
-     * @returns Signed integer value
-     */
-    std::int64_t getValue() const;
+    NullEventValue(const EventValueFactory* valueFactory);
 
 private:
     std::string toStringImpl() const;
@@ -61,4 +53,4 @@ private:
 }
 }
 
-#endif // _TIBEE_COMMON_SINTEVENTVALUE_HPP
+#endif // _TIBEE_COMMON_NULLEVENTVALUE_HPP

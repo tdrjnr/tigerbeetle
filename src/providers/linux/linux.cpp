@@ -44,6 +44,15 @@ bool onSysOpen(CurrentState& state, Event& event)
 
     std::cout << "sys opening!" << std::endl;
 
+    assert(event["hello"].isNull());
+    assert(event["filename"].isString());
+    assert(event["flags"].isSint());
+    assert(event["mode"].isUint());
+
+    std::cout << "===> filename: " << event["filename"].asString() << std::endl;
+    std::cout << "===> flags:    " << event["flags"].asSint() << std::endl;
+    std::cout << "===> mode:     " << event["mode"].asUint() << std::endl;
+
     printEventDetails(event);
 
     return true;

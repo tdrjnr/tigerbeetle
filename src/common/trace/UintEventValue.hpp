@@ -41,9 +41,11 @@ public:
     /**
      * Builds an unsigned integer value out of a field definition.
      *
-     * @param def BT field definition
+     * @param def          BT field definition
+     * @param valueFactory Value factory used to create other event values
      */
-    UintEventValue(const ::bt_definition* def);
+    UintEventValue(const ::bt_definition* def,
+                   const EventValueFactory* valueFactory);
 
     /**
      * Returns the unsigned integer value.

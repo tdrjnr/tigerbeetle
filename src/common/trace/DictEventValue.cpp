@@ -16,6 +16,7 @@
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstddef>
+#include <cstring>
 #include <sstream>
 #include <map>
 #include <babeltrace/ctf/events.h>
@@ -33,10 +34,9 @@ namespace common
 DictEventValue::DictEventValue(const ::bt_definition* def,
                                const ::bt_ctf_event* ev,
                                const EventValueFactory* valueFactory) :
-    AbstractEventValue {EventValueType::DICT},
+    AbstractEventValue {EventValueType::DICT, valueFactory},
     _btDef {def},
     _btEvent {ev},
-    _valueFactory {valueFactory},
     _btFieldList {nullptr},
     _size {0}
 {
@@ -83,11 +83,35 @@ std::string DictEventValue::getKeyNameStr(std::size_t index) const
     return std::string {name};
 }
 
-const AbstractEventValue* DictEventValue::operator[](std::size_t index) const
+const AbstractEventValue* DictEventValue::get(std::size_t index) const
 {
     auto itemDef = _btFieldList[index];
 
-    return _valueFactory->buildEventValue(itemDef, _btEvent);
+    return this->getValueFactory()->buildEventValue(itemDef, _btEvent);
+}
+
+const AbstractEventValue& DictEventValue::getFieldImpl(const char* name) const
+{
+    // linear search (not efficient)
+    for (std::size_t x = 0; x < this->size(); ++x) {
+        auto keyName = this->getKeyName(x);
+
+        if (std::strcmp(keyName, name) == 0) {
+            // match!
+            return *this->get(x);
+        }
+    }
+
+    return *this->getValueFactory()->getNull();
+}
+
+const AbstractEventValue& DictEventValue::getFieldImpl(std::size_t index) const
+{
+    if (index >= _size) {
+        return *this->getValueFactory()->getNull();
+    }
+
+    return *this->get(index);
 }
 
 std::map<std::string, const AbstractEventValue*> DictEventValue::getMap() const
@@ -96,7 +120,7 @@ std::map<std::string, const AbstractEventValue*> DictEventValue::getMap() const
 
     for (std::size_t x = 0; x < this->size(); ++x) {
         auto keyName = this->getKeyName(x);
-        auto eventValue = this->operator[](x);
+        auto eventValue = this->get(x);
 
         ret.insert(std::make_pair(keyName, eventValue));
     }

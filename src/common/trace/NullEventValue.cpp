@@ -15,30 +15,25 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstdint>
+#include <string>
+#include <sstream>
 #include <babeltrace/ctf/events.h>
 
-#include <common/trace/UintEventValue.hpp>
+#include <common/trace/NullEventValue.hpp>
 
 namespace tibee
 {
 namespace common
 {
 
-UintEventValue::UintEventValue(const ::bt_definition* def,
-                               const EventValueFactory* valueFactory) :
-    AbstractIntegerEventValue {def, EventValueType::UINT, valueFactory}
+NullEventValue::NullEventValue(const EventValueFactory* valueFactory) :
+    AbstractEventValue {EventValueType::NUL, valueFactory}
 {
 }
 
-std::uint64_t UintEventValue::getValue() const
+std::string NullEventValue::toStringImpl() const
 {
-    return ::bt_ctf_get_uint64(this->getDef());
-}
-
-std::string UintEventValue::toStringImpl() const
-{
-    return std::to_string(this->getValue());
+	return "null";
 }
 
 }

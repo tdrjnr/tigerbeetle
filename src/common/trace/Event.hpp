@@ -127,15 +127,19 @@ public:
      * dictionary is cached by the owning event. The copy is kept as
      * long as this event remains valid.
      *
+     * This method is not very efficient since it searches linearly
+     * through the keys of a dictionary. Should you know the field
+     * index in advance, prefer using operator[](std::size_t).
+     *
      * @param name Name of field value to retrieve
-     * @returns    Retrieved field value
+     * @returns    Retrieved field value or null event value if not found
      */
-    const AbstractEventValue* operator[](const char* name);
+    const AbstractEventValue& operator[](const char* name);
 
     /**
      * @see operator[](const char*)
      */
-    const AbstractEventValue* operator[](const std::string& name);
+    const AbstractEventValue& operator[](const std::string& name);
 
     /**
      * Returns a specific event field value using its numeric index.
@@ -147,9 +151,9 @@ public:
      * index.
      *
      * @param index Index of field value to retrieve
-     * @returns     Retrieved field value
+     * @returns     Retrieved field value or null event value if not found
      */
-    const AbstractEventValue* operator[](std::size_t index);
+    const AbstractEventValue& operator[](std::size_t index);
 
     /**
      * Returns this event's numeric ID.
@@ -172,6 +176,13 @@ public:
     }
 
 private:
+    /**
+     * Builds an event.
+     *
+     * Private since only TraceIterator may build an event object.
+     *
+     * @param valueFactory Value factory to use to build event values
+     */
     Event(const EventValueFactory* valueFactory);
     const DictEventValue* getTopLevelScope(::bt_ctf_scope topLevelScope);
     void setPrivateEvent(::bt_ctf_event* btEvent);

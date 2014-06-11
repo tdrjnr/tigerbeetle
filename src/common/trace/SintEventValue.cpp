@@ -25,8 +25,9 @@ namespace tibee
 namespace common
 {
 
-SintEventValue::SintEventValue(const ::bt_definition* def) :
-    AbstractIntegerEventValue {def, EventValueType::SINT}
+SintEventValue::SintEventValue(const ::bt_definition* def,
+                               const EventValueFactory* valueFactory) :
+    AbstractIntegerEventValue {def, EventValueType::SINT, valueFactory}
 {
 }
 

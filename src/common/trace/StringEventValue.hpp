@@ -41,9 +41,11 @@ public:
     /**
      * Builds a string value out of a field definition.
      *
-     * @param def BT field definition
+     * @param def          BT field definition
+     * @param valueFactory Value factory used to create other event values
      */
-    StringEventValue(const ::bt_definition* def);
+    StringEventValue(const ::bt_definition* def,
+                     const EventValueFactory* valueFactory);
 
     /**
      * Returns the in-place string value (must be copied by user).

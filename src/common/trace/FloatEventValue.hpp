@@ -39,9 +39,11 @@ public:
     /**
      * Builds a floating point number value out of a field definition.
      *
-     * @param def BT field definition
+     * @param def          BT field definition
+     * @param valueFactory Value factory used to create other event values
      */
-    FloatEventValue(const ::bt_definition* def);
+    FloatEventValue(const ::bt_definition* def,
+                    const EventValueFactory* valueFactory);
 
     /**
      * Returns the floating point number value.

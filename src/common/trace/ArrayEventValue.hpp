@@ -47,7 +47,7 @@ public:
      *
      * @param def          BT field definition
      * @param ev           BT event
-     * @param valueFactory Factory to be used for building other values
+     * @param valueFactory Value factory used to create other event values
      */
     ArrayEventValue(const ::bt_definition* def, const ::bt_ctf_event* ev,
                     const EventValueFactory* valueFactory);
@@ -69,7 +69,7 @@ public:
      * @param index Index of item to get
      * @returns     Event value
      */
-    const AbstractEventValue* operator[](std::size_t index) const;
+    const AbstractEventValue* get(std::size_t index) const;
 
     /**
      * Convenience method which builds a vector of event values
@@ -81,14 +81,6 @@ public:
      * @returns Vector of event values
      */
     std::vector<const AbstractEventValue*> getVector() const;
-
-    /**
-     * @see operator[]()
-     */
-    const AbstractEventValue* get(std::size_t index) const
-    {
-        return this->operator[](index);
-    }
 
     /**
      * Returns whether this array is in fact a string of representable
@@ -109,12 +101,12 @@ public:
 private:
     void buildCache();
     std::string toStringImpl() const;
+    const AbstractEventValue& getFieldImpl(std::size_t index) const;
 
 private:
     const ::bt_definition* _btDef;
     const ::bt_declaration* _btDecl;
     const ::bt_ctf_event* _btEvent;
-    const EventValueFactory* _valueFactory;
     ::bt_definition const* const* _btFieldList;
     std::size_t _size;
 };

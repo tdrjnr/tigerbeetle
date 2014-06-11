@@ -25,6 +25,7 @@
 #include <common/trace/StringEventValue.hpp>
 #include <common/trace/ArrayEventValue.hpp>
 #include <common/trace/DictEventValue.hpp>
+#include <common/trace/EventValueFactory.hpp>
 
 namespace tibee
 {
@@ -35,39 +36,69 @@ AbstractEventValue::~AbstractEventValue()
 {
 }
 
-const SintEventValue* AbstractEventValue::asSint() const
+const SintEventValue* AbstractEventValue::asSintValue() const
 {
     assert(this->isSint());
 
     return static_cast<const SintEventValue*>(this);
 }
 
-const UintEventValue* AbstractEventValue::asUint() const
+std::int64_t AbstractEventValue::asSint() const
+{
+    return this->asSintValue()->getValue();
+}
+
+const UintEventValue* AbstractEventValue::asUintValue() const
 {
     assert(this->isUint());
 
     return static_cast<const UintEventValue*>(this);
 }
 
-const FloatEventValue* AbstractEventValue::asFloat() const
+std::uint64_t AbstractEventValue::asUint() const
+{
+    return this->asUintValue()->getValue();
+}
+
+const FloatEventValue* AbstractEventValue::asFloatValue() const
 {
     assert(this->isFloat());
 
     return static_cast<const FloatEventValue*>(this);
 }
 
-const EnumEventValue* AbstractEventValue::asEnum() const
+double AbstractEventValue::asFloat() const
+{
+    return this->asFloatValue()->getValue();
+}
+
+const EnumEventValue* AbstractEventValue::asEnumValue() const
 {
     assert(this->isEnum());
 
     return static_cast<const EnumEventValue*>(this);
 }
 
-const StringEventValue* AbstractEventValue::asString() const
+std::uint64_t AbstractEventValue::asEnumInt() const
+{
+    return this->asEnumValue()->getIntValue();
+}
+
+const char* AbstractEventValue::asEnumLabel() const
+{
+    return this->asEnumValue()->getLabel();
+}
+
+const StringEventValue* AbstractEventValue::asStringValue() const
 {
     assert(this->isString());
 
     return static_cast<const StringEventValue*>(this);
+}
+
+const char* AbstractEventValue::asString() const
+{
+    return this->asStringValue()->getValue();
 }
 
 const ArrayEventValue* AbstractEventValue::asArray() const
@@ -87,6 +118,31 @@ const DictEventValue* AbstractEventValue::asDict() const
 std::string AbstractEventValue::toString() const
 {
     return this->toStringImpl();
+}
+
+const AbstractEventValue& AbstractEventValue::operator[](const char* name) const
+{
+    return this->getFieldImpl(name);
+}
+
+const AbstractEventValue& AbstractEventValue::operator[](const std::string& name) const
+{
+    return this->operator[](name.c_str());
+}
+
+const AbstractEventValue& AbstractEventValue::operator[](std::size_t index) const
+{
+    return this->getFieldImpl(index);
+}
+
+const AbstractEventValue& AbstractEventValue::getFieldImpl(const char* name) const
+{
+    return *_valueFactory->getNull();
+}
+
+const AbstractEventValue& AbstractEventValue::getFieldImpl(std::size_t index) const
+{
+    return *_valueFactory->getNull();
 }
 
 }

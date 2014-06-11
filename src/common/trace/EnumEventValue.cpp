@@ -28,13 +28,14 @@ namespace tibee
 namespace common
 {
 
-EnumEventValue::EnumEventValue(const ::bt_definition* def) :
-    AbstractEventValue {EventValueType::ENUM},
+EnumEventValue::EnumEventValue(const ::bt_definition* def,
+                               const EventValueFactory* valueFactory) :
+    AbstractEventValue {EventValueType::ENUM, valueFactory},
     _btDef {def}
 {
 }
 
-std::uint64_t EnumEventValue::getValue() const
+std::uint64_t EnumEventValue::getIntValue() const
 {
     auto intDef = ::bt_ctf_get_enum_int(_btDef);
 
@@ -58,7 +59,7 @@ std::string EnumEventValue::toStringImpl() const
     ss << "\"";
     ss << this->getLabel();
     ss << " (";
-    ss << this->getValue();
+    ss << this->getIntValue();
     ss << ")\"";
 
     return ss.str();

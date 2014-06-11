@@ -30,13 +30,14 @@ namespace common
  */
 enum class EventValueType
 {
-    SINT,
-    UINT,
-    FLOAT,
-    STRING,
-    ENUM,
-    ARRAY,
-    DICT,
+    SINT,       // signed integer
+    UINT,       // unsigned integer
+    FLOAT,      // floating point number
+    STRING,     // string
+    ENUM,       // enumeration
+    ARRAY,      // array
+    DICT,       // dictionary
+    NUL         // special "no value" type
 };
 
 }

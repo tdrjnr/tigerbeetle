@@ -41,16 +41,18 @@ public:
     /**
      * Builds an enumeration item value out of a field definition.
      *
-     * @param def BT field definition
+     * @param def          BT field definition
+     * @param valueFactory Value factory used to create other event values
      */
-    EnumEventValue(const ::bt_definition* def);
+    EnumEventValue(const ::bt_definition* def,
+                   const EventValueFactory* valueFactory);
 
     /**
      * Returns the integer value of this enumeration item.
      *
      * @returns Enumeration item integer value
      */
-    std::uint64_t getValue() const;
+    std::uint64_t getIntValue() const;
 
     /**
      * Returns the in-place string value of this enumeration item

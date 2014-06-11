@@ -27,8 +27,9 @@ namespace tibee
 namespace common
 {
 
-FloatEventValue::FloatEventValue(const ::bt_definition* def) :
-    AbstractEventValue {EventValueType::FLOAT},
+FloatEventValue::FloatEventValue(const ::bt_definition* def,
+                                 const EventValueFactory* valueFactory) :
+    AbstractEventValue {EventValueType::FLOAT, valueFactory},
     _btDef {def}
 {
 }

@@ -42,12 +42,14 @@ public:
     /**
      * Builds an abstract integer event value.
      *
-     * @param def  BT field definition
-     * @param type Concrete event value type
+     * @param def          BT field definition
+     * @param type         Concrete event value type
+     * @param valueFactory Value factory used to create other event values
      */
     AbstractIntegerEventValue(const ::bt_definition* def,
-                              EventValueType type) :
-        AbstractEventValue {type},
+                              EventValueType type,
+                              const EventValueFactory* valueFactory) :
+        AbstractEventValue {type, valueFactory},
         _btDef {def}
     {
     }

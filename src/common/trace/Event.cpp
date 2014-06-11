@@ -105,12 +105,12 @@ const DictEventValue* Event::getStreamPacketContext()
     return _streamPacketContextDict;
 }
 
-const AbstractEventValue* Event::operator[](const char* name)
+const AbstractEventValue& Event::operator[](const char* name)
 {
     auto fields = this->getFields();
 
     if (fields == nullptr) {
-        return nullptr;
+        return *_valueFactory->getNull();
     }
 
     for (std::size_t i = 0; i < fields->size(); i++) {
@@ -119,20 +119,20 @@ const AbstractEventValue* Event::operator[](const char* name)
         }
     }
 
-    return nullptr;
+    return *_valueFactory->getNull();
 }
 
-const AbstractEventValue* Event::operator[](const std::string& name)
+const AbstractEventValue& Event::operator[](const std::string& name)
 {
     return this->operator[](name.c_str());
 }
 
-const AbstractEventValue* Event::operator[](std::size_t index)
+const AbstractEventValue& Event::operator[](std::size_t index)
 {
     auto fields = this->getFields();
 
     if (fields == nullptr) {
-        return nullptr;
+        return *_valueFactory->getNull();
     }
 
     return (*fields)[index];

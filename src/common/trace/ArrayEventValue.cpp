@@ -32,10 +32,9 @@ namespace common
 
 ArrayEventValue::ArrayEventValue(const ::bt_definition* def, const ::bt_ctf_event* ev,
                                  const EventValueFactory* valueFactory) :
-    AbstractEventValue {EventValueType::ARRAY},
+    AbstractEventValue {EventValueType::ARRAY, valueFactory},
     _btDef {def},
     _btEvent {ev},
-    _valueFactory {valueFactory},
     _btFieldList {nullptr},
     _size {0}
 {
@@ -60,12 +59,12 @@ std::size_t ArrayEventValue::size() const
     return _size;
 }
 
-const AbstractEventValue* ArrayEventValue::operator[](std::size_t index) const
+const AbstractEventValue* ArrayEventValue::get(std::size_t index) const
 {
     // this should work for both CTF array and sequence
     auto itemDef = _btFieldList[index];
 
-    return _valueFactory->buildEventValue(itemDef, _btEvent);
+    return this->getValueFactory()->buildEventValue(itemDef, _btEvent);
 }
 
 std::vector<const AbstractEventValue*> ArrayEventValue::getVector() const
@@ -73,10 +72,19 @@ std::vector<const AbstractEventValue*> ArrayEventValue::getVector() const
     std::vector<const AbstractEventValue*> ret;
 
     for (std::size_t x = 0; x < this->size(); ++x) {
-        ret.push_back(this->operator[](x));
+        ret.push_back(this->get(x));
     }
 
     return ret;
+}
+
+const AbstractEventValue& ArrayEventValue::getFieldImpl(std::size_t index) const
+{
+    if (index >= _size) {
+        return *this->getValueFactory()->getNull();
+    }
+
+    return *this->get(index);
 }
 
 bool ArrayEventValue::isString() const

@@ -28,8 +28,9 @@ namespace tibee
 namespace common
 {
 
-StringEventValue::StringEventValue(const ::bt_definition* def) :
-    AbstractEventValue {EventValueType::STRING},
+StringEventValue::StringEventValue(const ::bt_definition* def,
+                                   const EventValueFactory* valueFactory) :
+    AbstractEventValue {EventValueType::STRING, valueFactory},
     _btDef {def}
 {
 }
