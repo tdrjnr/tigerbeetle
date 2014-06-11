@@ -39,5 +39,6 @@ install:
 
 script:
   - export CXX=g++-4.8
+  - ./bootstrap.sh
   - source ./setenv.sh
   - scons
