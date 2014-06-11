@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 #include <common/BasicTypes.hpp>
 #include <common/state/CurrentState.hpp>
@@ -167,8 +168,8 @@ private:
                                  const std::string& candidate);
 
 private:
-    typedef std::map<event_id_t, OnEventFunc> EventIdCallbackMap;
-    typedef std::map<trace_id_t, EventIdCallbackMap> TraceIdEventIdCallbackMap;
+    typedef std::unordered_map<event_id_t, OnEventFunc> EventIdCallbackMap;
+    typedef std::unordered_map<trace_id_t, EventIdCallbackMap> TraceIdEventIdCallbackMap;
 
 private:
     TraceIdEventIdCallbackMap _infamousMap;
