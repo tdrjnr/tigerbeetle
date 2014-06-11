@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <boost/regex.hpp>
+
 #include <common/stateprov/AbstractStateProvider.hpp>
 
 namespace tibee
@@ -91,7 +93,7 @@ void AbstractStateProvider::onFiniImpl(CurrentState& state)
 
 bool AbstractStateProvider::registerEventCallback(const std::string& traceType,
                                                   const std::string& eventName,
-                                                  const OnEventFunction& onEvent)
+                                                  const OnEventFunc& onEvent)
 {
     const auto& tracesInfos = _curTraceSet->getTracesInfos();
 
@@ -100,10 +102,9 @@ bool AbstractStateProvider::registerEventCallback(const std::string& traceType,
     for (const auto& traceInfos : tracesInfos) {
         EventIdCallbackMap callbackMap;
 
-        std::cout << traceInfos->getTraceType() << std::endl;
-        if (this->namesMatch(traceType, traceInfos->getTraceType())) {
+        if (AbstractStateProvider::namesMatchSimple(traceType, traceInfos->getTraceType())) {
             for (const auto& eventNameIdPair : traceInfos->getEventMap()) {
-                if (this->namesMatch(eventName, eventNameIdPair.first)) {
+                if (AbstractStateProvider::namesMatchSimple(eventName, eventNameIdPair.first)) {
 
                     auto traceId = traceInfos->getId();
                     auto eventId = eventNameIdPair.second;
@@ -118,6 +119,52 @@ bool AbstractStateProvider::registerEventCallback(const std::string& traceType,
     }
 
     return matchLatch;
+}
+
+bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceTypeRe,
+                                                       const std::string& eventNameRe,
+                                                       const OnEventFunc& onEvent)
+{
+    const auto& tracesInfos = _curTraceSet->getTracesInfos();
+
+    bool matchLatch = false;
+
+    // try building/compiling regular expressions now
+    boost::regex traceTypeBre;
+    boost::regex eventNameBre;
+
+    try {
+        traceTypeBre = traceTypeRe;
+        eventNameBre = eventNameRe;
+    } catch (const std::exception& ex) {
+        return false;
+    }
+
+    for (const auto& traceInfos : tracesInfos) {
+        EventIdCallbackMap callbackMap;
+
+        if (boost::regex_match(traceInfos->getTraceType(), traceTypeBre)) {
+            for (const auto& eventNameIdPair : traceInfos->getEventMap()) {
+                if (boost::regex_match(eventNameIdPair.first, eventNameBre)) {
+                    auto traceId = traceInfos->getId();
+                    auto eventId = eventNameIdPair.second;
+
+                    if (!_infamousMap[traceId][eventId]) {
+                        _infamousMap[traceId][eventId] = onEvent;
+                        matchLatch = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return matchLatch;
+}
+
+bool AbstractStateProvider::namesMatchSimple(const std::string& asked,
+                                             const std::string& candidate)
+{
+    return asked.empty() || asked == candidate;
 }
 
 }

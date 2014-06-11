@@ -102,9 +102,16 @@ DynamicLibraryStateProvider::StateProviderConfig::StateProviderConfig(DynamicLib
 
 bool DynamicLibraryStateProvider::StateProviderConfig::registerEventCallback(const std::string& traceType,
                                                                              const std::string& eventName,
-                                                                             const OnEventFunction& onEvent)
+                                                                             const OnEventFunc& onEvent)
 {
     return _stateProvider->registerEventCallback(traceType, eventName, onEvent);
+}
+
+bool DynamicLibraryStateProvider::StateProviderConfig::registerEventCallbackRegex(const std::string& traceType,
+                                                                                  const std::string& eventName,
+                                                                                  const OnEventFunc& onEvent)
+{
+    return _stateProvider->registerEventCallbackRegex(traceType, eventName, onEvent);
 }
 
 }

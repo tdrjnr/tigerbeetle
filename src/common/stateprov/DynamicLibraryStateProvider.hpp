@@ -53,7 +53,14 @@ public:
          */
         bool registerEventCallback(const std::string& traceType,
                                    const std::string& eventName,
-                                   const OnEventFunction& onEvent);
+                                   const OnEventFunc& onEvent);
+
+        /**
+         * @see AbstractStateProvider::registerEventCallbackRegex()
+         */
+        bool registerEventCallbackRegex(const std::string& traceType,
+                                        const std::string& eventName,
+                                        const OnEventFunc& onEvent);
 
     private:
         StateProviderConfig(DynamicLibraryStateProvider* stateProvider);

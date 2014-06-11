@@ -73,6 +73,19 @@ bool onEvent(CurrentState& state, Event& event)
     return true;
 }
 
+bool onSysEvent(CurrentState& state, Event& event)
+{
+    assert(event.getName()[0] == 's' &&
+           event.getName()[1] == 'y' &&
+           event.getName()[2] == 's');
+
+    std::cout << ">>>>> syscall <<<<<" << std::endl;
+
+    printEventDetails(event);
+
+    return true;
+}
+
 }
 
 extern "C" void onInit(CurrentState& state,
@@ -103,6 +116,12 @@ extern "C" void onInit(CurrentState& state,
         std::cout << "successfully registered callback for lttng-kernel/meowmix" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/meowmix" << std::endl;
+    }
+
+    if (config.registerEventCallbackRegex("lttng-(?:kernel|ust)$", "^sys_(\\w|\\d)+$", onSysEvent)) {
+        std::cout << "successfully registered callback for lttng-(?:kernel|ust)$/^sys_(\\w|\\d)+$" << std::endl;
+    } else {
+        std::cout << "could not register callback for lttng-(?:kernel|ust)$/^sys_\\w+$" << std::endl;
     }
 
     if (config.registerEventCallback("lttng-kernel", "", onEvent)) {

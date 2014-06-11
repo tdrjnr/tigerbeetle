@@ -44,7 +44,7 @@ public:
     typedef std::unique_ptr<AbstractStateProvider> UP;
 
     /// On event function
-    typedef std::function<bool (CurrentState& state, Event& event)> OnEventFunction;
+    typedef std::function<bool (CurrentState& state, Event& event)> OnEventFunc;
 
 public:
     /**
@@ -111,7 +111,41 @@ protected:
      */
     bool registerEventCallback(const std::string& traceType,
                                const std::string& eventName,
-                               const OnEventFunction& onEvent);
+                               const OnEventFunc& onEvent);
+
+    /**
+     * Registers an event callback to be called when an event matches
+     * the specified (trace type regex, event name regex) pair using PCRE.
+     *
+     * Just like registerEventCallback(), but using PCRE for both
+     * \p traceTypeRe and \p eventNameRe.
+     *
+     * The registerEventCallback() registration order applies: once
+     * a callback is registered, it won't be overwritten, so make sure
+     * to register the "catch all" (fallback) callbacks after the more
+     * specific ones.
+     *
+     * Example:
+     *
+     *     ^sys_.*     -> onSysEvent
+     *     ^sys_close$ -> onSysClose
+     *
+     * The `onSysClose` function will never be called since the
+     * `onSysEvent` was registered before and matches `sys_close` too.
+     *
+     * The method returns false if there were no matches or if at least
+     * one of the provided regular expressions was invalid.
+     *
+     * @see registerEventCallback()
+     *
+     * @param traceTypeRe Trace type PCRE
+     * @param eventNameRe Event name PCRE
+     * @param onEvent     Callback function to be called during state construction
+     * @returns           True if at least one event matched the constraints
+     */
+    bool registerEventCallbackRegex(const std::string& traceTypeRe,
+                                    const std::string& eventNameRe,
+                                    const OnEventFunc& onEvent);
 
 private:
     virtual void onInitImpl(CurrentState& state,
@@ -120,17 +154,20 @@ private:
     virtual void onFiniImpl(CurrentState& state);
 
     /**
-     * Match function when building the infamous map.
+     * Simple string matching function.
      *
-     * Handles direct matches and wildcards.
+     * Compares strings exactly and considers an empty \p asked string
+     * as a wildcard.
+     *
+     * @param asked     Asked string
+     * @param candidate Candidate to match
+     * @returns         True if there's a match
      */
-    bool namesMatch(const std::string& asked, const std::string& candidate)
-    {
-        return asked.empty() || asked == candidate;
-    }
+    static bool namesMatchSimple(const std::string& asked,
+                                 const std::string& candidate);
 
 private:
-    typedef std::map<event_id_t, OnEventFunction> EventIdCallbackMap;
+    typedef std::map<event_id_t, OnEventFunc> EventIdCallbackMap;
     typedef std::map<trace_id_t, EventIdCallbackMap> TraceIdEventIdCallbackMap;
 
 private:
