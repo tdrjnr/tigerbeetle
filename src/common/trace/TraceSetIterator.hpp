@@ -70,7 +70,7 @@ public:
      *
      * @returns Current event
      */
-    Event& operator*();
+    const Event& operator*() const;
 
 private:
     // libbabeltrace CTF iterator

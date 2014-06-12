@@ -92,7 +92,7 @@ bool ProgressPublisher::onStartImpl(const common::TraceSet* traceSet)
     return true;
 }
 
-void ProgressPublisher::onEventImpl(common::Event& event)
+void ProgressPublisher::onEventImpl(const common::Event& event)
 {
     // increase event count
     _evCount++;

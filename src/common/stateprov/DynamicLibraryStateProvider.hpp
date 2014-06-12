@@ -119,7 +119,7 @@ private:
     }
 
     void onInitImpl(CurrentState& state, const TraceSet* traceSet);
-    void onEventImpl(CurrentState& state, Event& event);
+    void onEventImpl(CurrentState& state, const Event& event);
     void onFiniImpl(CurrentState& state);
 
 private:

@@ -13,7 +13,7 @@ using namespace tibee::common;
 namespace
 {
 
-void printEventDetails(Event& event)
+void printEventDetails(const Event& event)
 {
     auto fields = event.getFields();
 
@@ -27,7 +27,7 @@ void printEventDetails(Event& event)
     }
 }
 
-bool onSchedSwitch(CurrentState& state, Event& event)
+bool onSchedSwitch(CurrentState& state, const Event& event)
 {
     assert(std::strcmp(event.getName(), "sched_switch") == 0);
 
@@ -38,7 +38,7 @@ bool onSchedSwitch(CurrentState& state, Event& event)
     return true;
 }
 
-bool onSysOpen(CurrentState& state, Event& event)
+bool onSysOpen(CurrentState& state, const Event& event)
 {
     assert(std::strcmp(event.getName(), "sys_open") == 0);
 
@@ -58,7 +58,7 @@ bool onSysOpen(CurrentState& state, Event& event)
     return true;
 }
 
-bool onSysClose(CurrentState& state, Event& event)
+bool onSysClose(CurrentState& state, const Event& event)
 {
     assert(std::strcmp(event.getName(), "sys_close") == 0);
 
@@ -69,7 +69,7 @@ bool onSysClose(CurrentState& state, Event& event)
     return true;
 }
 
-bool onEvent(CurrentState& state, Event& event)
+bool onEvent(CurrentState& state, const Event& event)
 {
     assert(std::strcmp(event.getName(), "sched_switch") != 0);
     assert(std::strcmp(event.getName(), "sys_close") != 0);
@@ -82,7 +82,7 @@ bool onEvent(CurrentState& state, Event& event)
     return true;
 }
 
-bool onSysEvent(CurrentState& state, Event& event)
+bool onSysEvent(CurrentState& state, const Event& event)
 {
     assert(event.getName()[0] == 's' &&
            event.getName()[1] == 'y' &&

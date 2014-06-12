@@ -50,7 +50,7 @@ public:
 
 private:
     void onInitImpl(CurrentState& state);
-    void onEventImpl(CurrentState& state, Event& event);
+    void onEventImpl(CurrentState& state, const Event& event);
     void onFiniImpl(CurrentState& state);
 };
 

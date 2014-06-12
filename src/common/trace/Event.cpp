@@ -53,7 +53,7 @@ timestamp_t Event::getTimestamp() const
     return static_cast<timestamp_t>(::bt_ctf_get_timestamp(_btEvent));
 }
 
-const DictEventValue* Event::getTopLevelScope(::bt_ctf_scope topLevelScope)
+const DictEventValue* Event::getTopLevelScope(::bt_ctf_scope topLevelScope) const
 {
     // get fields scope
     auto scopeDef = ::bt_ctf_get_top_level_scope(_btEvent, topLevelScope);
@@ -69,7 +69,7 @@ const DictEventValue* Event::getTopLevelScope(::bt_ctf_scope topLevelScope)
     return nullptr;
 }
 
-const DictEventValue* Event::getFields()
+const DictEventValue* Event::getFields() const
 {
     if (!_fieldsDict) {
         _fieldsDict = this->getTopLevelScope(::BT_EVENT_FIELDS);
@@ -78,7 +78,7 @@ const DictEventValue* Event::getFields()
     return _fieldsDict;
 }
 
-const DictEventValue* Event::getContext()
+const DictEventValue* Event::getContext() const
 {
     if (!_contextDict) {
         _contextDict = this->getTopLevelScope(::BT_EVENT_CONTEXT);
@@ -87,7 +87,7 @@ const DictEventValue* Event::getContext()
     return _contextDict;
 }
 
-const DictEventValue* Event::getStreamEventContext()
+const DictEventValue* Event::getStreamEventContext() const
 {
     if (!_streamEventContextDict) {
         _streamEventContextDict = this->getTopLevelScope(::BT_STREAM_EVENT_CONTEXT);
@@ -96,7 +96,7 @@ const DictEventValue* Event::getStreamEventContext()
     return _streamEventContextDict;
 }
 
-const DictEventValue* Event::getStreamPacketContext()
+const DictEventValue* Event::getStreamPacketContext() const
 {
     if (!_streamPacketContextDict) {
         _streamPacketContextDict = this->getTopLevelScope(::BT_STREAM_PACKET_CONTEXT);
@@ -105,7 +105,7 @@ const DictEventValue* Event::getStreamPacketContext()
     return _streamPacketContextDict;
 }
 
-const AbstractEventValue& Event::operator[](const char* name)
+const AbstractEventValue& Event::operator[](const char* name) const
 {
     auto fields = this->getFields();
 
@@ -122,12 +122,12 @@ const AbstractEventValue& Event::operator[](const char* name)
     return *_valueFactory->getNull();
 }
 
-const AbstractEventValue& Event::operator[](const std::string& name)
+const AbstractEventValue& Event::operator[](const std::string& name) const
 {
     return this->operator[](name.c_str());
 }
 
-const AbstractEventValue& Event::operator[](std::size_t index)
+const AbstractEventValue& Event::operator[](std::size_t index) const
 {
     auto fields = this->getFields();
 

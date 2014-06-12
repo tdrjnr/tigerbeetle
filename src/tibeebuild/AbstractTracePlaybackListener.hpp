@@ -62,7 +62,7 @@ public:
      *
      * @param event New event
      */
-    void onEvent(common::Event& event)
+    void onEvent(const common::Event& event)
     {
         this->onEventImpl(event);
     }
@@ -79,7 +79,7 @@ public:
 
 private:
     virtual bool onStartImpl(const common::TraceSet* traceSet) = 0;
-    virtual void onEventImpl(common::Event& event) = 0;
+    virtual void onEventImpl(const common::Event& event) = 0;
     virtual bool onStopImpl() = 0;
 };
 

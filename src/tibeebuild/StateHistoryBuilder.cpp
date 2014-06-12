@@ -88,7 +88,7 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
     return true;
 }
 
-void StateHistoryBuilder::onEventImpl(common::Event& event)
+void StateHistoryBuilder::onEventImpl(const common::Event& event)
 {
     // also notify each state provider
     for (auto& provider : _providers) {

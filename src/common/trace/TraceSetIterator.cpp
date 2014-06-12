@@ -120,7 +120,7 @@ bool TraceSetIterator::operator!=(const TraceSetIterator& rhs)
     return !(*this == rhs);
 }
 
-Event& TraceSetIterator::operator*()
+const Event& TraceSetIterator::operator*() const
 {
     /* Behaviour is undefined (could crash) when we're at the end (should
      * be checked first by comparing to and end trace set iterator).

@@ -45,7 +45,7 @@ void AbstractStateProvider::onInit(CurrentState& state,
 }
 
 bool AbstractStateProvider::onEvent(CurrentState& state,
-                                    Event& event)
+                                    const Event& event)
 {
     // try finding a matching event callback function
     auto traceId = event.getTraceId();

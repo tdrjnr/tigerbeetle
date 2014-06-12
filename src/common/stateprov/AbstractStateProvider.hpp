@@ -47,7 +47,7 @@ public:
     typedef std::unique_ptr<AbstractStateProvider> UP;
 
     /// On event function
-    typedef std::function<bool (CurrentState& state, Event& event)> OnEventFunc;
+    typedef std::function<bool (CurrentState& state, const Event& event)> OnEventFunc;
 
 public:
     /**
@@ -72,7 +72,7 @@ public:
      * @param event New event
      * @returns     True to continue
      */
-    bool onEvent(CurrentState& state, Event& event);
+    bool onEvent(CurrentState& state, const Event& event);
 
     /**
      * Called after having processed all events.

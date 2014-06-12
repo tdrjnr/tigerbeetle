@@ -79,7 +79,7 @@ public:
      *
      * @returns Event fields dictionary or \a nullptr if not available
      */
-    const DictEventValue* getFields();
+    const DictEventValue* getFields() const;
 
     /**
      * Returns the event context dictionary.
@@ -92,7 +92,7 @@ public:
      *
      * @returns Event context or \a nullptr if not available
      */
-    const DictEventValue* getContext();
+    const DictEventValue* getContext() const;
 
     /**
      * Returns the stream event context dictionary.
@@ -105,7 +105,7 @@ public:
      *
      * @returns Stream event context or \a nullptr if not available
      */
-    const DictEventValue* getStreamEventContext();
+    const DictEventValue* getStreamEventContext() const;
 
     /**
      * Returns the stream packet context dictionary.
@@ -118,7 +118,7 @@ public:
      *
      * @returns Stream packet context or \a nullptr if not available
      */
-    const DictEventValue* getStreamPacketContext();
+    const DictEventValue* getStreamPacketContext() const;
 
     /**
      * Returns a specific event field value using its name.
@@ -134,12 +134,12 @@ public:
      * @param name Name of field value to retrieve
      * @returns    Retrieved field value or null event value if not found
      */
-    const AbstractEventValue& operator[](const char* name);
+    const AbstractEventValue& operator[](const char* name) const;
 
     /**
      * @see operator[](const char*)
      */
-    const AbstractEventValue& operator[](const std::string& name);
+    const AbstractEventValue& operator[](const std::string& name) const;
 
     /**
      * Returns a specific event field value using its numeric index.
@@ -153,7 +153,7 @@ public:
      * @param index Index of field value to retrieve
      * @returns     Retrieved field value or null event value if not found
      */
-    const AbstractEventValue& operator[](field_index_t index);
+    const AbstractEventValue& operator[](field_index_t index) const;
 
     /**
      * Returns this event's numeric ID.
@@ -184,16 +184,16 @@ private:
      * @param valueFactory Value factory to use to build event values
      */
     Event(const EventValueFactory* valueFactory);
-    const DictEventValue* getTopLevelScope(::bt_ctf_scope topLevelScope);
+    const DictEventValue* getTopLevelScope(::bt_ctf_scope topLevelScope) const;
     void setPrivateEvent(::bt_ctf_event* btEvent);
 
 private:
     ::bt_ctf_event* _btEvent;
     const EventValueFactory* _valueFactory;
-    const DictEventValue* _fieldsDict;
-    const DictEventValue* _contextDict;
-    const DictEventValue* _streamEventContextDict;
-    const DictEventValue* _streamPacketContextDict;
+    mutable const DictEventValue* _fieldsDict;
+    mutable const DictEventValue* _contextDict;
+    mutable const DictEventValue* _streamEventContextDict;
+    mutable const DictEventValue* _streamPacketContextDict;
     event_id_t _id;
     trace_id_t _traceId;
 };

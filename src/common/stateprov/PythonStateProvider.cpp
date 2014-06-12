@@ -44,7 +44,7 @@ void PythonStateProvider::onInitImpl(CurrentState& state)
     std::cout << "python state provider: initializing" << std::endl;
 }
 
-void PythonStateProvider::onEventImpl(CurrentState& state, Event& event)
+void PythonStateProvider::onEventImpl(CurrentState& state, const Event& event)
 {
     // getting event
 }

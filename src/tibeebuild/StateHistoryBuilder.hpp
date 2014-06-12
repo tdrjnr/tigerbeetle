@@ -66,7 +66,7 @@ public:
 
 private:
     bool onStartImpl(const common::TraceSet* traceSet);
-    void onEventImpl(common::Event& event);
+    void onEventImpl(const common::Event& event);
     bool onStopImpl();
 
 private:
