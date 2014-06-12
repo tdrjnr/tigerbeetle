@@ -153,7 +153,7 @@ public:
      * @param index Index of field value to retrieve
      * @returns     Retrieved field value or null event value if not found
      */
-    const AbstractEventValue& operator[](std::size_t index);
+    const AbstractEventValue& operator[](field_index_t index);
 
     /**
      * Returns this event's numeric ID.

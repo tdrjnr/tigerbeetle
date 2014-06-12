@@ -30,6 +30,9 @@
 #include <common/trace/TraceSetIterator.hpp>
 #include <common/trace/TraceInfos.hpp>
 
+struct tibee_bt_ctf_event_decl;
+struct tibee_bt_declaration;
+
 namespace tibee
 {
 namespace common
@@ -115,6 +118,13 @@ public:
 
 private:
     void seekBegin() const;
+    static std::unique_ptr<TraceInfos::EventMap> getEventMap(::bt_ctf_event_decl* const* eventDeclList,
+                                                             unsigned int count);
+    static std::unique_ptr<EventInfos> getEventInfos(const ::tibee_bt_ctf_event_decl* tibeeBtCtfEventDecl,
+                                                     const std::string& eventName);
+    static std::unique_ptr<FieldInfos> getFieldInfos(const ::tibee_bt_declaration* tibeeBtDecl,
+                                                     std::string name,
+                                                     field_index_t index);
     bool addTraceToSet(const boost::filesystem::path& path, int traceHandle);
 
 private:

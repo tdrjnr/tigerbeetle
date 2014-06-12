@@ -103,11 +103,11 @@ bool AbstractStateProvider::registerEventCallback(const std::string& traceType,
         EventIdCallbackMap callbackMap;
 
         if (AbstractStateProvider::namesMatchSimple(traceType, traceInfos->getTraceType())) {
-            for (const auto& eventNameIdPair : traceInfos->getEventMap()) {
+            for (const auto& eventNameIdPair : *traceInfos->getEventMap()) {
                 if (AbstractStateProvider::namesMatchSimple(eventName, eventNameIdPair.first)) {
 
                     auto traceId = traceInfos->getId();
-                    auto eventId = eventNameIdPair.second;
+                    auto eventId = eventNameIdPair.second->getId();
 
                     if (!_infamousMap[traceId][eventId]) {
                         _infamousMap[traceId][eventId] = onEvent;
@@ -145,10 +145,10 @@ bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceT
         EventIdCallbackMap callbackMap;
 
         if (boost::regex_match(traceInfos->getTraceType(), traceTypeBre)) {
-            for (const auto& eventNameIdPair : traceInfos->getEventMap()) {
+            for (const auto& eventNameIdPair : *traceInfos->getEventMap()) {
                 if (boost::regex_match(eventNameIdPair.first, eventNameBre)) {
                     auto traceId = traceInfos->getId();
-                    auto eventId = eventNameIdPair.second;
+                    auto eventId = eventNameIdPair.second->getId();
 
                     if (!_infamousMap[traceId][eventId]) {
                         _infamousMap[traceId][eventId] = onEvent;

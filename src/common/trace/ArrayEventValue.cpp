@@ -59,7 +59,7 @@ std::size_t ArrayEventValue::size() const
     return _size;
 }
 
-const AbstractEventValue* ArrayEventValue::get(std::size_t index) const
+const AbstractEventValue* ArrayEventValue::get(field_index_t index) const
 {
     // this should work for both CTF array and sequence
     auto itemDef = _btFieldList[index];
@@ -78,7 +78,7 @@ std::vector<const AbstractEventValue*> ArrayEventValue::getVector() const
     return ret;
 }
 
-const AbstractEventValue& ArrayEventValue::getFieldImpl(std::size_t index) const
+const AbstractEventValue& ArrayEventValue::getFieldImpl(field_index_t index) const
 {
     if (index >= _size) {
         return *this->getValueFactory()->getNull();

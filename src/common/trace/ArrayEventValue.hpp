@@ -69,7 +69,7 @@ public:
      * @param index Index of item to get
      * @returns     Event value
      */
-    const AbstractEventValue* get(std::size_t index) const;
+    const AbstractEventValue* get(field_index_t index) const;
 
     /**
      * Convenience method which builds a vector of event values
@@ -101,7 +101,7 @@ public:
 private:
     void buildCache();
     std::string toStringImpl() const;
-    const AbstractEventValue& getFieldImpl(std::size_t index) const;
+    const AbstractEventValue& getFieldImpl(field_index_t index) const;
 
 private:
     const ::bt_definition* _btDef;

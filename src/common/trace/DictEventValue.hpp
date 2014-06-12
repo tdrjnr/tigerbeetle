@@ -94,7 +94,7 @@ public:
      *
      * @returns Event value at index \p index
      */
-    const AbstractEventValue* get(std::size_t index) const;
+    const AbstractEventValue* get(field_index_t index) const;
 
     /**
      * Convenience method which builds a (key name -> event value) map
@@ -111,7 +111,7 @@ private:
     void buildCache();
     std::string toStringImpl() const;
     const AbstractEventValue& getFieldImpl(const char* name) const;
-    const AbstractEventValue& getFieldImpl(std::size_t index) const;
+    const AbstractEventValue& getFieldImpl(field_index_t index) const;
 
 private:
     const ::bt_definition* _btDef;

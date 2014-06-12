@@ -22,6 +22,7 @@
 #include <cstdint>
 #include <memory>
 
+#include <common/BasicTypes.hpp>
 #include <common/trace/EventValueType.hpp>
 
 namespace tibee
@@ -340,7 +341,7 @@ public:
      * @param index Index of field value to retrieve
      * @returns     Retrieved field value or null event value if not found
      */
-    const AbstractEventValue& operator[](std::size_t index) const;
+    const AbstractEventValue& operator[](field_index_t index) const;
 
 protected:
     const EventValueFactory* getValueFactory() const
@@ -351,7 +352,7 @@ protected:
 private:
     virtual std::string toStringImpl() const = 0;
     virtual const AbstractEventValue& getFieldImpl(const char* name) const;
-    virtual const AbstractEventValue& getFieldImpl(std::size_t index) const;
+    virtual const AbstractEventValue& getFieldImpl(field_index_t index) const;
 
 private:
     EventValueType _type;

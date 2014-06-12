@@ -69,10 +69,143 @@ void TraceSet::seekBegin() const
     ::bt_iter_set_pos(_btIter, &beginPos);
 }
 
+std::unique_ptr<FieldInfos> TraceSet::getFieldInfos(const ::tibee_bt_declaration* tibeeBtDecl,
+                                                    std::string name,
+                                                    field_index_t index)
+{
+    if (!tibeeBtDecl) {
+        return nullptr;
+    }
+
+    // do not pick the first '_' character in the name
+    if (name.at(0) == '_') {
+        name = name.substr(1);
+    }
+
+    if (tibeeBtDecl->id != ::CTF_TYPE_STRUCT) {
+        // no field map
+        return std::unique_ptr<FieldInfos> {
+            new FieldInfos {
+                index, name, nullptr
+            }
+        };
+    }
+
+    auto tibeeDeclStruct = reinterpret_cast<const ::tibee_declaration_struct*>(tibeeBtDecl);
+
+    std::unique_ptr<FieldInfos::FieldMap> fieldMap {new FieldInfos::FieldMap};
+
+    if (!tibeeDeclStruct->fields) {
+        // structure has uninitialized "fields" member (weird)
+        return std::unique_ptr<FieldInfos> {
+            new FieldInfos {
+                index, name, nullptr
+            }
+        };
+    }
+
+    // iterate structure fields
+    auto tibeeDeclStructFields = tibeeDeclStruct->fields;
+
+    for (std::size_t x = 0; x < tibeeDeclStructFields->len; ++x) {
+        // get declaration field from array
+        auto tibeeDeclField = &g_array_index(tibeeDeclStructFields,
+                                             ::tibee_declaration_field,
+                                             x);
+
+        // get declaration
+        auto fieldTibeeBtDecl = tibeeDeclField->declaration;
+
+        // get name
+        auto fieldName = static_cast<const char*>(::g_quark_to_string(tibeeDeclField->name));
+
+        // ready for recursion!
+        auto fieldInfos = TraceSet::getFieldInfos(fieldTibeeBtDecl,
+                                                  fieldName,
+                                                  x);
+
+        // set it now
+        (*fieldMap)[fieldName] = std::move(fieldInfos);
+    }
+
+    return std::unique_ptr<FieldInfos> {
+        new FieldInfos {
+            index, name, std::move(fieldMap)
+        }
+    };
+}
+
+std::unique_ptr<EventInfos> TraceSet::getEventInfos(const ::tibee_bt_ctf_event_decl* tibeeBtCtfEventDecl,
+                                                    const std::string& eventName)
+{
+    // get tigerbeetle event ID
+    auto ctfEventId = tibeeBtCtfEventDecl->parent.id;
+    auto ctfStreamId = tibeeBtCtfEventDecl->parent.stream_id;
+
+    auto eventId = TraceUtils::tibeeEventIdFromCtf(ctfStreamId, ctfEventId);
+
+    // create field map
+    std::unique_ptr<FieldInfos::FieldMap> fieldMap {new FieldInfos::FieldMap};
+
+    // get "fields" field infos
+    std::unique_ptr<FieldInfos> fieldsFieldInfos;
+
+    if (tibeeBtCtfEventDecl->parent.fields_decl) {
+        auto fieldsTibeeBtDecl = reinterpret_cast<const ::tibee_bt_declaration*>(tibeeBtCtfEventDecl->parent.fields_decl);
+
+        fieldsFieldInfos = TraceSet::getFieldInfos(fieldsTibeeBtDecl, "fields", 0);
+    }
+
+    (*fieldMap)["fields"] = std::move(fieldsFieldInfos);
+
+    // get "context" field infos
+    std::unique_ptr<FieldInfos> contextFieldInfos;
+
+    if (tibeeBtCtfEventDecl->parent.context_decl) {
+        auto contextTibeeBtDecl = reinterpret_cast<const ::tibee_bt_declaration*>(tibeeBtCtfEventDecl->parent.context_decl);
+
+        contextFieldInfos = TraceSet::getFieldInfos(contextTibeeBtDecl, "context", 1);
+    }
+
+    (*fieldMap)["context"] = std::move(contextFieldInfos);
+
+    // create event infos
+    std::unique_ptr<EventInfos> eventInfos {
+        new EventInfos {
+            eventId, eventName, std::move(fieldMap)
+        }
+    };
+
+    return eventInfos;
+}
+
+std::unique_ptr<TraceInfos::EventMap> TraceSet::getEventMap(::bt_ctf_event_decl* const* eventDeclList,
+                                                            unsigned int count)
+{
+    std::unique_ptr<TraceInfos::EventMap> eventMap {
+        new TraceInfos::EventMap
+    };
+
+    // map event names to event infos
+    for (std::size_t x = 0; x < count; ++x) {
+        auto eventDecl = eventDeclList[x];
+        auto eventName = ::bt_ctf_get_decl_event_name(eventDecl);
+        auto tibeeCtfEventDecl = reinterpret_cast<const ::tibee_bt_ctf_event_decl*>(eventDecl);
+
+        // get event infos
+        auto eventInfos = TraceSet::getEventInfos(tibeeCtfEventDecl, eventName);
+
+        // put association into map
+        (*eventMap)[eventName] = std::move(eventInfos);
+    }
+
+    return eventMap;
+}
+
 bool TraceSet::addTraceToSet(const bfs::path& path, int traceHandle)
 {
     // get list of event declarations for this trace handle
-    struct ::bt_ctf_event_decl* const* eventDeclList;
+    ::bt_ctf_event_decl* const* eventDeclList;
     unsigned int count;
 
     auto ret = ::bt_ctf_get_event_decl_list(traceHandle, _btCtx,
@@ -127,25 +260,8 @@ bool TraceSet::addTraceToSet(const bfs::path& path, int traceHandle)
         (*env)["vpid"] = std::to_string(tibeeTraceEnv.vpid);
     }
 
-    // create event map
-    std::unique_ptr<TraceInfos::EventMap> eventMap {
-        new TraceInfos::EventMap
-    };
-
-    // map event names to event IDs
-    for (std::size_t x = 0; x < count; ++x) {
-        auto eventDecl = eventDeclList[x];
-        auto eventName = ::bt_ctf_get_decl_event_name(eventDecl);
-        auto tibeeEventDecl = reinterpret_cast<const ::tibee_bt_ctf_event_decl*>(eventDecl);
-        auto ctfEventId = tibeeEventDecl->parent.id;
-        auto ctfStreamId = tibeeEventDecl->parent.stream_id;
-
-        // get tigerbeetle event ID
-        auto eventId = TraceUtils::tibeeEventIdFromCtf(ctfStreamId, ctfEventId);
-
-        // put association into map
-        (*eventMap)[eventName] = eventId;
-    }
+    // get event map
+    auto eventMap = TraceSet::getEventMap(eventDeclList, count);
 
     // create trace infos
     std::unique_ptr<TraceInfos> traceInfos {

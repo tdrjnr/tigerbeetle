@@ -32,16 +32,76 @@ TraceInfos::TraceInfos(const bfs::path& path, trace_id_t id,
     _env {std::move(env)},
     _eventMap {std::move(eventMap)}
 {
+    _traceType = "unknown";
+
     const auto& envDomainIt = _env->find("domain");
 
     if (envDomainIt == _env->end()) {
-        _traceType = "(unknown)";
-
         return;
     }
 
-    _traceType = "lttng-";
-    _traceType += (*envDomainIt).second;
+    const auto& domain = (*envDomainIt).second;
+
+    // only LTTng is supported for the moment
+    if (domain == "kernel" || domain == "ust") {
+        _traceType = "lttng-";
+        _traceType += (*envDomainIt).second;
+    }
+}
+
+namespace
+{
+
+void printFieldInfos(std::ostream& out,
+                     const std::unique_ptr<FieldInfos>& fieldInfos,
+                     unsigned int indentLevel)
+{
+    if (!fieldInfos) {
+        return;
+    }
+
+    std::string indent(2 * indentLevel, ' ');
+
+    out << indent << fieldInfos->getIndex() << " " << fieldInfos->getName() << std::endl;
+
+    if (fieldInfos->getFieldMap()) {
+        for (const auto& fieldNameInfosPair : *fieldInfos->getFieldMap()) {
+            printFieldInfos(out, fieldNameInfosPair.second, indentLevel + 1);
+        }
+    }
+}
+
+}
+
+std::ostream& operator<<(std::ostream& out, const TraceInfos& traceInfos)
+{
+    // ID
+    out << "ID:   " << traceInfos.getId() << std::endl;
+
+    // path
+    out << "path: " << traceInfos.getPath() << std::endl;
+
+    // environment
+    out << "environment:" << std::endl;
+
+    for (const auto& keyValuePair : *traceInfos.getEnv()) {
+        out << "  " << keyValuePair.first << " = " << keyValuePair.second << std::endl;
+    }
+
+    out << "events:" << std::endl;
+    for (const auto& nameInfosPair : *traceInfos.getEventMap()) {
+        const auto& eventInfos = nameInfosPair.second;
+
+        out << "  " << nameInfosPair.first << " (" << eventInfos->getId() << ")" << std::endl;
+
+        if (eventInfos->getFieldMap()) {
+            for (const auto& fieldNameInfosPair : *eventInfos->getFieldMap()) {
+                printFieldInfos(out, fieldNameInfosPair.second, 2);
+            }
+        }
+    }
+
+    return out;
 }
 
 }

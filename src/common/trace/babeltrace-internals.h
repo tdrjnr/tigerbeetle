@@ -51,6 +51,8 @@
 #include <glib.h>
 #include <dirent.h>
 
+#include <babeltrace/ctf/events.h>
+
 struct tibee_bt_context;
 struct tibee_ctf_trace;
 struct tibee_ctf_stream_declaration;
@@ -65,6 +67,38 @@ struct tibee_bt_trace_descriptor;
 struct tibee_bt_format;
 struct tibee_bt_stream_pos;
 struct tibee_ctf_stream_definition;
+struct tibee_bt_definition;
+
+struct tibee_bt_declaration {
+	enum ctf_type_id id;
+	size_t alignment;	/* type alignment, in bits */
+	int ref;		/* number of references to the type */
+	/*
+	 * declaration_free called with declaration ref is decremented to 0.
+	 */
+	void (*declaration_free)(struct tibee_bt_declaration *declaration);
+	struct tibee_bt_definition *
+		(*definition_new)(struct tibee_bt_declaration *declaration,
+				  struct tibee_definition_scope *parent_scope,
+				  GQuark field_name, int index,
+				  const char *root_name);
+	/*
+	 * definition_free called with definition ref is decremented to 0.
+	 */
+	void (*definition_free)(struct tibee_bt_definition *definition);
+};
+
+struct tibee_declaration_field {
+	GQuark name;
+	struct tibee_bt_declaration *declaration;
+};
+
+struct tibee_declaration_struct {
+	struct tibee_bt_declaration p;
+	GHashTable *fields_by_name;	/* Tuples (field name, field index) */
+	struct tibee_declaration_scope *scope;
+	GArray *fields;			/* Array of declaration_field */
+};
 
 /*
  * trace_handle : unique identifier of a trace

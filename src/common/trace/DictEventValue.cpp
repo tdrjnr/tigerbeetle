@@ -83,7 +83,7 @@ std::string DictEventValue::getKeyNameStr(std::size_t index) const
     return std::string {name};
 }
 
-const AbstractEventValue* DictEventValue::get(std::size_t index) const
+const AbstractEventValue* DictEventValue::get(field_index_t index) const
 {
     auto itemDef = _btFieldList[index];
 
@@ -105,7 +105,7 @@ const AbstractEventValue& DictEventValue::getFieldImpl(const char* name) const
     return *this->getValueFactory()->getNull();
 }
 
-const AbstractEventValue& DictEventValue::getFieldImpl(std::size_t index) const
+const AbstractEventValue& DictEventValue::getFieldImpl(field_index_t index) const
 {
     if (index >= _size) {
         return *this->getValueFactory()->getNull();

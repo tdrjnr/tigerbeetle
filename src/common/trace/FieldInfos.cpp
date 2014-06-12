@@ -15,43 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_BASICTYPES_HPP
-#define _TIBEE_COMMON_BASICTYPES_HPP
-
-#include <cstdint>
+#include <common/trace/EventInfos.hpp>
 
 namespace tibee
 {
 namespace common
 {
 
-/**
- * @file
- * This header holds basic type definitions used throughout tigerbeetle.
- */
-
-/// Trace/state timestamp
-typedef std::uint64_t   timestamp_t;
-
-/// Trace cycles
-typedef std::uint64_t   trace_cycles_t;
-
-/// State quark
-typedef std::uint32_t   quark_t;
-
-/// RPC message ID
-typedef std::uint32_t   rpc_msg_id_t;
-
-/// Trace ID
-typedef std::int32_t    trace_id_t;
-
-/// Event ID
-typedef std::int32_t    event_id_t;
-
-/// Field index
-typedef std::uint64_t   field_index_t;
+FieldInfos::FieldInfos(field_index_t index, const std::string& name,
+                       std::unique_ptr<FieldMap> fieldMap) :
+    _index {index},
+    _name {name},
+    _fieldMap {std::move(fieldMap)}
+{
+}
 
 }
 }
-
-#endif // _TIBEE_COMMON_BASICTYPES_HPP

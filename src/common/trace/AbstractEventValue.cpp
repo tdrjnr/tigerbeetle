@@ -130,7 +130,7 @@ const AbstractEventValue& AbstractEventValue::operator[](const std::string& name
     return this->operator[](name.c_str());
 }
 
-const AbstractEventValue& AbstractEventValue::operator[](std::size_t index) const
+const AbstractEventValue& AbstractEventValue::operator[](field_index_t index) const
 {
     return this->getFieldImpl(index);
 }
@@ -140,7 +140,7 @@ const AbstractEventValue& AbstractEventValue::getFieldImpl(const char* name) con
     return *_valueFactory->getNull();
 }
 
-const AbstractEventValue& AbstractEventValue::getFieldImpl(std::size_t index) const
+const AbstractEventValue& AbstractEventValue::getFieldImpl(field_index_t index) const
 {
     return *_valueFactory->getNull();
 }

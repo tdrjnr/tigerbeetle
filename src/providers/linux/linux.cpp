@@ -144,8 +144,6 @@ extern "C" void onInit(CurrentState& state,
     std::cout << "traces infos:" << std::endl;
 
     for (const auto& traceInfos : tracesInfos) {
-        std::cout << "trace ID:   " << traceInfos->getId() << std::endl;
-        std::cout << "trace type: " << traceInfos->getTraceType() << std::endl;
-        std::cout << "events:     " << traceInfos->getEventMap().size() << std::endl;
+        std::cout << *traceInfos << std::endl;
     }
 }

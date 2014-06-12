@@ -18,10 +18,12 @@
 #ifndef _TIBEE_COMMON_TRACEINFOS_HPP
 #define _TIBEE_COMMON_TRACEINFOS_HPP
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <boost/filesystem.hpp>
+#include <iostream>
 
+#include <common/trace/EventInfos.hpp>
 #include <common/BasicTypes.hpp>
 
 namespace tibee
@@ -43,10 +45,10 @@ class TraceInfos
 {
 public:
     /// (environment name -> environment value) map
-    typedef std::map<std::string, std::string> Environment;
+    typedef std::unordered_map<std::string, std::string> Environment;
 
-    /// (event name -> event ID) map
-    typedef std::map<std::string, event_id_t> EventMap;
+    /// (event name -> event infos) map
+    typedef std::unordered_map<std::string, std::unique_ptr<EventInfos>> EventMap;
 
 public:
     /**
@@ -55,7 +57,7 @@ public:
      * @param path     Path of this trace
      * @param id       Trace ID (unique within a trace set)
      * @param env      Trace environment
-     * @param eventMap Map of event names to event IDs
+     * @param eventMap Map of event names to event infos
      */
     TraceInfos(const boost::filesystem::path& path, trace_id_t id,
                std::unique_ptr<Environment> env,
@@ -86,21 +88,21 @@ public:
      *
      * @returns Trace environment
      */
-    const Environment& getEnv() const
+    const std::unique_ptr<Environment>& getEnv() const
     {
-        return *_env;
+        return _env;
     }
 
     /**
      * Returns the trace event map.
      *
-     * An event map maps event names to event IDs.
+     * An event map maps event names to event infos.
      *
      * @returns Trace event map
      */
-    const EventMap& getEventMap() const
+    const std::unique_ptr<EventMap>& getEventMap() const
     {
-        return *_eventMap;
+        return _eventMap;
     }
 
     /**
@@ -120,6 +122,8 @@ private:
     std::unique_ptr<EventMap> _eventMap;
     std::string _traceType;
 };
+
+std::ostream& operator<<(std::ostream& out, const TraceInfos& traceInfos);
 
 }
 }
