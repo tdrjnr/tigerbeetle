@@ -304,6 +304,20 @@ public:
     }
 
     /**
+     * Not isNull().
+     *
+     * Returns true if this event value is not null.
+     *
+     * @see isNull()
+     *
+     * @returns True if this event value is not null
+     */
+    explicit operator bool() const
+    {
+        return !this->isNull();
+    }
+
+    /**
      * This is a convenience method which returns the field of this
      * event value having the name \p name. If this event value type is
      * not DictEventValue, it shall return a null event value.
