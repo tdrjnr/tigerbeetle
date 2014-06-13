@@ -27,11 +27,14 @@ namespace common
 
 SintEventValue::SintEventValue(const ::bt_definition* def,
                                const EventValueFactory* valueFactory) :
-    AbstractIntegerEventValue {def, EventValueType::SINT, valueFactory}
+    AbstractIntegerEventValue<std::int64_t, EventValueType::SINT> {
+        def,
+        valueFactory
+    }
 {
 }
 
-std::int64_t SintEventValue::getValue() const
+std::int64_t SintEventValue::getValueImpl() const
 {
     return ::bt_ctf_get_int64(this->getDef());
 }

@@ -30,11 +30,12 @@ namespace common
 {
 
 /**
- * Abstract integer event value, with common operations for both
- * signed and unsigned integers.
+ * Abstract integer event value template, with common operations for
+ * both signed and unsigned integers.
  *
  * @author Philippe Proulx
  */
+template<typename T, EventValueType VT>
 class AbstractIntegerEventValue :
     public AbstractEventValue
 {
@@ -43,16 +44,21 @@ public:
      * Builds an abstract integer event value.
      *
      * @param def          BT field definition
-     * @param type         Concrete event value type
      * @param valueFactory Value factory used to create other event values
      */
     AbstractIntegerEventValue(const ::bt_definition* def,
-                              EventValueType type,
                               const EventValueFactory* valueFactory) :
-        AbstractEventValue {type, valueFactory},
+        AbstractEventValue {VT, valueFactory},
         _btDef {def}
     {
     }
+
+    /**
+     * Returns the integer value.
+     *
+     * @returns Integer value
+     */
+    T getValue() const;
 
     /**
      * Returns the expected display base (radix) or -1 when not
@@ -72,14 +78,239 @@ public:
         return base;
     }
 
+    /**
+     * Returns the sum of this event value and a provided signed
+     * integer.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(std::int64_t val) const
+    {
+        return this->getValue() + val;
+    }
+
+    /**
+     * Returns the sum of this event value and a provided unsigned
+     * integer.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(std::uint64_t val) const
+    {
+        return this->getValue() + val;
+    }
+
+    /**
+     * Returns the sum of this event value and a provided signed
+     * integer event value.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const;
+
+    /**
+     * Returns the sum of this event value and a provided unsigned
+     * integer event value.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const;
+
+    /**
+     * Returns the difference between this event value and a provided
+     * signed integer.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(std::int64_t val) const
+    {
+        return this->getValue() - val;
+    }
+
+    /**
+     * Returns the difference between this event value and a provided
+     * unsigned integer.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(std::uint64_t val) const
+    {
+        return this->getValue() - val;
+    }
+
+    /**
+     * Returns the difference between this event value and a provided
+     * signed integer event value.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const;
+
+    /**
+     * Returns the difference between this event value and a provided
+     * unsigned integer event value.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const;
+
+    /**
+     * Returns the product of this event value by a provided signed
+     * integer.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(std::int64_t val) const
+    {
+        return this->getValue() * val;
+    }
+
+    /**
+     * Returns the product of this event value by a provided unsigned
+     * integer.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(std::uint64_t val) const
+    {
+        return this->getValue() * val;
+    }
+
+    /**
+     * Returns the product of this event value by a provided signed
+     * integer event value.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const;
+
+    /**
+     * Returns the product of this event value by a provided unsigned
+     * integer event value.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const;
+
+    /**
+     * Returns the quotient of this event value and a provided signed
+     * integer.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(std::int64_t val) const
+    {
+        return this->getValue() / val;
+    }
+
+    /**
+     * Returns the quotient of this event value and a provided unsigned
+     * integer.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(std::uint64_t val) const
+    {
+        return this->getValue() / val;
+    }
+
+    /**
+     * Returns the quotient of this event value and a provided signed
+     * integer event value.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const;
+
+    /**
+     * Returns the quotient of this event value and a provided unsigned
+     * integer event value.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const;
+
 protected:
     const ::bt_definition* getDef() const {
         return _btDef;
     }
 
 private:
+    virtual T getValueImpl() const = 0;
+
+private:
     const ::bt_definition* _btDef;
 };
+
+template<typename T, EventValueType VT>
+T AbstractIntegerEventValue<T, VT>::getValue() const
+{
+    return this->getValueImpl();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator+(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const
+{
+    return this->getValue() + val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator+(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const
+{
+    return this->getValue() + val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator-(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const
+{
+    return this->getValue() - val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator-(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const
+{
+    return this->getValue() - val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator*(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const
+{
+    return this->getValue() * val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator*(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const
+{
+    return this->getValue() * val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator/(const AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>& val) const
+{
+    return this->getValue() / val.getValue();
+}
+
+template<typename T, EventValueType VT>
+std::int64_t AbstractIntegerEventValue<T, VT>::operator/(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const
+{
+    return this->getValue() / val.getValue();
+}
 
 }
 }

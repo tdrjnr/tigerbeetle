@@ -22,12 +22,13 @@
 #include <babeltrace/ctf/events.h>
 
 #include <common/trace/AbstractIntegerEventValue.hpp>
-#include <common/trace/EventValueType.hpp>
 
 namespace tibee
 {
 namespace common
 {
+
+class UintEventValue;
 
 /**
  * Event value carrying a signed integer.
@@ -35,7 +36,7 @@ namespace common
  * @author Philippe Proulx
  */
 class SintEventValue :
-    public AbstractIntegerEventValue
+    public AbstractIntegerEventValue<std::int64_t, EventValueType::SINT>
 {
 public:
     /**
@@ -47,14 +48,8 @@ public:
     SintEventValue(const ::bt_definition* def,
                    const EventValueFactory* valueFactory);
 
-    /**
-     * Returns the signed integer value.
-     *
-     * @returns Signed integer value
-     */
-    std::int64_t getValue() const;
-
 private:
+    std::int64_t getValueImpl() const;
     std::string toStringImpl() const;
 };
 

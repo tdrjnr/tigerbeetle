@@ -22,12 +22,13 @@
 #include <babeltrace/ctf/events.h>
 
 #include <common/trace/AbstractIntegerEventValue.hpp>
-#include <common/trace/EventValueType.hpp>
 
 namespace tibee
 {
 namespace common
 {
+
+class SintEventValue;
 
 /**
  * Event value carrying an unsigned integer.
@@ -35,7 +36,7 @@ namespace common
  * @author Philippe Proulx
  */
 class UintEventValue :
-    public AbstractIntegerEventValue
+    public AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>
 {
 public:
     /**
@@ -48,13 +49,89 @@ public:
                    const EventValueFactory* valueFactory);
 
     /**
-     * Returns the unsigned integer value.
+     * Returns the result of a bitwise AND between this event value
+     * and an unsigned integer.
      *
-     * @returns Unsigned integer value
+     * @param val Other operand
+     * @returns   Result of bitwise AND between this event value and \p val
      */
-    std::uint64_t getValue() const;
+    std::uint64_t operator&(std::uint64_t val) const
+    {
+        return this->getValue() & val;
+    }
+
+    /**
+     * Returns the result of a bitwise AND between this event value
+     * and an unsigned integer event value.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise AND between this event value and \p val
+     */
+    std::uint64_t operator&(const UintEventValue& val) const
+    {
+        return this->getValue() & val.getValue();
+    }
+
+    /**
+     * Returns the result of a bitwise OR between this event value
+     * and an unsigned integer.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise OR between this event value and \p val
+     */
+    std::uint64_t operator|(std::uint64_t val) const
+    {
+        return this->getValue() | val;
+    }
+
+    /**
+     * Returns the result of a bitwise OR between this event value
+     * and an unsigned integer event value.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise OR between this event value and \p val
+     */
+    std::uint64_t operator|(const UintEventValue& val) const
+    {
+        return this->getValue() | val.getValue();
+    }
+
+    /**
+     * Returns the result of a bitwise XOR between this event value
+     * and an unsigned integer.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator^(std::uint64_t val) const
+    {
+        return this->getValue() ^ val;
+    }
+
+    /**
+     * Returns the result of a bitwise XOR between this event value
+     * and an unsigned integer event value.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator^(const UintEventValue& val) const
+    {
+        return this->getValue() ^ val.getValue();
+    }
+
+    /**
+     * Returns the bitwise NOT value of this event value.
+     *
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator~() const
+    {
+        return ~this->getValue();
+    }
 
 private:
+    std::uint64_t getValueImpl() const;
     std::string toStringImpl() const;
 };
 
