@@ -95,7 +95,7 @@ public:
      *
      * @returns This event value as a signed integer event value
      */
-    const SintEventValue* asSintValue() const;
+    const SintEventValue& asSintValue() const;
 
     /**
      * Applies asSintValue() and returns the actual integer value of
@@ -116,7 +116,7 @@ public:
      *
      * @returns This event value as an unsigned integer event value
      */
-    const UintEventValue* asUintValue() const;
+    const UintEventValue& asUintValue() const;
 
     /**
      * Applies asUintValue() and returns the actual integer value of
@@ -137,7 +137,7 @@ public:
      *
      * @returns This event value as a floating point number event value
      */
-    const FloatEventValue* asFloatValue() const;
+    const FloatEventValue& asFloatValue() const;
 
     /**
      * Applies asFloatValue() and returns the actual floating point number
@@ -158,7 +158,7 @@ public:
      *
      * @returns This event value as an enumeration event value
      */
-    const EnumEventValue* asEnumValue() const;
+    const EnumEventValue& asEnumValue() const;
 
     /**
      * Applies asEnumValue() and returns the actual integer value of
@@ -190,7 +190,7 @@ public:
      *
      * @returns This event value as a string event value
      */
-    const StringEventValue* asStringValue() const;
+    const StringEventValue& asStringValue() const;
 
     /**
      * Applies asStringValue() and returns the actual string value of
@@ -211,7 +211,7 @@ public:
      *
      * @returns This event value as an array event value
      */
-    const ArrayEventValue* asArray() const;
+    const ArrayEventValue& asArray() const;
 
     /**
      * Statically casts this event value to a dictionary event
@@ -221,7 +221,7 @@ public:
      *
      * @returns This event value as a dictionary event value
      */
-    const DictEventValue* asDict() const;
+    const DictEventValue& asDict() const;
 
     /**
      * Returns whether or not this is a signed integer event value.
@@ -356,6 +356,244 @@ public:
      * @returns     Retrieved field value or null event value if not found
      */
     const AbstractEventValue& operator[](field_index_t index) const;
+
+    /**
+     * Returns the sum of this event value and a provided signed
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(std::int64_t val) const;
+
+    /**
+     * Returns the sum of this event value and a provided unsigned
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(std::uint64_t val) const;
+
+    /**
+     * Returns the sum of this event value and a provided
+     * event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to add
+     * @returns   Sum of this event value and \p val
+     */
+    std::int64_t operator+(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the difference between this event value and a provided
+     * signed integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(std::int64_t val) const;
+
+    /**
+     * Returns the difference between this event value and a provided
+     * unsigned integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(std::uint64_t val) const;
+
+    /**
+     * Returns the difference between this event value and a provided
+     * event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to substract
+     * @returns   Difference between this event value and \p val
+     */
+    std::int64_t operator-(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the product of this event value by a provided signed
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(std::int64_t val) const;
+
+    /**
+     * Returns the product of this event value by a provided unsigned
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(std::uint64_t val) const;
+
+    /**
+     * Returns the product of this event value by a provided
+     * event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to multiply with
+     * @returns   Product of this event value by \p val
+     */
+    std::int64_t operator*(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the quotient of this event value and a provided signed
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(std::int64_t val) const;
+
+    /**
+     * Returns the quotient of this event value and a provided unsigned
+     * integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(std::uint64_t val) const;
+
+    /**
+     * Returns the quotient of this event value and a provided
+     * event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is signed/unsigned integer. Otherwise, this method shall
+     * return 0.
+     *
+     * @param val Value to divide by
+     * @returns   Quotient of this event value and \p val
+     */
+    std::int64_t operator/(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the result of a bitwise AND between this event value
+     * and an unsigned integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise AND between this event value and \p val
+     */
+    std::uint64_t operator&(std::uint64_t val) const;
+
+    /**
+     * Returns the result of a bitwise AND between this event value
+     * and a provided event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise AND between this event value and \p val
+     */
+    std::uint64_t operator&(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the result of a bitwise OR between this event value
+     * and an unsigned integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise OR between this event value and \p val
+     */
+    std::uint64_t operator|(std::uint64_t val) const;
+
+    /**
+     * Returns the result of a bitwise OR between this event value
+     * and a provided event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise OR between this event value and \p val
+     */
+    std::uint64_t operator|(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the result of a bitwise XOR between this event value
+     * and an unsigned integer.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator^(std::uint64_t val) const;
+
+    /**
+     * Returns the result of a bitwise XOR between this event value
+     * and a provided event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @param val Other operand
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator^(const AbstractEventValue& val) const;
+
+    /**
+     * Returns the bitwise NOT value of this event value.
+     *
+     * This convenience method will only work if the type of this event
+     * value is unsigned integer. Otherwise, the behaviour is undefined.
+     *
+     * @returns   Result of bitwise XOR between this event value and \p val
+     */
+    std::uint64_t operator~() const;
 
 protected:
     const EventValueFactory* getValueFactory() const

@@ -22,7 +22,6 @@
 #include <babeltrace/ctf/events.h>
 
 #include <common/BasicTypes.hpp>
-#include <common/trace/DictEventValue.hpp>
 #include <common/trace/EventValueFactory.hpp>
 
 namespace tibee
@@ -71,54 +70,66 @@ public:
     /**
      * Returns the event fields dictionary.
      *
-     * The returned pointer is only valid while this event is valid.
+     * The returned reference is only valid while this event is valid.
+     *
+     * If the event has no fields, this method returns a null event
+     * value.
      *
      * Once this dictionary is created, a copy of the pointer is cached
      * by the owning event. The copy is kept as long as this event remains
      * valid.
      *
-     * @returns Event fields dictionary or \a nullptr if not available
+     * @returns Event fields dictionary or null event value if not available
      */
-    const DictEventValue* getFields() const;
+    const AbstractEventValue& getFields() const;
 
     /**
      * Returns the event context dictionary.
      *
-     * The returned pointer is only valid while this event is valid.
+     * The returned reference is only valid while this event is valid.
+     *
+     * If the event has no fields, this method returns a null event
+     * value.
      *
      * Once this dictionary is created, a copy of the pointer is cached
      * by the owning event. The copy is kept as long as this event remains
      * valid.
      *
-     * @returns Event context or \a nullptr if not available
+     * @returns Event context or null event value if not available
      */
-    const DictEventValue* getContext() const;
+    const AbstractEventValue& getContext() const;
 
     /**
      * Returns the stream event context dictionary.
      *
-     * The returned pointer is only valid while this event is valid.
+     * The returned reference is only valid while this event is valid.
+     *
+     * If the event has no fields, this method returns a null event
+     * value.
      *
      * Once this dictionary is created, a copy of the pointer is cached
      * by the owning event. The copy is kept as long as this event remains
      * valid.
      *
-     * @returns Stream event context or \a nullptr if not available
+     * @returns Stream event context or null event value if not available
      */
-    const DictEventValue* getStreamEventContext() const;
+    const AbstractEventValue& getStreamEventContext() const;
 
     /**
      * Returns the stream packet context dictionary.
      *
-     * The returned pointer is only valid while this event is valid.
+     * The returned reference is only valid while this event is valid.
+     *
+     * If the event has no fields, this method returns a null event
+     * value.
      *
      * Once this dictionary is created, a copy of the pointer is cached
      * by the owning event. The copy is kept as long as this event remains
      * valid.
      *
-     * @returns Stream packet context or \a nullptr if not available
+     * @returns Stream packet context or null event value if not available
      */
-    const DictEventValue* getStreamPacketContext() const;
+    const AbstractEventValue& getStreamPacketContext() const;
 
     /**
      * Returns a specific event field value using its name.
@@ -184,16 +195,16 @@ private:
      * @param valueFactory Value factory to use to build event values
      */
     Event(const EventValueFactory* valueFactory);
-    const DictEventValue* getTopLevelScope(::bt_ctf_scope topLevelScope) const;
+    const AbstractEventValue& getTopLevelScope(::bt_ctf_scope topLevelScope) const;
     void setPrivateEvent(::bt_ctf_event* btEvent);
 
 private:
     ::bt_ctf_event* _btEvent;
     const EventValueFactory* _valueFactory;
-    mutable const DictEventValue* _fieldsDict;
-    mutable const DictEventValue* _contextDict;
-    mutable const DictEventValue* _streamEventContextDict;
-    mutable const DictEventValue* _streamPacketContextDict;
+    mutable const AbstractEventValue* _fieldsDict;
+    mutable const AbstractEventValue* _contextDict;
+    mutable const AbstractEventValue* _streamEventContextDict;
+    mutable const AbstractEventValue* _streamPacketContextDict;
     event_id_t _id;
     trace_id_t _traceId;
 };

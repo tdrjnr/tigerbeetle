@@ -15,14 +15,16 @@ namespace
 
 void printEventDetails(const Event& event)
 {
-    auto fields = event.getFields();
+    auto& fields = event.getFields();
 
     if (fields) {
+        auto& fieldsDict = fields.asDict();
+
         std::cout << "<" << event.getName() << "> " << "(" <<
                      event.getTraceId() <<
                      ", " <<
                      event.getId() <<
-                     ")  " << fields->toString() <<
+                     ")  " << fieldsDict.toString() <<
                      std::endl;
     }
 }
@@ -52,9 +54,19 @@ bool onSysOpen(CurrentState& state, const Event& event)
     assert(event["flags"].isSint());
     assert(event["mode"].isUint());
 
+    std::cout << (event["flags"] + event["mode"]) << std::endl;
+    std::cout << event["flags"] - event["mode"] << std::endl;
+    std::cout << event["flags"] * event["mode"] << std::endl;
+    std::cout << event["flags"] / event["mode"] << std::endl;
+    std::cout << (event["mode"] & event["mode"]) << std::endl;
+    std::cout << (event["mode"] ^ event["mode"]) << std::endl;
+    std::cout << (event["mode"] | event["mode"]) << std::endl;
+
     std::cout << "===> filename: " << event["filename"].asString() << std::endl;
     std::cout << "===> flags:    " << event["flags"].asSint() << std::endl;
     std::cout << "===> mode:     " << event["mode"].asUint() << std::endl;
+
+    std::cout << "===> ~mode:    " << ~event["mode"] << std::endl;
 
     printEventDetails(event);
 

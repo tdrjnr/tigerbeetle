@@ -53,7 +53,7 @@ timestamp_t Event::getTimestamp() const
     return static_cast<timestamp_t>(::bt_ctf_get_timestamp(_btEvent));
 }
 
-const DictEventValue* Event::getTopLevelScope(::bt_ctf_scope topLevelScope) const
+const AbstractEventValue& Event::getTopLevelScope(::bt_ctf_scope topLevelScope) const
 {
     // get fields scope
     auto scopeDef = ::bt_ctf_get_top_level_scope(_btEvent, topLevelScope);
@@ -63,59 +63,61 @@ const DictEventValue* Event::getTopLevelScope(::bt_ctf_scope topLevelScope) cons
         /* We know for sure a DictEventValue will be returned here because
          * of the check above.
          */
-        return _valueFactory->buildEventValue(scopeDef, _btEvent)->asDict();
+        return *_valueFactory->buildEventValue(scopeDef, _btEvent);
     }
 
-    return nullptr;
+    return *_valueFactory->getNull();
 }
 
-const DictEventValue* Event::getFields() const
+const AbstractEventValue& Event::getFields() const
 {
     if (!_fieldsDict) {
-        _fieldsDict = this->getTopLevelScope(::BT_EVENT_FIELDS);
+        _fieldsDict = std::addressof(this->getTopLevelScope(::BT_EVENT_FIELDS));
     }
 
-    return _fieldsDict;
+    return *_fieldsDict;
 }
 
-const DictEventValue* Event::getContext() const
+const AbstractEventValue& Event::getContext() const
 {
     if (!_contextDict) {
-        _contextDict = this->getTopLevelScope(::BT_EVENT_CONTEXT);
+        _contextDict = std::addressof(this->getTopLevelScope(::BT_EVENT_CONTEXT));
     }
 
-    return _contextDict;
+    return *_contextDict;
 }
 
-const DictEventValue* Event::getStreamEventContext() const
+const AbstractEventValue& Event::getStreamEventContext() const
 {
     if (!_streamEventContextDict) {
-        _streamEventContextDict = this->getTopLevelScope(::BT_STREAM_EVENT_CONTEXT);
+        _streamEventContextDict = std::addressof(this->getTopLevelScope(::BT_STREAM_EVENT_CONTEXT));
     }
 
-    return _streamEventContextDict;
+    return *_streamEventContextDict;
 }
 
-const DictEventValue* Event::getStreamPacketContext() const
+const AbstractEventValue& Event::getStreamPacketContext() const
 {
     if (!_streamPacketContextDict) {
-        _streamPacketContextDict = this->getTopLevelScope(::BT_STREAM_PACKET_CONTEXT);
+        _streamPacketContextDict = std::addressof(this->getTopLevelScope(::BT_STREAM_PACKET_CONTEXT));
     }
 
-    return _streamPacketContextDict;
+    return *_streamPacketContextDict;
 }
 
 const AbstractEventValue& Event::operator[](const char* name) const
 {
-    auto fields = this->getFields();
+    auto& fields = this->getFields();
 
-    if (fields == nullptr) {
+    if (!fields) {
         return *_valueFactory->getNull();
     }
 
-    for (std::size_t i = 0; i < fields->size(); i++) {
-        if (std::strcmp(name, fields->getKeyName(i)) == 0) {
-            return (*fields)[i];
+    auto& fieldsDict = fields.asDict();
+
+    for (std::size_t i = 0; i < fieldsDict.size(); i++) {
+        if (std::strcmp(name, fieldsDict.getKeyName(i)) == 0) {
+            return fieldsDict[i];
         }
     }
 
@@ -129,13 +131,15 @@ const AbstractEventValue& Event::operator[](const std::string& name) const
 
 const AbstractEventValue& Event::operator[](std::size_t index) const
 {
-    auto fields = this->getFields();
+    auto& fields = this->getFields();
 
-    if (fields == nullptr) {
+    if (!fields) {
         return *_valueFactory->getNull();
     }
 
-    return (*fields)[index];
+    auto& fieldsDict = fields.asDict();
+
+    return fieldsDict[index];
 }
 
 void Event::setPrivateEvent(::bt_ctf_event* btEvent)

@@ -36,83 +36,83 @@ AbstractEventValue::~AbstractEventValue()
 {
 }
 
-const SintEventValue* AbstractEventValue::asSintValue() const
+const SintEventValue& AbstractEventValue::asSintValue() const
 {
     assert(this->isSint());
 
-    return static_cast<const SintEventValue*>(this);
+    return *static_cast<const SintEventValue*>(this);
 }
 
 std::int64_t AbstractEventValue::asSint() const
 {
-    return this->asSintValue()->getValue();
+    return this->asSintValue().getValue();
 }
 
-const UintEventValue* AbstractEventValue::asUintValue() const
+const UintEventValue& AbstractEventValue::asUintValue() const
 {
     assert(this->isUint());
 
-    return static_cast<const UintEventValue*>(this);
+    return *static_cast<const UintEventValue*>(this);
 }
 
 std::uint64_t AbstractEventValue::asUint() const
 {
-    return this->asUintValue()->getValue();
+    return this->asUintValue().getValue();
 }
 
-const FloatEventValue* AbstractEventValue::asFloatValue() const
+const FloatEventValue& AbstractEventValue::asFloatValue() const
 {
     assert(this->isFloat());
 
-    return static_cast<const FloatEventValue*>(this);
+    return *static_cast<const FloatEventValue*>(this);
 }
 
 double AbstractEventValue::asFloat() const
 {
-    return this->asFloatValue()->getValue();
+    return this->asFloatValue().getValue();
 }
 
-const EnumEventValue* AbstractEventValue::asEnumValue() const
+const EnumEventValue& AbstractEventValue::asEnumValue() const
 {
     assert(this->isEnum());
 
-    return static_cast<const EnumEventValue*>(this);
+    return *static_cast<const EnumEventValue*>(this);
 }
 
 std::uint64_t AbstractEventValue::asEnumInt() const
 {
-    return this->asEnumValue()->getIntValue();
+    return this->asEnumValue().getIntValue();
 }
 
 const char* AbstractEventValue::asEnumLabel() const
 {
-    return this->asEnumValue()->getLabel();
+    return this->asEnumValue().getLabel();
 }
 
-const StringEventValue* AbstractEventValue::asStringValue() const
+const StringEventValue& AbstractEventValue::asStringValue() const
 {
     assert(this->isString());
 
-    return static_cast<const StringEventValue*>(this);
+    return *static_cast<const StringEventValue*>(this);
 }
 
 const char* AbstractEventValue::asString() const
 {
-    return this->asStringValue()->getValue();
+    return this->asStringValue().getValue();
 }
 
-const ArrayEventValue* AbstractEventValue::asArray() const
+const ArrayEventValue& AbstractEventValue::asArray() const
 {
     assert(this->isArray());
 
-    return static_cast<const ArrayEventValue*>(this);
+    return *static_cast<const ArrayEventValue*>(this);
 }
 
-const DictEventValue* AbstractEventValue::asDict() const
+const DictEventValue& AbstractEventValue::asDict() const
 {
     assert(this->isDict());
 
-    return static_cast<const DictEventValue*>(this);
+    return *static_cast<const DictEventValue*>(this);
 }
 
 std::string AbstractEventValue::toString() const
@@ -143,6 +143,205 @@ const AbstractEventValue& AbstractEventValue::getFieldImpl(const char* name) con
 const AbstractEventValue& AbstractEventValue::getFieldImpl(field_index_t index) const
 {
     return *_valueFactory->getNull();
+}
+
+std::int64_t AbstractEventValue::operator+(std::int64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() + val;
+    } else if (this->isUint()) {
+        return this->asUintValue() + val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator+(std::uint64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() + val;
+    } else if (this->isUint()) {
+        return this->asUintValue() + val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator+(const AbstractEventValue& val) const
+{
+    if (this->isSint()) {
+        if (val.isSint()) {
+            return this->asSintValue() + val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asSintValue() + val.asUintValue();
+        }
+    } else if (this->isUint()) {
+        if (val.isSint()) {
+            return this->asUintValue() + val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asUintValue() + val.asUintValue();
+        }
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator-(std::int64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() - val;
+    } else if (this->isUint()) {
+        return this->asUintValue() - val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator-(std::uint64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() - val;
+    } else if (this->isUint()) {
+        return this->asUintValue() - val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator-(const AbstractEventValue& val) const
+{
+    if (this->isSint()) {
+        if (val.isSint()) {
+            return this->asSintValue() - val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asSintValue() - val.asUintValue();
+        }
+    } else if (this->isUint()) {
+        if (val.isSint()) {
+            return this->asUintValue() - val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asUintValue() - val.asUintValue();
+        }
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator*(std::int64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() * val;
+    } else if (this->isUint()) {
+        return this->asUintValue() * val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator*(std::uint64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() * val;
+    } else if (this->isUint()) {
+        return this->asUintValue() * val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator*(const AbstractEventValue& val) const
+{
+    if (this->isSint()) {
+        if (val.isSint()) {
+            return this->asSintValue() * val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asSintValue() * val.asUintValue();
+        }
+    } else if (this->isUint()) {
+        if (val.isSint()) {
+            return this->asUintValue() * val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asUintValue() * val.asUintValue();
+        }
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator/(std::int64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() / val;
+    } else if (this->isUint()) {
+        return this->asUintValue() / val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator/(std::uint64_t val) const
+{
+    if (this->isSint()) {
+        return this->asSintValue() / val;
+    } else if (this->isUint()) {
+        return this->asUintValue() / val;
+    }
+
+    return 0;
+}
+
+std::int64_t AbstractEventValue::operator/(const AbstractEventValue& val) const
+{
+    if (this->isSint()) {
+        if (val.isSint()) {
+            return this->asSintValue() / val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asSintValue() / val.asUintValue();
+        }
+    } else if (this->isUint()) {
+        if (val.isSint()) {
+            return this->asUintValue() / val.asSintValue();
+        } else if (val.isUint()) {
+            return this->asUintValue() / val.asUintValue();
+        }
+    }
+
+    return 0;
+}
+
+std::uint64_t AbstractEventValue::operator&(std::uint64_t val) const
+{
+    return this->asUintValue() & val;
+}
+
+std::uint64_t AbstractEventValue::operator&(const AbstractEventValue& val) const
+{
+    return this->asUintValue() & val.asUintValue();
+}
+
+std::uint64_t AbstractEventValue::operator|(std::uint64_t val) const
+{
+    return this->asUintValue() | val;
+}
+
+std::uint64_t AbstractEventValue::operator|(const AbstractEventValue& val) const
+{
+    return this->asUintValue() | val.asUintValue();
+}
+
+std::uint64_t AbstractEventValue::operator^(std::uint64_t val) const
+{
+    return this->asUintValue() ^ val;
+}
+
+std::uint64_t AbstractEventValue::operator^(const AbstractEventValue& val) const
+{
+    return this->asUintValue() ^ val.asUintValue();
+}
+
+std::uint64_t AbstractEventValue::operator~() const
+{
+    return ~this->asUintValue();
 }
 
 }
