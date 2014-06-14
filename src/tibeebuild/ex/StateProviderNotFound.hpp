@@ -15,34 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _WRONGSTATEPROVIDER_HPP
-#define _WRONGSTATEPROVIDER_HPP
+#ifndef _STATEPROVIDERNOTFOUNDEX_HPP
+#define _STATEPROVIDERNOTFOUNDEX_HPP
 
 #include <string>
 #include <stdexcept>
-#include <boost/filesystem/path.hpp>
 
 namespace tibee
-{
-namespace common
 {
 namespace ex
 {
 
-class WrongStateProvider :
+class StateProviderNotFound :
     public std::runtime_error
 {
 public:
-    WrongStateProvider(const std::string& msg, const std::string& name) :
-        std::runtime_error {msg},
+    StateProviderNotFound(const std::string& name) :
+        std::runtime_error {"state provider not found"},
         _name {name}
-    {
-    }
-
-    explicit WrongStateProvider(const std::string& msg,
-                                const boost::filesystem::path& path) :
-        std::runtime_error {msg},
-        _name {path.string()}
     {
     }
 
@@ -56,6 +46,5 @@ private:
 
 }
 }
-}
 
-#endif // _WRONGSTATEPROVIDER_HPP
+#endif // _STATEPROVIDERNOTFOUNDEX_HPP

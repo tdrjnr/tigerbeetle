@@ -20,12 +20,11 @@
 #include <vector>
 #include <string>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 
 #include "BuilderBeetle.hpp"
 #include "Arguments.hpp"
-
-namespace bfs = boost::filesystem;
+#include "ex/InvalidArgument.hpp"
+#include "ex/BuilderBeetleError.hpp"
 
 namespace
 {
@@ -47,11 +46,11 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
 
     desc.add_options()
         ("help,h", "help")
-        ("traces,T", bpo::value<std::vector<std::string>>())
+        ("traces", bpo::value<std::vector<std::string>>())
         ("verbose,v", bpo::bool_switch()->default_value(false))
         ("stateprov,s", bpo::value<std::vector<std::string>>())
         ("bind-progress,b", bpo::value<std::string>())
-        ("cache-dir,d", bpo::value<std::string>())
+        ("db-dir,d", bpo::value<std::string>())
         ("force,f", bpo::bool_switch()->default_value(false))
     ;
 
@@ -77,12 +76,14 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
             std::endl <<
             "options:" << std::endl <<
             std::endl <<
-            "  -h, --help           print this help message" << std::endl <<
-            "  -b, --bind-progress  bind address for build progress (default: none)" << std::endl <<
-            "  -d, --cache-dir      write caches to this directory (default: CWD)" << std::endl <<
-            "  -f, --force          force cache building, even if already existing" << std::endl <<
-            "  -s <provider path>   state provider file path (at least one)" << std::endl <<
-            "  -v, --verbose        verbose" << std::endl;
+            "  -h, --help                  print this help message" << std::endl <<
+            "  -b, --bind-progress <addr>  bind address for build progress (default: none)" << std::endl <<
+            "  -d, --db-dir <path>         write database in this directory" << std::endl <<
+            "                              (default: \"./tibee\")" << std::endl <<
+            "  -f, --force                 force database writing, even if the output" << std::endl <<
+            "                              directory already exists" << std::endl <<
+            "  -s <provider path>          state provider file path (at least one)" << std::endl <<
+            "  -v, --verbose               verbose" << std::endl;
 
         return -1;
     }
@@ -100,31 +101,11 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
         return 1;
     }
 
-    auto traces = vm["traces"].as<std::vector<std::string>>();
+    args.traces = vm["traces"].as<std::vector<std::string>>();
 
-    for (const auto& trace : traces) {
-        bfs::path p {trace};
-
-        if (!bfs::exists(p)) {
-            std::cerr << "Trace path " << p << " does not exist" << std::endl;
-            return 1;
-        }
-
-        args.traces.push_back(p);
-    }
-
-    // cache directory
-    bfs::path cacheDirPath = bfs::current_path();
-
-    if (!vm["cache-dir"].empty()) {
-        cacheDirPath = vm["cache-dir"].as<std::string>();
-    }
-
-    if (bfs::exists(cacheDirPath) && bfs::is_directory(cacheDirPath)) {
-        args.cacheDir = cacheDirPath;
-    } else {
-        std::cerr << "Cache output directory " << cacheDirPath << " is not a directory" << std::endl;
-        return 1;
+    // database directory
+    if (!vm["db-dir"].empty()) {
+        args.dbDir = vm["db-dir"].as<std::string>();
     }
 
     // state providers
@@ -133,18 +114,7 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
         return 1;
     }
 
-    auto stateProviders = vm["stateprov"].as<std::vector<std::string>>();
-
-    for (const auto& stateProvider : stateProviders) {
-        bfs::path p {stateProvider};
-
-        if (bfs::exists(p) && !bfs::is_directory(p)) {
-            args.stateProviders.push_back(p);
-        } else {
-            std::cerr << "State provider " << p << " is not a file" << std::endl;
-            return 1;
-        }
-    }
+    args.stateProviders = vm["stateprov"].as<std::vector<std::string>>();
 
     // bind progress
     if (!vm["bind-progress"].empty()) {
@@ -175,7 +145,17 @@ int main(int argc, char* argv[])
     }
 
     // create the builder beetle and run it
-    std::unique_ptr<tibee::BuilderBeetle> builderBeetle {new tibee::BuilderBeetle {args}};
+    try {
+        std::unique_ptr<tibee::BuilderBeetle> builderBeetle {new tibee::BuilderBeetle {args}};
 
-    return builderBeetle->run() ? 0 : 1;
+        return builderBeetle->run() ? 0 : 1;
+    } catch (const tibee::ex::InvalidArgument& ex) {
+        std::cerr << "Invalid argument: " << ex.what() << std::endl;
+    } catch (const tibee::ex::BuilderBeetleError& ex) {
+        std::cerr << "Build error: " << ex.what() << std::endl;
+    } catch (const std::exception& ex) {
+        std::cerr << "Unknown error: " << ex.what() << std::endl;
+    }
+
+    return 1;
 }

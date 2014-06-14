@@ -168,23 +168,23 @@ public:
     }
 
     /**
-     * Sets the state providers paths used to build the caches.
+     * Sets the state providers names used to build the caches.
      *
-     * @param stateProvidersPaths State providers paths
+     * @param stateProviders State providers names
      */
-    void setStateProvidersPaths(const std::vector<boost::filesystem::path>& stateProvidersPaths)
+    void setStateProviders(const std::vector<std::string>& stateProviders)
     {
-        _stateProvidersPaths = stateProvidersPaths;
+        _stateProviders = stateProviders;
     }
 
     /**
-     * Returns the state providers paths used to build the caches.
+     * Returns the state providers names used to build the caches.
      *
-     * @returns State providers paths
+     * @returns State providers names
      */
-    const std::vector<boost::filesystem::path>& getStateProvidersPaths() const
+    const std::vector<std::string>& getStateProviders() const
     {
-        return _stateProvidersPaths;
+        return _stateProviders;
     }
 
 private:
@@ -194,7 +194,7 @@ private:
     common::timestamp_t _curTs;
     unsigned int _stateChanges;
     std::vector<boost::filesystem::path> _tracesPaths;
-    std::vector<boost::filesystem::path> _stateProvidersPaths;
+    std::vector<std::string> _stateProviders;
 };
 
 }

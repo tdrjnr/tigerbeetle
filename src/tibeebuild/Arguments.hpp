@@ -20,7 +20,6 @@
 
 #include <vector>
 #include <string>
-#include <boost/filesystem/path.hpp>
 
 namespace tibee
 {
@@ -32,10 +31,10 @@ namespace tibee
  */
 struct Arguments
 {
-    std::vector<boost::filesystem::path> traces;
-    std::vector<boost::filesystem::path> stateProviders;
+    std::vector<std::string> traces;
+    std::vector<std::string> stateProviders;
     std::string bindProgress;
-    boost::filesystem::path cacheDir;
+    std::string dbDir;
     bool verbose;
     bool force;
 };

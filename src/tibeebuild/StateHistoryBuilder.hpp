@@ -46,11 +46,11 @@ public:
     /**
      * Builds a state history builder.
      *
-     * @param dir            Cache directory
-     * @param providersPaths List of state providers paths
+     * @param dbDir     Cache directory
+     * @param providers List of state providers paths
      */
-    StateHistoryBuilder(const boost::filesystem::path& dir,
-                        const std::vector<boost::filesystem::path>& providersPaths);
+    StateHistoryBuilder(const boost::filesystem::path& dbDir,
+                        const std::vector<std::string>& providers);
 
     ~StateHistoryBuilder();
 
@@ -70,7 +70,7 @@ private:
     bool onStopImpl();
 
 private:
-    std::vector<boost::filesystem::path> _providersPaths;
+    std::vector<std::string> _providersNames;
     std::vector<common::AbstractStateProvider::UP> _providers;
     std::unique_ptr<common::StateHistorySink> _stateHistorySink;
 };
