@@ -15,12 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _UNKNOWNSTATEPROVIDERTYPE_HPP
-#define _UNKNOWNSTATEPROVIDERTYPE_HPP
+#ifndef _UNKNOWNSTATEPROVIDERTYPEEX_HPP
+#define _UNKNOWNSTATEPROVIDERTYPEEX_HPP
 
 #include <string>
 #include <stdexcept>
-#include <boost/filesystem/path.hpp>
 
 namespace tibee
 {
@@ -31,21 +30,21 @@ class UnknownStateProviderType :
     public std::runtime_error
 {
 public:
-    UnknownStateProviderType(const boost::filesystem::path& path) :
+    UnknownStateProviderType(const std::string& name) :
         std::runtime_error {"unknown state provider type"},
-        _path {path}
+        _name {name}
     {
     }
 
-    const boost::filesystem::path& getPath() const {
-        return _path;
+    const std::string& getName() const {
+        return _name;
     }
 
 private:
-    boost::filesystem::path _path;
+    std::string _name;
 };
 
 }
 }
 
-#endif // _UNKNOWNSTATEPROVIDERTYPE_HPP
+#endif // _UNKNOWNSTATEPROVIDERTYPEEX_HPP

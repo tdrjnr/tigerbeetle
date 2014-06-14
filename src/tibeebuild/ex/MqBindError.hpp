@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _MQBINDERROR_HPP
-#define _MQBINDERROR_HPP
+#ifndef _MQBINDERROREX_HPP
+#define _MQBINDERROREX_HPP
 
 #include <string>
 #include <stdexcept>
@@ -47,4 +47,4 @@ private:
 }
 }
 
-#endif // _MQBINDERROR_HPP
+#endif // _MQBINDERROREX_HPP

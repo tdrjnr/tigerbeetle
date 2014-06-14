@@ -18,6 +18,8 @@
 #ifndef _BUILDERBEETLE_HPP
 #define _BUILDERBEETLE_HPP
 
+#include <boost/filesystem/path.hpp>
+
 #include "TraceDeck.hpp"
 #include "Arguments.hpp"
 
@@ -52,8 +54,15 @@ public:
     void stop();
 
 private:
-    Arguments _args;
+    void validateSaveArguments(const Arguments& args);
+
+private:
     TraceDeck _traceDeck;
+    std::vector<boost::filesystem::path> _tracesPaths;
+    std::vector<std::string> _stateProviders;
+    std::string _bindProgress;
+    boost::filesystem::path _dbDir;
+    bool _verbose;
 };
 
 }

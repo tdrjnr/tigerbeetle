@@ -56,7 +56,7 @@ public:
      * @param beginTs             Begin timestamp of trace set
      * @param endTs               End timestamp of trace set
      * @param tracesPaths         Paths of all traces
-     * @param stateProvidersPaths Paths of all state providers
+     * @param stateProviders      Names of all state providers
      * @param stateHistoryBuilder State history builder reference
      * @param updatePeriodEvents  Update emission period in number of events
      * @param updatePeriodMs      Update emission period in milliseconds
@@ -64,7 +64,7 @@ public:
     ProgressPublisher(const std::string& bindAddr,
                       common::timestamp_t beginTs, common::timestamp_t endTs,
                       const std::vector<boost::filesystem::path>& tracesPaths,
-                      const std::vector<boost::filesystem::path>& stateProvidersPaths,
+                      const std::vector<std::string>& stateProviders,
                       const StateHistoryBuilder* stateHistoryBuilder,
                       std::size_t updatePeriodEvents,
                       std::size_t updatePeriodMs);

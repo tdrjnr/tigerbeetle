@@ -57,7 +57,11 @@ bool onSysOpen(CurrentState& state, const Event& event)
     std::cout << (event["flags"] + event["mode"]) << std::endl;
     std::cout << event["flags"] - event["mode"] << std::endl;
     std::cout << event["flags"] * event["mode"] << std::endl;
-    std::cout << event["flags"] / event["mode"] << std::endl;
+
+    if (event["mode"].asUint() != 0) {
+        std::cout << event["flags"] / event["mode"] << std::endl;
+    }
+
     std::cout << (event["mode"] & event["mode"]) << std::endl;
     std::cout << (event["mode"] ^ event["mode"]) << std::endl;
     std::cout << (event["mode"] | event["mode"]) << std::endl;

@@ -51,8 +51,8 @@ class ProgressUpdate:
     def get_traces_paths(self):
         return self._infos['traces-paths']
 
-    def get_state_providers_paths(self):
-        return self._infos['state-providers-paths']
+    def get_state_providers(self):
+        return self._infos['state-providers']
 
     def is_done(self):
         return self.get_cur_ts() == self.get_end_ts()

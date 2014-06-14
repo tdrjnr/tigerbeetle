@@ -126,7 +126,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         traces = update.get_traces_paths()
 
         # state providers
-        state_providers = update.get_state_providers_paths()
+        state_providers = update.get_state_providers()
 
         # begin time label
         self._lbl_begin_time.setText(begin_text)

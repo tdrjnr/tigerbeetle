@@ -33,7 +33,7 @@ namespace tibee
 ProgressPublisher::ProgressPublisher(const std::string& bindAddr,
                                      common::timestamp_t beginTs, common::timestamp_t endTs,
                                      const std::vector<boost::filesystem::path>& tracesPaths,
-                                     const std::vector<boost::filesystem::path>& stateProvidersPaths,
+                                     const std::vector<std::string>& stateProviders,
                                      const StateHistoryBuilder* stateHistoryBuilder,
                                      std::size_t updatePeriodEvents,
                                      std::size_t updatePeriodMs) :
@@ -52,7 +52,7 @@ ProgressPublisher::ProgressPublisher(const std::string& bindAddr,
     _rpcNotification->setCurTs(beginTs);
     _rpcNotification->setEndTs(endTs);
     _rpcNotification->setTracesPaths(tracesPaths);
-    _rpcNotification->setStateProvidersPaths(stateProvidersPaths);
+    _rpcNotification->setStateProviders(stateProviders);
     _rpcNotification->setStateChanges(0);
 
     // create and bind to message queue publish socket

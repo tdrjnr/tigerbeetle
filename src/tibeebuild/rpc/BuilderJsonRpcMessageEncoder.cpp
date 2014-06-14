@@ -43,7 +43,7 @@ bool BuilderJsonRpcMessageEncoder::encodeProgressUpdateRpcNotificationParams(con
     TIBEE_DEF_YAJL_STR(TRACES_CUR_TS, "traces-cur-ts");
     TIBEE_DEF_YAJL_STR(STATE_CHANGES, "state-changes");
     TIBEE_DEF_YAJL_STR(TRACES_PATHS, "traces-paths");
-    TIBEE_DEF_YAJL_STR(STATE_PROVIDERS_PATHS, "state-providers-paths");
+    TIBEE_DEF_YAJL_STR(STATE_PROVIDERS, "state-providers");
 
     // open object
     ::yajl_gen_map_open(yajlGen);
@@ -84,17 +84,15 @@ bool BuilderJsonRpcMessageEncoder::encodeProgressUpdateRpcNotificationParams(con
 
     ::yajl_gen_array_close(yajlGen);
 
-    // state providers paths
-    const auto& stateProvidersPaths = pu.getStateProvidersPaths();
-    ::yajl_gen_string(yajlGen, STATE_PROVIDERS_PATHS, STATE_PROVIDERS_PATHS_LEN);
+    // state providers
+    const auto& stateProviders = pu.getStateProviders();
+    ::yajl_gen_string(yajlGen, STATE_PROVIDERS, STATE_PROVIDERS_LEN);
     ::yajl_gen_array_open(yajlGen);
 
-    for (const auto& path : stateProvidersPaths) {
-        const auto& pathStr = path.string();
-
+    for (const auto& name : stateProviders) {
         ::yajl_gen_string(yajlGen,
-                          reinterpret_cast<const unsigned char*>(pathStr.c_str()),
-                          pathStr.size());
+                          reinterpret_cast<const unsigned char*>(name.c_str()),
+                          name.size());
     }
 
     ::yajl_gen_array_close(yajlGen);

@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <sstream>
 #include <boost/filesystem/path.hpp>
 
 #include <common/trace/TraceSet.hpp>
@@ -29,15 +30,71 @@
 #include "BuilderBeetle.hpp"
 #include "ex/MqBindError.hpp"
 #include "ex/UnknownStateProviderType.hpp"
+#include "ex/InvalidArgument.hpp"
+#include "ex/BuilderBeetleError.hpp"
+#include "ex/StateProviderNotFound.hpp"
 
 namespace bfs = boost::filesystem;
 
 namespace tibee
 {
 
-BuilderBeetle::BuilderBeetle(const Arguments& args) :
-    _args(args)
+BuilderBeetle::BuilderBeetle(const Arguments& args)
 {
+    // validate arguments as soon as possible (will throw if anything wrong)
+    this->validateSaveArguments(args);
+}
+
+void BuilderBeetle::validateSaveArguments(const Arguments& args)
+{
+    // make sure all traces actually exist and create paths
+    for (const auto& pathStr : args.traces) {
+        auto tracePath = bfs::path {pathStr};
+
+        // make sure this trace exists (at least, may still be invalid)
+        if (!bfs::exists(tracePath)) {
+            std::stringstream ss;
+
+            ss << "trace " << tracePath << " does not exist";
+
+            throw ex::InvalidArgument {ss.str()};
+        }
+
+        // append trace path
+        _tracesPaths.push_back(tracePath);
+    }
+
+    // create default database output directory if not specified
+    if (args.dbDir.empty()) {
+        _dbDir = bfs::current_path() / "tibee";
+    } else {
+        _dbDir = args.dbDir;
+    }
+
+    // make sure the database directory doesn't exist, unless force is enabled
+    if (!args.force && bfs::exists(_dbDir)) {
+        std::stringstream ss;
+
+        ss << "the specified database directory " <<
+              _dbDir << " exists already" << std::endl <<
+              "  (use -f to overwrite files)";
+
+        throw ex::InvalidArgument {ss.str()};
+    } else if (args.force && !bfs::is_directory(_dbDir)) {
+        throw ex::InvalidArgument {"database directory has to be a directory"};
+    }
+
+    // create specified directory now
+    bfs::create_directories(_dbDir);
+
+    /* Since state providers could be something else than a file on disk,
+     * we do not verify this here and just keep the strings as they are. The
+     * state history builder should know what to do with those.
+     */
+    _stateProviders = args.stateProviders;
+
+    // bind address for progress publishing
+    _bindProgress = args.bindProgress;
 }
 
 bool BuilderBeetle::run()
@@ -46,11 +103,13 @@ bool BuilderBeetle::run()
     std::unique_ptr<common::TraceSet> traceSet {new common::TraceSet};
 
     // add traces to trace set
-    for (const auto& tracePath : _args.traces) {
+    for (const auto& tracePath : _tracesPaths) {
         if (!traceSet->addTrace(tracePath)) {
-            std::cerr << "Error: could not add trace " << tracePath << std::endl;
+            std::stringstream ss;
 
-            return false;
+            ss << "could not add trace " << tracePath << " (internal error)";
+
+            throw ex::BuilderBeetleError {ss.str()};
         }
     }
 
@@ -62,46 +121,57 @@ bool BuilderBeetle::run()
     try {
         stateHistoryBuilder = std::unique_ptr<StateHistoryBuilder> {
             new StateHistoryBuilder {
-                _args.cacheDir,
-                _args.stateProviders
+                _dbDir,
+                _stateProviders
             }
         };
     } catch (const common::ex::WrongStateProvider& ex) {
-        std::cerr << "Error: wrong state provider: " <<
-                     ex.getPath() << std::endl <<
-                     "  " << ex.what() << std::endl;
+        std::stringstream ss;
 
-        return false;
+        ss << "wrong state provider: \"" << ex.getName() << "\"" << std::endl <<
+              "  " << ex.what();
+
+        throw ex::BuilderBeetleError {ss.str()};
     } catch (const ex::UnknownStateProviderType& ex) {
-        std::cerr << "Error: unknown state provider type: " <<
-                     ex.getPath() << std::endl;
+        std::stringstream ss;
 
-        return false;
+        ss << "unknown state provider type: \"" << ex.getName() << "\"";
+
+        throw ex::BuilderBeetleError {ss.str()};
+    } catch (const ex::StateProviderNotFound& ex) {
+        std::stringstream ss;
+
+        ss << "cannot find state provider \"" << ex.getName() << "\"";
+
+        throw ex::BuilderBeetleError {ss.str()};
+    } catch (...) {
+        throw ex::BuilderBeetleError {"unknown error"};
     }
 
     listeners.push_back(std::move(stateHistoryBuilder));
 
     // create a progress publisher
-    if (!_args.bindProgress.empty()) {
+    if (!_bindProgress.empty()) {
         std::unique_ptr<ProgressPublisher> progressPublisher;
         try {
             progressPublisher = std::unique_ptr<ProgressPublisher> {
                 new ProgressPublisher {
-                    _args.bindProgress,
+                    _bindProgress,
                     traceSet->getBegin(),
                     traceSet->getEnd(),
-                    _args.traces,
-                    _args.stateProviders,
+                    _tracesPaths,
+                    _stateProviders,
                     stateHistoryBuilder.get(),
                     2801,
                     200
                 }
             };
         } catch (const ex::MqBindError& ex) {
-            std::cerr << "Error: cannot bind to address \"" <<
-                         ex.getBindAddr() << "\"" << std::endl;
+            std::stringstream ss;
 
-            return false;
+            ss << "cannot bind to address \"" << ex.getBindAddr() << "\"";
+
+            throw ex::BuilderBeetleError {ss.str()};
         }
 
         listeners.push_back(std::move(progressPublisher));

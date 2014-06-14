@@ -15,47 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _WRONGSTATEPROVIDER_HPP
-#define _WRONGSTATEPROVIDER_HPP
+#ifndef _INVALIDARGUMENTEX_HPP
+#define _INVALIDARGUMENTEX_HPP
 
 #include <string>
 #include <stdexcept>
-#include <boost/filesystem/path.hpp>
 
 namespace tibee
-{
-namespace common
 {
 namespace ex
 {
 
-class WrongStateProvider :
+class InvalidArgument :
     public std::runtime_error
 {
 public:
-    WrongStateProvider(const std::string& msg, const std::string& name) :
-        std::runtime_error {msg},
-        _name {name}
+    InvalidArgument(const std::string& err) :
+        std::runtime_error {err}
     {
     }
-
-    explicit WrongStateProvider(const std::string& msg,
-                                const boost::filesystem::path& path) :
-        std::runtime_error {msg},
-        _name {path.string()}
-    {
-    }
-
-    const std::string& getName() const {
-        return _name;
-    }
-
-private:
-    std::string _name;
 };
 
 }
 }
-}
 
-#endif // _WRONGSTATEPROVIDER_HPP
+#endif // _INVALIDARGUMENTEX_HPP

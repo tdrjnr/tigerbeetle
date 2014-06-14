@@ -21,26 +21,41 @@
 
 #include <common/trace/EventValueType.hpp>
 #include <common/trace/AbstractEventValue.hpp>
-#include "AbstractCacheBuilder.hpp"
-#include "StateHistoryBuilder.hpp"
 #include <common/stateprov/AbstractStateProvider.hpp>
 #include <common/stateprov/DynamicLibraryStateProvider.hpp>
 #include <common/stateprov/PythonStateProvider.hpp>
+ #include <common/ex/WrongStateProvider.hpp>
+#include "AbstractCacheBuilder.hpp"
+#include "StateHistoryBuilder.hpp"
 #include "ex/UnknownStateProviderType.hpp"
+#include "ex/StateProviderNotFound.hpp"
 
 namespace bfs = boost::filesystem;
 
 namespace tibee
 {
 
-StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dir,
-                                         const std::vector<bfs::path>& providersPaths) :
-    AbstractCacheBuilder {dir},
-    _providersPaths {providersPaths}
+StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
+                                         const std::vector<std::string>& providers) :
+    AbstractCacheBuilder {dbDir},
+    _providersNames {providers}
 {
-    std::cout << "state history builder: opening files for writing" << std::endl;
+    for (auto& provider : providers) {
+        auto providerPath = bfs::path {provider};
 
-    for (auto& providerPath : providersPaths) {
+        // make sure the file exists
+        if (!bfs::exists(providerPath)) {
+            throw ex::StateProviderNotFound {provider};
+        }
+
+        // only files are supported for the moment
+        if (bfs::is_directory(providerPath)) {
+            throw common::ex::WrongStateProvider {
+                "provider is a directory",
+                provider
+            };
+        }
+
         // known providers are right here for the moment
         auto extension = providerPath.extension();
 
@@ -55,7 +70,7 @@ StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dir,
                 new common::PythonStateProvider {providerPath}
             };
         } else {
-            throw ex::UnknownStateProviderType {providerPath};
+            throw ex::UnknownStateProviderType {provider};
         }
 
         _providers.push_back(std::move(stateProvider));
@@ -64,13 +79,10 @@ StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dir,
 
 StateHistoryBuilder::~StateHistoryBuilder()
 {
-    std::cout << "state history builder: closing files" << std::endl;
 }
 
 bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
 {
-    std::cout << "state history builder: starting" << std::endl;
-
     // create new state history sink (destroying the previous one)
     _stateHistorySink = std::unique_ptr<common::StateHistorySink> {
         new common::StateHistorySink {
@@ -98,8 +110,6 @@ void StateHistoryBuilder::onEventImpl(const common::Event& event)
 
 bool StateHistoryBuilder::onStopImpl()
 {
-    std::cout << "state history builder: stopping" << std::endl;
-
     // also notify each state provider
     for (auto& provider : _providers) {
         provider->onFini(_stateHistorySink->getCurrentState());
