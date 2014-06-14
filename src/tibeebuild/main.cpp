@@ -25,6 +25,10 @@
 #include "Arguments.hpp"
 #include "ex/InvalidArgument.hpp"
 #include "ex/BuilderBeetleError.hpp"
+#include "common/utils/print.hpp"
+
+using tibee::common::tberror;
+using tibee::common::tbendl;
 
 namespace
 {
@@ -66,13 +70,13 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
 
         bpo::store(parsedOptions, vm);
     } catch (const std::exception& ex) {
-        std::cerr << "Command line error: " << ex.what() << std::endl;
+        tberror() << "command line error: " << ex.what() << tbendl();
         return 1;
     }
 
     if (!vm["help"].empty()) {
         std::cout <<
-            "usage: tibeebuild [options] <trace path>..." << std::endl <<
+            "usage: " << argv[0] << " [options] <trace path>..." << std::endl <<
             std::endl <<
             "options:" << std::endl <<
             std::endl <<
@@ -91,13 +95,13 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
     try {
         vm.notify();
     } catch (const std::exception& ex) {
-        std::cerr << "Command line error: " << ex.what() << std::endl;
+        tberror() << "command line error: " << ex.what() << tbendl();
         return 1;
     }
 
     // traces
     if (vm["traces"].empty()) {
-        std::cerr << "Command line error: need at least one trace file to work with" << std::endl;
+        tberror() << "command line error: need at least one trace file to work with" << tbendl();
         return 1;
     }
 
@@ -110,7 +114,7 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
 
     // state providers
     if (vm["stateprov"].empty()) {
-        std::cerr << "Command line error: need at least one state provider to work with" << std::endl;
+        tberror() << "command line error: need at least one state provider to work with" << tbendl();
         return 1;
     }
 
@@ -150,11 +154,11 @@ int main(int argc, char* argv[])
 
         return builderBeetle->run() ? 0 : 1;
     } catch (const tibee::ex::InvalidArgument& ex) {
-        std::cerr << "Invalid argument: " << ex.what() << std::endl;
+        tberror() << "invalid argument: " << ex.what() << tbendl();
     } catch (const tibee::ex::BuilderBeetleError& ex) {
-        std::cerr << "Build error: " << ex.what() << std::endl;
+        tberror() << "build error: " << ex.what() << tbendl();
     } catch (const std::exception& ex) {
-        std::cerr << "Unknown error: " << ex.what() << std::endl;
+        tberror() << "unknown error: " << ex.what() << tbendl();
     }
 
     return 1;
