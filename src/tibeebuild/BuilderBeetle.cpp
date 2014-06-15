@@ -17,9 +17,11 @@
  */
 #include <memory>
 #include <string>
+#include <set>
 #include <vector>
 #include <sstream>
 #include <boost/filesystem/path.hpp>
+#include <boost/regex.hpp>
 
 #include <common/trace/TraceSet.hpp>
 #include <common/ex/WrongStateProvider.hpp>
@@ -87,11 +89,47 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
     // create specified directory now
     bfs::create_directories(_dbDir);
 
-    /* Since state providers could be something else than a file on disk,
-     * we do not verify this here and just keep the strings as they are. The
-     * state history builder should know what to do with those.
-     */
-    _stateProviders = args.stateProviders;
+    // extract instance names from state provider names and keep them
+    boost::regex re {"([A-Za-z0-9_][A-Za-z0-9_-]*):(.+)"};
+
+    for (const auto& fullStateProvider : args.stateProviders) {
+        // has instance name?
+        boost::smatch m;
+        std::string instance;
+        std::string name;
+
+        auto hasInstance = boost::regex_match(fullStateProvider, m, re);
+
+        if (hasInstance) {
+            instance = m[1];
+            name = m[2];
+        } else {
+            name = fullStateProvider;
+        }
+
+        _stateProviders.push_back({name, instance});
+    }
+
+    // make sure all state provider instance names are unique
+    std::set<std::string> set;
+
+    for (const auto& stateProviderDescriptor : _stateProviders) {
+        const auto& instance = stateProviderDescriptor.instance;
+
+        if (!instance.empty()) {
+            if (set.find(instance) != set.end()) {
+                std::stringstream ss;
+
+                ss << "duplicate state provider instance name: \"" <<
+                      instance << "\"";
+
+                throw ex::InvalidArgument {ss.str()};
+            }
+
+            set.insert(instance);
+        }
+    }
+
 
     // bind address for progress publishing
     _bindProgress = args.bindProgress;

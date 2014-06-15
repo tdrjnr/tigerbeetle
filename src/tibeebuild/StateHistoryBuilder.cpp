@@ -36,23 +36,24 @@ namespace tibee
 {
 
 StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
-                                         const std::vector<std::string>& providers) :
+                                         const std::vector<StateHistoryBuilder::StateProviderDescriptor>& providers) :
     AbstractCacheBuilder {dbDir},
-    _providersNames {providers}
+    _providersDescriptors {providers}
 {
-    for (auto& provider : providers) {
-        auto providerPath = bfs::path {provider};
+    for (const auto& provider : _providersDescriptors) {
+        auto providerPath = bfs::path {provider.name};
+        const auto& instance = provider.instance;
 
         // make sure the file exists
         if (!bfs::exists(providerPath)) {
-            throw ex::StateProviderNotFound {provider};
+            throw ex::StateProviderNotFound {provider.name};
         }
 
         // only files are supported for the moment
         if (bfs::is_directory(providerPath)) {
             throw common::ex::WrongStateProvider {
                 "provider is a directory",
-                provider
+                provider.name
             };
         }
 
@@ -63,14 +64,14 @@ StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
 
         if (extension == ".so" || extension == ".dll" || extension == ".dylib") {
             stateProvider = common::AbstractStateProvider::UP {
-                new common::DynamicLibraryStateProvider {providerPath}
+                new common::DynamicLibraryStateProvider {providerPath, instance}
             };
         } else if (extension == ".py") {
             stateProvider = common::AbstractStateProvider::UP {
-                new common::PythonStateProvider {providerPath}
+                new common::PythonStateProvider {providerPath, instance}
             };
         } else {
-            throw ex::UnknownStateProviderType {provider};
+            throw ex::UnknownStateProviderType {provider.name};
         }
 
         _providers.push_back(std::move(stateProvider));

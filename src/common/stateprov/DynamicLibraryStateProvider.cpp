@@ -31,8 +31,9 @@ namespace tibee
 namespace common
 {
 
-DynamicLibraryStateProvider::DynamicLibraryStateProvider(const bfs::path& path) :
-    AbstractStateProviderFile {path},
+DynamicLibraryStateProvider::DynamicLibraryStateProvider(const bfs::path& path,
+                                                         const std::string& instance) :
+    AbstractStateProviderFile {path, instance},
     _dlHandle {nullptr}
 {
     // try loading the dynamic library
@@ -112,6 +113,11 @@ bool DynamicLibraryStateProvider::StateProviderConfig::registerEventCallbackRege
                                                                                   const OnEventFunc& onEvent)
 {
     return _stateProvider->registerEventCallbackRegex(traceType, eventName, onEvent);
+}
+
+const std::string& DynamicLibraryStateProvider::StateProviderConfig::getInstanceName()
+{
+    return _stateProvider->getInstanceName();
 }
 
 }

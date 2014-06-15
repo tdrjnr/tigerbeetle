@@ -73,6 +73,14 @@ public:
                                         const std::string& eventName,
                                         const OnEventFunc& onEvent);
 
+        /**
+         * Calls to this method are delegated to
+         * AbstractStateProvider::getInstanceName().
+         *
+         * @see AbstractStateProvider::getInstanceName()
+         */
+        const std::string& getInstanceName();
+
     private:
         /**
          * Builds a state provider configuration.
@@ -96,9 +104,11 @@ public:
     /**
      * Builds a dynamic library state provider.
      *
-     * @param path Dynamic library path
+     * @param path     Dynamic library path
+     * @param instance State provider instance name
      */
-    DynamicLibraryStateProvider(const boost::filesystem::path& path);
+    DynamicLibraryStateProvider(const boost::filesystem::path& path,
+                                const std::string& instance);
 
     ~DynamicLibraryStateProvider();
 

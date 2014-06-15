@@ -20,6 +20,7 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "StateHistoryBuilder.hpp"
 #include "TraceDeck.hpp"
 #include "Arguments.hpp"
 
@@ -59,7 +60,7 @@ private:
 private:
     TraceDeck _traceDeck;
     std::vector<boost::filesystem::path> _tracesPaths;
-    std::vector<std::string> _stateProviders;
+    std::vector<StateHistoryBuilder::StateProviderDescriptor> _stateProviders;
     std::string _bindProgress;
     boost::filesystem::path _dbDir;
     bool _verbose;

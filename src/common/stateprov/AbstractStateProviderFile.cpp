@@ -26,7 +26,9 @@ namespace tibee
 namespace common
 {
 
-AbstractStateProviderFile::AbstractStateProviderFile(const bfs::path& path) :
+AbstractStateProviderFile::AbstractStateProviderFile(const bfs::path& path,
+                                                     const std::string& instance) :
+    AbstractStateProvider {instance},
     _path {path}
 {
 }

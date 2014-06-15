@@ -28,8 +28,9 @@ namespace tibee
 namespace common
 {
 
-PythonStateProvider::PythonStateProvider(const boost::filesystem::path& path) :
-    AbstractStateProviderFile {path}
+PythonStateProvider::PythonStateProvider(const boost::filesystem::path& path,
+                                         const std::string& instance) :
+    AbstractStateProviderFile {path, instance}
 {
     std::cout << "python state provider: loading script " << path << std::endl;
 }

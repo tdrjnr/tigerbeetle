@@ -23,6 +23,7 @@
 
 #include <common/BasicTypes.hpp>
 #include <common/rpc/AbstractRpcNotification.hpp>
+#include "../StateHistoryBuilder.hpp"
 
 namespace tibee
 {
@@ -168,21 +169,21 @@ public:
     }
 
     /**
-     * Sets the state providers names used to build the caches.
+     * Sets the state providers descriptors used to build the caches.
      *
-     * @param stateProviders State providers names
+     * @param stateProviders State providers descriptors
      */
-    void setStateProviders(const std::vector<std::string>& stateProviders)
+    void setStateProviders(const std::vector<StateHistoryBuilder::StateProviderDescriptor>& stateProviders)
     {
         _stateProviders = stateProviders;
     }
 
     /**
-     * Returns the state providers names used to build the caches.
+     * Returns the state providers descriptors used to build the caches.
      *
-     * @returns State providers names
+     * @returns State providers descriptors
      */
-    const std::vector<std::string>& getStateProviders() const
+    const std::vector<StateHistoryBuilder::StateProviderDescriptor>& getStateProviders() const
     {
         return _stateProviders;
     }
@@ -194,7 +195,7 @@ private:
     common::timestamp_t _curTs;
     unsigned int _stateChanges;
     std::vector<boost::filesystem::path> _tracesPaths;
-    std::vector<std::string> _stateProviders;
+    std::vector<StateHistoryBuilder::StateProviderDescriptor> _stateProviders;
 };
 
 }

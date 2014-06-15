@@ -121,6 +121,7 @@ extern "C" void onInit(CurrentState& state,
                        DynamicLibraryStateProvider::StateProviderConfig& config)
 {
     std::cout << "hello from linux.so: onInit()" << std::endl;
+    std::cout << "  my instance name is: \"" << config.getInstanceName() << "\"" << std::endl;
 
     if (config.registerEventCallback("lttng-kernel", "sched_switch", onSchedSwitch)) {
         std::cout << "successfully registered callback for lttng-kernel/sched_switch" << std::endl;

@@ -89,7 +89,9 @@ bool BuilderJsonRpcMessageEncoder::encodeProgressUpdateRpcNotificationParams(con
     ::yajl_gen_string(yajlGen, STATE_PROVIDERS, STATE_PROVIDERS_LEN);
     ::yajl_gen_array_open(yajlGen);
 
-    for (const auto& name : stateProviders) {
+    for (const auto& stateProviderDescriptor : stateProviders) {
+        const auto& name = stateProviderDescriptor.name;
+
         ::yajl_gen_string(yajlGen,
                           reinterpret_cast<const unsigned char*>(name.c_str()),
                           name.size());

@@ -52,8 +52,13 @@ public:
 public:
     /**
      * Builds a state provider.
+     *
+     * An empty string for the instance name (\p instance) means no
+     * instance name.
+     *
+     * @param instance State provider instance name
      */
-    AbstractStateProvider();
+    AbstractStateProvider(const std::string& instance);
 
     virtual ~AbstractStateProvider();
 
@@ -80,6 +85,19 @@ public:
      * @param state Current state
      */
     void onFini(CurrentState& state);
+
+    /**
+     * Returns this state provider's instance name.
+     *
+     * An empty instance name means this state provider has no instance
+     * name.
+     *
+     * @returns Instance name
+     */
+    const std::string& getInstanceName() const
+    {
+        return _instance;
+    }
 
 protected:
     /**
@@ -208,6 +226,9 @@ private:
 
     // current trace set, valid between onInit() and onFini() incl.
     const TraceSet* _curTraceSet;
+
+    // instance name
+    std::string _instance;
 };
 
 }

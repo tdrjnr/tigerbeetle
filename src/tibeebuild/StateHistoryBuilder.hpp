@@ -44,13 +44,23 @@ class StateHistoryBuilder :
 {
 public:
     /**
+     * State provider descriptor.
+     */
+    struct StateProviderDescriptor
+    {
+        std::string name;
+        std::string instance;
+    };
+
+public:
+    /**
      * Builds a state history builder.
      *
      * @param dbDir     Cache directory
-     * @param providers List of state providers paths
+     * @param providers List of state providers descriptors
      */
     StateHistoryBuilder(const boost::filesystem::path& dbDir,
-                        const std::vector<std::string>& providers);
+                        const std::vector<StateProviderDescriptor>& providers);
 
     ~StateHistoryBuilder();
 
@@ -70,7 +80,7 @@ private:
     bool onStopImpl();
 
 private:
-    std::vector<std::string> _providersNames;
+    std::vector<StateProviderDescriptor> _providersDescriptors;
     std::vector<common::AbstractStateProvider::UP> _providers;
     std::unique_ptr<common::StateHistorySink> _stateHistorySink;
 };

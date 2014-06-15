@@ -86,7 +86,9 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
             "                              (default: \"./tibee\")" << std::endl <<
             "  -f, --force                 force database writing, even if the output" << std::endl <<
             "                              directory already exists" << std::endl <<
-            "  -s <provider path>          state provider file path (at least one)" << std::endl <<
+            "  -s [<inst>:]<name>          state provider <name> (at least one) with" << std::endl <<
+            "                              optional unique instance name <inst>; <name>" << std::endl <<
+            "                              may be a file path" << std::endl <<
             "  -v, --verbose               verbose" << std::endl;
 
         return -1;
