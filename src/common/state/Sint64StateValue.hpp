@@ -15,10 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_BASICTYPES_HPP
-#define _TIBEE_COMMON_BASICTYPES_HPP
+#ifndef _TIBEE_COMMON_SINT64STATEVALUE_HPP
+#define _TIBEE_COMMON_SINT64STATEVALUE_HPP
 
+#include <memory>
 #include <cstdint>
+
+#include <common/state/SimpleStateValue.hpp>
+#include <common/state/StateValueType.hpp>
 
 namespace tibee
 {
@@ -26,35 +30,22 @@ namespace common
 {
 
 /**
- * @file
- * This header holds basic type definitions used throughout tigerbeetle.
+ * 64-bit signed integer state value.
+ *
+ * @author Philippe Proulx
  */
+class Sint64StateValue :
+    public SimpleStateValue<std::int64_t, StateValueType::SINT64>
+{
+public:
+    typedef std::shared_ptr<Sint64StateValue> SP;
+    typedef std::unique_ptr<Sint64StateValue> UP;
 
-/// Trace/state timestamp
-typedef std::uint64_t   timestamp_t;
-
-/// Trace cycles
-typedef std::uint64_t   trace_cycles_t;
-
-/// State quark
-typedef std::uint32_t   quark_t;
-
-/// State node ID
-typedef std::uint32_t   state_node_id_t;
-
-/// RPC message ID
-typedef std::uint32_t   rpc_msg_id_t;
-
-/// Trace ID
-typedef std::int32_t    trace_id_t;
-
-/// Event ID
-typedef std::int32_t    event_id_t;
-
-/// Field index
-typedef std::uint64_t   field_index_t;
+public:
+    using SimpleStateValue::SimpleStateValue;
+};
 
 }
 }
 
-#endif // _TIBEE_COMMON_BASICTYPES_HPP
+#endif // _TIBEE_COMMON_SINT64STATEVALUE_HPP

@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_INT64STATEVALUE_HPP
-#define _TIBEE_COMMON_INT64STATEVALUE_HPP
+#ifndef _TIBEE_COMMON_SINT32STATEVALUE_HPP
+#define _TIBEE_COMMON_SINT32STATEVALUE_HPP
 
 #include <memory>
 #include <cstdint>
@@ -30,16 +30,16 @@ namespace common
 {
 
 /**
- * 64-bit signed integer state value.
+ * 32-bit signed integer state value.
  *
  * @author Philippe Proulx
  */
-class Int64StateValue :
-    public SimpleStateValue<std::int64_t, StateValueType::INT64>
+class Sint32StateValue :
+    public SimpleStateValue<std::int32_t, StateValueType::SINT32>
 {
 public:
-    typedef std::shared_ptr<Int64StateValue> SP;
-    typedef std::unique_ptr<Int64StateValue> UP;
+    typedef std::shared_ptr<Sint32StateValue> SP;
+    typedef std::unique_ptr<Sint32StateValue> UP;
 
 public:
     using SimpleStateValue::SimpleStateValue;
@@ -48,4 +48,4 @@ public:
 }
 }
 
-#endif // _TIBEE_COMMON_INT64STATEVALUE_HPP
+#endif // _TIBEE_COMMON_SINT32STATEVALUE_HPP

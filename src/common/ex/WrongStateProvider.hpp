@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _WRONGSTATEPROVIDER_HPP
-#define _WRONGSTATEPROVIDER_HPP
+#ifndef _TIBEE_COMMON_WRONGSTATEPROVIDEREX_HPP
+#define _TIBEE_COMMON_WRONGSTATEPROVIDEREX_HPP
 
 #include <string>
 #include <stdexcept>
@@ -58,4 +58,4 @@ private:
 }
 }
 
-#endif // _WRONGSTATEPROVIDER_HPP
+#endif // _TIBEE_COMMON_WRONGSTATEPROVIDEREX_HPP

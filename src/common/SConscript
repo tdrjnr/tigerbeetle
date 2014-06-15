@@ -25,9 +25,12 @@ trace_sources = [
 ]
 
 state_sources = [
+    'AbstractStateNodeVisitor.cpp',
     'AbstractStateValue.cpp',
     'CurrentState.cpp',
     'StateHistorySink.cpp',
+    'StateNode.cpp',
+    'StateNodeIterator.cpp',
 ]
 
 stateprov_sources = [

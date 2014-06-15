@@ -18,24 +18,31 @@
 #ifndef _TIBEE_COMMON_STATEHISTORYSINK_HPP
 #define _TIBEE_COMMON_STATEHISTORYSINK_HPP
 
+#include <cassert>
 #include <memory>
 #include <cstdint>
 #include <array>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <boost/utility.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/bimap.hpp>
+#include <boost/bimap/unordered_set_of.hpp>
 #include <delorean/HistoryFileSink.hpp>
 #include <delorean/interval/AbstractInterval.hpp>
 
 #include <common/BasicTypes.hpp>
 #include <common/state/AbstractStateValue.hpp>
+#include <common/state/NullStateValue.hpp>
 #include <common/state/CurrentState.hpp>
+#include <common/state/StateNode.hpp>
 
 namespace tibee
 {
 namespace common
 {
+
+class StateNode;
 
 /**
  * A state history sink.
@@ -50,19 +57,26 @@ namespace common
 class StateHistorySink :
     boost::noncopyable
 {
+    // mutual friendship FTW
+    friend StateNode;
+
 public:
     /**
      * Builds a state history sink.
      *
      * The current history timestamp is initialized with 0.
      *
-     * @param pathStrDbPath  Path to path string database file (to be created)
-     * @param valueStrDbPath Path to value string database file (to be created)
-     * @param historyPath    Path to history file (to be created)
+     * @param subpathStrDbPath  Path to subpath string database file (to be created)
+     * @param valueStrDbPath    Path to value string database file (to be created)
+     * @param nodesMapPath      Path to map of state nodes IDs to paths (to be created)
+     * @param historyPath       Path to history file (to be created)
+     * @param beginTs           Begin timestamp to use
      */
-    StateHistorySink(const boost::filesystem::path& pathStrDbPath,
+    StateHistorySink(const boost::filesystem::path& subpathStrDbPath,
                      const boost::filesystem::path& valueStrDbPath,
-                     const boost::filesystem::path& historyPath);
+                     const boost::filesystem::path& nodesMapPath,
+                     const boost::filesystem::path& historyPath,
+                     timestamp_t beginTs);
 
     ~StateHistorySink();
 
@@ -74,6 +88,8 @@ public:
      */
     void setCurrentTimestamp(timestamp_t ts)
     {
+        assert(ts >= _ts);
+
         _ts = ts;
     }
 
@@ -89,27 +105,26 @@ public:
 
     /**
      * Closes this state history sink, effectively closing all opened
-     * files and marking it as closed.
+     * files, flushing various internal databases to disk and marking it
+     * as closed.
      *
-     * All opened state values are closed with the current history
-     * timestamp.
-     *
-     * The string databases are written here.
+     * All state nodes of the state tree are written as intervals, with
+     * the current history timestamp as their end timestamp.
      */
     void close();
 
     /**
-     * Returns a quark for a given path string.
+     * Returns a quark for a given subpath string, created if needed.
      *
-     * The quark will always be the same for the same path.
+     * The quark will always be the same for the same subpath.
      *
-     * @param path Path string for which to get the quark
-     * @returns    Quark for given path
+     * @param subpath Subpath string for which to get the quark
+     * @returns       Quark for given subpath
      */
-    quark_t getPathQuark(const std::string& path);
+    quark_t getSubpathQuark(const std::string& subpath);
 
     /**
-     * Returns a quark for a given string state value.
+     * Returns a quark for a given string state value, created if needed.
      *
      * The quark will always be the same for the same string.
      *
@@ -119,50 +134,25 @@ public:
     quark_t getStringValueQuark(const std::string& value);
 
     /**
-     * Sets a state value.
+     * Returns the subpath associated with subpath quark \p quark or
+     * throws ex::WrongQuark if no such subpath exists.
      *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @returns Subpath string associated with subpath quark \p quark
      */
-    void setState(quark_t pathQuark, AbstractStateValue::UP value);
+    const std::string& getSubpathString(quark_t quark) const;
 
     /**
-     * Removes a state value.
+     * Returns the string value associated with quark \p quark or
+     * throws ex::WrongQuark if no such string value exists.
      *
-     * Caller must make sure the path quark exists.
-     *
-     * @param pathQuark Path quark of state value to remove
+     * @returns String value associated with string value quark \p quark
      */
-    void removeState(quark_t pathQuark);
+    const std::string& getStringValueString(quark_t quark) const;
 
     /**
-     * Returns the current state value for a given path.
-     *
-     * The returned pointer remains valid as long as no state is set
-     * in this sink.
-     *
-     * @param pathQuark Quark of state value path
-     * @returns         State value or \a nullptr if not found
-     */
-    const AbstractStateValue* getState(quark_t pathQuark) const
-    {
-        auto it = _stateValues.find(pathQuark);
-
-        if (it == _stateValues.end()) {
-            return nullptr;
-        }
-
-        return it->second.value.get();
-    }
-
-    /**
-     * Returns a reference to the current state, which may be used by
-     * state providers as a façade of this sink without having access
-     * to unrelated methods.
+     * Returns a reference to the "current state", which is an adapter
+     * that state providers may use to access this sink without having
+     * access to irrelevant methods.
      *
      * The current state remains valid/usable as long as this sink is.
      *
@@ -183,67 +173,124 @@ public:
         return _stateChangesCount;
     }
 
+    /**
+     * Returns the number of state nodes in the state tree so far,
+     * including the root node.
+     *
+     * @returns Number of state nodes in the state tree
+     */
+    std::size_t getNodesCount() const;
+
+    /**
+     * Returns the root of the state tree.
+     *
+     * @returns State tree root node
+     */
+    StateNode& getRoot()
+    {
+        return *_root;
+    }
+
+    /**
+     * Returns a null state value.
+     *
+     * @returns Null state value
+     */
+    const NullStateValue& getNull() const
+    {
+        return *_null;
+    }
+
 private:
     // a string database
-    typedef std::map<std::string, quark_t> StringDb;
+    typedef boost::bimaps::bimap<
+        boost::bimaps::unordered_set_of<std::string>,
+        boost::bimaps::unordered_set_of<quark_t>
+    > StringDb;
 
-    // this is used to keep the begin timestamp with a state value
-    struct StateValueEntry
-    {
-        timestamp_t beginTs;
-        AbstractStateValue::UP value;
-    };
-
-    // a (state value -> interval) translator
-    typedef std::function<delo::AbstractInterval* (quark_t, const StateValueEntry&)> Translator;
+    // a (state node -> delorean interval) translator
+    typedef std::function<delo::AbstractInterval* (const StateNode&)> Translator;
 
 private:
     void initTranslators();
     void open();
-    void writeInterval(quark_t pathQuark);
     void writeStringDb(const StringDb& stringDb,
                        const boost::filesystem::path& path);
     quark_t getQuark(StringDb& stringDb, const std::string& value,
-                     quark_t& curQuark);
+                     quark_t& nextQuark);
+
+    static const std::string& getQuarkString(const StringDb& stringDb,
+                                             quark_t quark);
+
+    /**
+     * Writes the map of state node IDs to paths to a file.
+     */
+    void writeNodesMap();
+
+    /**
+     * Builds a new state node, with a fresh, unused unique node ID.
+     *
+     * @returns Fresh state node
+     */
+    StateNode::UP buildStateNode();
+
+    /**
+     * Called by state nodes when an interval needs to be written.
+     *
+     * If the node has no current state value, no interval is written.
+     *
+     * @param node Node for which an interval needs to be created
+     */
+    void writeInterval(const StateNode& node);
 
 private:
     // paths to files to create
-    boost::filesystem::path _pathStrDbPath;
+    boost::filesystem::path _subpathStrDbPath;
     boost::filesystem::path _valueStrDbPath;
+    boost::filesystem::path _nodesMapPath;
     boost::filesystem::path _historyPath;
+
+    // provided begin timestamp
+    timestamp_t _beginTs;
 
     // current timestamp
     timestamp_t _ts;
 
     // open state
-    bool _opened;
+    bool _open;
 
     // string database for state paths
-    StringDb _pathsDb;
+    StringDb _subpathsDb;
 
     // string database for state values
     StringDb _strValuesDb;
 
     // current state path quark
-    quark_t _curPathQuark;
+    quark_t _nextPathQuark;
 
     // current state value quark
-    quark_t _curStrValueQuark;
+    quark_t _nextStrValueQuark;
 
-    // current state values
-    std::map<quark_t, StateValueEntry> _stateValues;
+    // next state node unique ID to assign
+    state_node_id_t _nextNodeId;
 
-    // (state value -> interval) translators
+    // root state node
+    StateNode::UP _root;
+
+    // (state value -> delorean interval) translators
     std::array<Translator, 16> _translators;
 
-    // current state façade for state providers
+    // current state adapter for state providers
     CurrentState _currentState;
 
     // interval history sink
     std::unique_ptr<delo::HistoryFileSink> _intervalFileSink;
 
-    // count of state changes so far (including removals)
+    // count of state changes so far
     std::size_t _stateChangesCount;
+
+    // Null state value
+    NullStateValue::UP _null;
 };
 
 }

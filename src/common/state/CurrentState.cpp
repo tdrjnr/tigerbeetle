@@ -15,17 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstdint>
-
-#include <common/state/StateValueType.hpp>
-#include <common/state/StateHistorySink.hpp>
 #include <common/state/CurrentState.hpp>
-#include <common/state/Int32StateValue.hpp>
-#include <common/state/Uint32StateValue.hpp>
-#include <common/state/Int64StateValue.hpp>
-#include <common/state/Uint64StateValue.hpp>
-#include <common/state/Float32StateValue.hpp>
-#include <common/state/QuarkStateValue.hpp>
+#include <common/state/StateHistorySink.hpp>
+#include <common/state/StateNode.hpp>
 
 namespace tibee
 {
@@ -37,124 +29,49 @@ CurrentState::CurrentState(StateHistorySink* sink) :
 {
 }
 
-quark_t CurrentState::getPathQuark(const char* path) const
+quark_t CurrentState::getSubpathQuark(const char* subpath) const
 {
-    // delegate to state history sink
-    return _sink->getPathQuark(path);
+    return _sink->getSubpathQuark(subpath);
 }
 
-quark_t CurrentState::getPathQuark(const std::string& path) const
+quark_t CurrentState::getSubpathQuark(const std::string& subpath) const
 {
-    // delegate to state history sink
-    return _sink->getPathQuark(path);
+    return _sink->getSubpathQuark(subpath);
 }
 
-quark_t CurrentState::getStringValueQuark(const char* path) const
+quark_t CurrentState::getStringValueQuark(const char* string) const
 {
-    // delegate to state history sink
-    return _sink->getStringValueQuark(path);
+    return _sink->getStringValueQuark(string);
 }
 
-quark_t CurrentState::getStringValueQuark(const std::string& path) const
+quark_t CurrentState::getStringValueQuark(const std::string& string) const
 {
-    // delegate to state history sink
-    return _sink->getStringValueQuark(path);
+    return _sink->getStringValueQuark(string);
 }
 
-void CurrentState::setInt32State(quark_t pathQuark, std::int32_t value)
+const std::string& CurrentState::getSubpathString(quark_t quark) const
 {
-    AbstractStateValue::UP stateValue {new Int32StateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
+    return _sink->getSubpathString(quark);
 }
 
-void CurrentState::setUint32State(quark_t pathQuark, std::uint32_t value)
+const std::string& CurrentState::getStringValueString(quark_t quark) const
 {
-    AbstractStateValue::UP stateValue {new Uint32StateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
+    return _sink->getStringValueString(quark);
 }
 
-void CurrentState::setInt64State(quark_t pathQuark, std::int64_t value)
+std::size_t CurrentState::getStateChangesCount() const
 {
-    AbstractStateValue::UP stateValue {new Int64StateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
+    return _sink->getStateChangesCount();
 }
 
-void CurrentState::setUint64State(quark_t pathQuark, std::uint64_t value)
+std::size_t CurrentState::getNodesCount() const
 {
-    AbstractStateValue::UP stateValue {new Uint64StateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
+    return _sink->getNodesCount();
 }
 
-void CurrentState::setFloat32State(quark_t pathQuark, float value)
+StateNode& CurrentState::getRoot()
 {
-    AbstractStateValue::UP stateValue {new Float32StateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
-}
-
-void CurrentState::setQuarkState(quark_t pathQuark, quark_t value)
-{
-    AbstractStateValue::UP stateValue {new QuarkStateValue {value}};
-
-    _sink->setState(pathQuark, std::move(stateValue));
-}
-
-void CurrentState::setState(quark_t pathQuark, AbstractStateValue::UP value)
-{
-    _sink->setState(pathQuark, std::move(value));
-}
-
-bool CurrentState::incState(quark_t pathQuark, std::int64_t value)
-{
-    auto stateValue = _sink->getState(pathQuark);
-
-    if (!stateValue) {
-        return false;
-    }
-
-    auto stateValueType = stateValue->getType();
-
-    if (stateValueType == StateValueType::INT32) {
-        auto curStateValue = static_cast<const Int32StateValue*>(stateValue);
-
-        this->setInt32State(pathQuark, curStateValue->getValue() + value);
-    } else if (stateValueType == StateValueType::UINT32) {
-        auto curStateValue = static_cast<const Uint32StateValue*>(stateValue);
-
-        this->setUint32State(pathQuark, curStateValue->getValue() + value);
-    } else if (stateValueType == StateValueType::INT64) {
-        auto curStateValue = static_cast<const Int64StateValue*>(stateValue);
-
-        this->setInt64State(pathQuark, curStateValue->getValue() + value);
-    } else if (stateValueType == StateValueType::UINT64) {
-        auto curStateValue = static_cast<const Uint64StateValue*>(stateValue);
-
-        this->setUint64State(pathQuark, curStateValue->getValue() + value);
-    } else {
-        // not an integer state value
-        return false;
-    }
-
-    return true;
-}
-
-bool CurrentState::decState(quark_t pathQuark, std::int64_t value)
-{
-    return this->incState(pathQuark, -value);
-}
-
-void CurrentState::removeState(quark_t pathQuark)
-{
-    _sink->removeState(pathQuark);
-}
-
-const AbstractStateValue* CurrentState::getState(quark_t pathQuark) const
-{
-    return _sink->getState(pathQuark);
+    return _sink->getRoot();
 }
 
 }

@@ -19,11 +19,12 @@
 #define _TIBEE_COMMON_CURRENTSTATE_HPP
 
 #include <memory>
-#include <cstdint>
+#include <cstddef>
 #include <boost/utility.hpp>
 
 #include <common/state/AbstractStateValue.hpp>
 #include <common/BasicTypes.hpp>
+
 
 namespace tibee
 {
@@ -31,6 +32,7 @@ namespace common
 {
 
 class StateHistorySink;
+class StateNode;
 
 /**
  * Current state (during a state history construction); façade of a
@@ -50,179 +52,49 @@ class CurrentState final :
 
 public:
     /**
-     * Returns a quark for a given path string.
-     *
-     * The quark will always be the same for the same path.
-     *
-     * @param path Path string for which to get the quark
-     * @returns    Quark for given path
+     * @see StateHistorySink::getSubpathQuark()
      */
-    quark_t getPathQuark(const char* path) const;
+    quark_t getSubpathQuark(const char* subpath) const;
 
     /**
-     * Returns a quark for a given path string.
-     *
-     * The quark will always be the same for the same path.
-     *
-     * @param path Path string for which to get the quark
-     * @returns    Quark for given path
+     * @see StateHistorySink::getSubpathQuark()
      */
-    quark_t getPathQuark(const std::string& path) const;
+    quark_t getSubpathQuark(const std::string& subpath) const;
 
     /**
-     * Returns a quark for a given string state value.
-     *
-     * The quark will always be the same for the same string.
-     *
-     * @param path String for which to get the quark
-     * @returns    Quark for given path
+     * @see StateHistorySink::getStringValueQuark()
      */
-    quark_t getStringValueQuark(const char* path) const;
+    quark_t getStringValueQuark(const char* string) const;
 
     /**
-     * Returns a quark for a given string state value.
-     *
-     * The quark will always be the same for the same string.
-     *
-     * @param path String for which to get the quark
-     * @returns    Quark for given path
+     * @see StateHistorySink::getStringValueQuark()
      */
-    quark_t getStringValueQuark(const std::string& path) const;
+    quark_t getStringValueQuark(const std::string& string) const;
 
     /**
-     * Sets a 32-bit signed integer state value \p value for a specific
-     * path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @see StateHistorySink::getSubpathString()
      */
-    void setInt32State(quark_t pathQuark, std::int32_t value);
+    const std::string& getSubpathString(quark_t quark) const;
 
     /**
-     * Sets a 32-bit unsigned integer state value \p value for a specific
-     * path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @see StateHistorySink::getStringValueString()
      */
-    void setUint32State(quark_t pathQuark, std::uint32_t value);
+    const std::string& getStringValueString(quark_t quark) const;
 
     /**
-     * Sets a 64-bit signed integer state value \p value for a specific
-     * path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @see StateHistorySink::getStateChangesCount()
      */
-    void setInt64State(quark_t pathQuark, std::int64_t value);
+    std::size_t getStateChangesCount() const;
 
     /**
-     * Sets a 64-bit unsigned integer state value \p value for a specific
-     * path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @see StateHistorySink::getNodesCount()
      */
-    void setUint64State(quark_t pathQuark, std::uint64_t value);
+    std::size_t getNodesCount() const;
 
     /**
-     * Sets a 32-bit floating point number state value \p value for a
-     * specific path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
+     * @see StateHistorySink::getRoot()
      */
-    void setFloat32State(quark_t pathQuark, float value);
-
-    /**
-     * Sets a quark state value \p value for a specific path \p pathQuark.
-     *
-     * Caller must make sure both quarks exist.
-     *
-     * See getStringValueQuark() to obtain a quark out of a raw string.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
-     */
-    void setQuarkState(quark_t pathQuark, quark_t value);
-
-    /**
-     * Convenience method to increment an integer state value.
-     *
-     * A type check is done here, and this method returns \a false if
-     * the state value at \p pathQuark is not an integer state value.
-     *
-     * @param pathQuark Path quark of state value to increment
-     * @param value     Value to use for incrementation
-     * @returns         True if the incrementation was done
-     */
-    bool incState(quark_t pathQuark, std::int64_t value = 1);
-
-    /**
-     * Convenience method to decrement an integer state value.
-     *
-     * A type check is done here, and this method returns \a false if
-     * the state value at \p pathQuark is not an integer state value.
-     *
-     * @param pathQuark Path quark of state value to decrement
-     * @param value     Value (positive) to use for decrementation
-     * @returns         True if the decrementation was done
-     */
-    bool decState(quark_t pathQuark, std::int64_t value = 1);
-
-    /**
-     * Removes a state value.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * @param pathQuark Path quark of state value to remove
-     */
-    void removeState(quark_t pathQuark);
-
-    /**
-     * Sets a state value \p value for a specific path \p pathQuark.
-     *
-     * Caller must make sure the path quark exists.
-     *
-     * See getPathQuark() to obtain a quark out of a raw path string.
-     *
-     * @param pathQuark Quark of state value path
-     * @param value     Value to set
-     */
-    void setState(quark_t pathQuark, AbstractStateValue::UP value);
-
-    /**
-     * Returns the current state value for a given path.
-     *
-     * The returned pointer remains valid as long as no state is set
-     * in this current state.
-     *
-     * @param pathQuark Quark of state value path
-     * @returns         State value or \a nullptr if not found
-     */
-    const AbstractStateValue* getState(quark_t pathQuark) const;
+    StateNode& getRoot();
 
 private:
     // only StateHistorySink may build a CurrentState object

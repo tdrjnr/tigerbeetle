@@ -15,46 +15,34 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_BASICTYPES_HPP
-#define _TIBEE_COMMON_BASICTYPES_HPP
-
-#include <cstdint>
+#include <common/state/AbstractStateNodeVisitor.hpp>
 
 namespace tibee
 {
 namespace common
 {
 
-/**
- * @file
- * This header holds basic type definitions used throughout tigerbeetle.
- */
+AbstractStateNodeVisitor::~AbstractStateNodeVisitor()
+{
+}
 
-/// Trace/state timestamp
-typedef std::uint64_t   timestamp_t;
+void AbstractStateNodeVisitor::visitEnter(quark_t quark, const StateNode& node)
+{
+    this->visitEnterImpl(quark, node);
+}
 
-/// Trace cycles
-typedef std::uint64_t   trace_cycles_t;
+void AbstractStateNodeVisitor::visitLeave(quark_t quark, const StateNode& node)
+{
+    this->visitLeaveImpl(quark, node);
+}
 
-/// State quark
-typedef std::uint32_t   quark_t;
+void AbstractStateNodeVisitor::visitEnterImpl(quark_t quark, const StateNode& node)
+{
+}
 
-/// State node ID
-typedef std::uint32_t   state_node_id_t;
-
-/// RPC message ID
-typedef std::uint32_t   rpc_msg_id_t;
-
-/// Trace ID
-typedef std::int32_t    trace_id_t;
-
-/// Event ID
-typedef std::int32_t    event_id_t;
-
-/// Field index
-typedef std::uint64_t   field_index_t;
+void AbstractStateNodeVisitor::visitLeaveImpl(quark_t quark, const StateNode& node)
+{
+}
 
 }
 }
-
-#endif // _TIBEE_COMMON_BASICTYPES_HPP

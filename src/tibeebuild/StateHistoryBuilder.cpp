@@ -88,9 +88,11 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
     // create new state history sink (destroying the previous one)
     _stateHistorySink = std::unique_ptr<common::StateHistorySink> {
         new common::StateHistorySink {
-            this->getCacheDir() / "paths-quarks.db",
-            this->getCacheDir() / "values-quarks.db",
-            this->getCacheDir() / "history"
+            this->getCacheDir() / "state-paths-quarks.db",
+            this->getCacheDir() / "state-values-quarks.db",
+            this->getCacheDir() / "state-nodes.json",
+            this->getCacheDir() / "state-history",
+            traceSet->getBegin()
         }
     };
 
@@ -104,6 +106,9 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
 
 void StateHistoryBuilder::onEventImpl(const common::Event& event)
 {
+    // update state history sink's current timestamp
+    _stateHistorySink->setCurrentTimestamp(event.getTimestamp());
+
     // also notify each state provider
     for (auto& provider : _providers) {
         provider->onEvent(_stateHistorySink->getCurrentState(), event);

@@ -15,37 +15,40 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _TIBEE_COMMON_INT32STATEVALUE_HPP
-#define _TIBEE_COMMON_INT32STATEVALUE_HPP
+#ifndef _TIBEE_COMMON_WRONGQUARKEX_HPP
+#define _TIBEE_COMMON_WRONGQUARKEX_HPP
 
-#include <memory>
-#include <cstdint>
+#include <stdexcept>
 
-#include <common/state/SimpleStateValue.hpp>
-#include <common/state/StateValueType.hpp>
+#include <common/BasicTypes.hpp>
 
 namespace tibee
 {
 namespace common
 {
+namespace ex
+{
 
-/**
- * 32-bit signed integer state value.
- *
- * @author Philippe Proulx
- */
-class Int32StateValue :
-    public SimpleStateValue<std::int32_t, StateValueType::INT32>
+class WrongQuark :
+    public std::runtime_error
 {
 public:
-    typedef std::shared_ptr<Int32StateValue> SP;
-    typedef std::unique_ptr<Int32StateValue> UP;
+    WrongQuark(quark_t quark) :
+        std::runtime_error {"wrong quark"},
+        _quark {quark}
+    {
+    }
 
-public:
-    using SimpleStateValue::SimpleStateValue;
+    quark_t getQuark() const {
+        return _quark;
+    }
+
+private:
+    quark_t _quark;
 };
 
 }
 }
+}
 
-#endif // _TIBEE_COMMON_INT32STATEVALUE_HPP
+#endif // _TIBEE_COMMON_WRONGQUARKEX_HPP

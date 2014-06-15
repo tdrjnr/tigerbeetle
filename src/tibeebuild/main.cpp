@@ -21,11 +21,12 @@
 #include <string>
 #include <boost/program_options.hpp>
 
+#include <common/utils/print.hpp>
 #include "BuilderBeetle.hpp"
 #include "Arguments.hpp"
 #include "ex/InvalidArgument.hpp"
 #include "ex/BuilderBeetleError.hpp"
-#include "common/utils/print.hpp"
+
 
 using tibee::common::tberror;
 using tibee::common::tbendl;

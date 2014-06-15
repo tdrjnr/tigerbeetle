@@ -30,12 +30,13 @@ namespace common
  */
 enum class StateValueType
 {
-    INT32,
+    SINT32 = 0,
     UINT32,
-    INT64,
+    SINT64,
     UINT64,
     FLOAT32,
     QUARK,
+    NUL,
 };
 
 }
