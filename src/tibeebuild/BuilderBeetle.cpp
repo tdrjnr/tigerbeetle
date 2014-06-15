@@ -198,11 +198,71 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
     _verbose = args.verbose;
 }
 
+void BuilderBeetle::createTracesSymlinks() const
+{
+    auto tracesSymlinksDir = _dbDir / "traces";
+
+    // create "traces" subdirectory of database directory
+    try {
+        bfs::create_directory(tracesSymlinksDir);
+    } catch (const std::exception& ex) {
+        std::stringstream ss;
+
+        ss << "cannot create " << tracesSymlinksDir << " directory" <<
+              "  " << ex.what();
+
+        throw ex::BuilderBeetleError {ss.str()};
+    }
+
+    // make sure the directory exists
+    if (!bfs::is_directory(tracesSymlinksDir)) {
+        std::stringstream ss;
+
+        ss << "cannot create " << tracesSymlinksDir << " directory";
+
+        throw ex::BuilderBeetleError {ss.str()};
+    }
+
+    // create symlinks
+    std::size_t cur = 0;
+
+    for (const auto& tracePath : _tracesPaths) {
+        auto symlinkPath = tracesSymlinksDir / std::to_string(cur);
+
+        if (bfs::exists(symlinkPath)) {
+            try {
+                bfs::remove(symlinkPath);
+            } catch (const std::exception& ex) {
+                std::stringstream ss;
+
+                ss << "cannot remove existing file " << symlinkPath <<
+                      "  " << ex.what();
+
+                throw ex::BuilderBeetleError {ss.str()};
+            }
+        }
+
+        try {
+            bfs::create_symlink(tracePath, symlinkPath);
+        } catch (const std::exception& ex) {
+            std::stringstream ss;
+
+            ss << "cannot create symlink " << symlinkPath <<
+                  "  " << ex.what();
+
+            throw ex::BuilderBeetleError {ss.str()};
+        }
+    }
+}
+
 bool BuilderBeetle::run()
 {
     if (_verbose) {
         tbmsg(THIS_MODULE) << "starting builder" << tbendl();
     }
+
+    // create traces symlinks
+    this->createTracesSymlinks();
 
     // create a trace set
     std::unique_ptr<common::TraceSet> traceSet {new common::TraceSet};

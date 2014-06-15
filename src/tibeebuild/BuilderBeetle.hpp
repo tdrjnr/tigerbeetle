@@ -57,6 +57,7 @@ public:
 
 private:
     void validateSaveArguments(const Arguments& args);
+    void createTracesSymlinks() const;
 
 private:
     TraceDeck _traceDeck;
