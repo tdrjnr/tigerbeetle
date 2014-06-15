@@ -20,6 +20,7 @@
 
 #include <string>
 #include <babeltrace/ctf/events.h>
+#include <boost/utility.hpp>
 
 #include <common/BasicTypes.hpp>
 #include <common/trace/EventValueFactory.hpp>
@@ -34,7 +35,8 @@ namespace common
  *
  * @author Philippe Proulx
  */
-class Event
+class Event :
+    boost::noncopyable
 {
     friend class TraceSetIterator;
 
