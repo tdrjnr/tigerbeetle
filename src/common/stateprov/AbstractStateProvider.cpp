@@ -145,9 +145,9 @@ bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceT
     for (const auto& traceInfos : tracesInfos) {
         EventIdCallbackMap callbackMap;
 
-        if (boost::regex_match(traceInfos->getTraceType(), traceTypeBre)) {
+        if (boost::regex_search(traceInfos->getTraceType(), traceTypeBre)) {
             for (const auto& eventNameIdPair : *traceInfos->getEventMap()) {
-                if (boost::regex_match(eventNameIdPair.first, eventNameBre)) {
+                if (boost::regex_search(eventNameIdPair.first, eventNameBre)) {
                     auto traceId = traceInfos->getId();
                     auto eventId = eventNameIdPair.second->getId();
 
