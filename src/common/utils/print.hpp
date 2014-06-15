@@ -20,6 +20,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <string>
 
 #include <common/utils/TermModifier.hpp>
 
@@ -29,54 +30,46 @@ namespace common
 {
 
 /**
- * Output a colored error.
+ * Outputs a colored error to standard error.
  *
  * Call tbendl() at the end of the output instead of using std::endl.
  *
  * @return Stream to use for output
  */
-std::ostream& tberror()
-{
-    return std::cerr << TM(TM::FG_RED) << "Error: " << TM(TM::BOLD);
-}
+std::ostream& tberror();
 
 /**
- * Output a colored warning.
+ * Outputs a colored warning to standard output.
  *
  * Call tbendl() at the end of the output instead of using std::endl.
  *
  * @return Stream to use for output
  */
-std::ostream& tbwarn()
-{
-    return std::cout << TM(TM::FG_YELLOW) << "Warning: " << TM(TM::BOLD);
-}
+std::ostream& tbwarn();
 
 /**
- * Output a colored information.
+ * Outputs a colored information to standard output.
  *
  * Call tbendl() at the end of the output instead of using std::endl.
  *
  * @return Stream to use for output
  */
-std::ostream& tbinfo()
-{
-    return std::cout << TM(TM::FG_BLUE) << "Warning: " << TM(TM::BOLD);
-}
+std::ostream& tbinfo();
+
+/**
+ * Outputs a module message to standard output.
+ *
+ * @param moduleName Module name
+ * @return           Stream to use for output
+ */
+std::ostream& tbmsg(const std::string& moduleName);
 
 /**
  * Terminates a colored output.
  *
  * @return String to output to terminate the colored output
  */
-std::string tbendl()
-{
-    std::stringstream ss;
-
-    ss << TM(TM::RESET) << std::endl;
-
-    return ss.str();
-}
+std::string tbendl();
 
 }
 }

@@ -53,12 +53,17 @@ rpc_sources = [
     'AbstractJsonRpcMessageDecoder.cpp',
 ]
 
+utils_sources = [
+    'print.cpp',
+]
+
 subs = [
     ('trace', trace_sources),
     ('state', state_sources),
     ('stateprov', stateprov_sources),
     ('mq', mq_sources),
     ('rpc', rpc_sources),
+    ('utils', utils_sources),
 ]
 
 sources = []

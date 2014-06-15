@@ -25,6 +25,7 @@
 
 #include <common/trace/TraceSet.hpp>
 #include <common/stateprov/StateProviderConfig.hpp>
+#include <common/utils/print.hpp>
 #include <common/ex/WrongStateProvider.hpp>
 #include "StateHistoryBuilder.hpp"
 #include "ProgressPublisher.hpp"
@@ -37,10 +38,15 @@
 #include "ex/BuilderBeetleError.hpp"
 #include "ex/StateProviderNotFound.hpp"
 
+#define THIS_MODULE "builder"
+
 namespace bfs = boost::filesystem;
 
 namespace tibee
 {
+
+using common::tbmsg;
+using common::tbendl;
 
 BuilderBeetle::BuilderBeetle(const Arguments& args)
 {
@@ -187,15 +193,26 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
 
     // bind address for progress publishing
     _bindProgress = args.bindProgress;
+
+    // verbose
+    _verbose = args.verbose;
 }
 
 bool BuilderBeetle::run()
 {
+    if (_verbose) {
+        tbmsg(THIS_MODULE) << "starting builder" << tbendl();
+    }
+
     // create a trace set
     std::unique_ptr<common::TraceSet> traceSet {new common::TraceSet};
 
     // add traces to trace set
     for (const auto& tracePath : _tracesPaths) {
+        if (_verbose) {
+            tbmsg(THIS_MODULE) << "adding trace " << tracePath << tbendl();
+        }
+
         if (!traceSet->addTrace(tracePath)) {
             std::stringstream ss;
 
@@ -248,6 +265,7 @@ bool BuilderBeetle::run()
     // create a progress publisher
     if (!_bindProgress.empty()) {
         std::unique_ptr<ProgressPublisher> progressPublisher;
+
         try {
             progressPublisher = std::unique_ptr<ProgressPublisher> {
                 new ProgressPublisher {
@@ -273,6 +291,10 @@ bool BuilderBeetle::run()
     }
 
     // ready for playback!
+    if (_verbose) {
+        tbmsg(THIS_MODULE) << "starting trace playback" << tbendl();
+    }
+
     return _traceDeck.play(traceSet.get(), listeners);
 }
 
