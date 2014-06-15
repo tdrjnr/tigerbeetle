@@ -101,6 +101,32 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
 
         return text
 
+    @staticmethod
+    def _format_duration(ts1, ts2):
+        total_sec = (ts2 - ts1) // 1000000000
+        diff_ns = (ts2 - ts1) - total_sec * 1000000000
+        days = total_sec // (3600 * 24)
+        total_sec -= days * (3600 * 24)
+        hours = total_sec // 3600
+        total_sec -= hours * 3600
+        minutes = total_sec // 60
+        total_sec -= minutes * 60
+        seconds = total_sec
+
+        ret = ''
+
+        if days:
+            ret += '{­} days + '.format(days)
+
+        if hours:
+            ret += '{}:{:02}'.format(hours, minutes)
+        else:
+            ret += '{}'.format(minutes)
+
+        ret += ':{:02} + {} ns'.format(seconds, diff_ns)
+
+        return ret
+
     def set_progress_update(self, update):
         # get begin, current and end times
         begin = update.get_begin_ts()
@@ -134,7 +160,9 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         # end time label
         self._lbl_end_time.setText(end_text)
 
-        # TODO: duration label
+        # duration label
+        duration_text = QProgressMainWindow._format_duration(begin, end)
+        self._lbl_duration.setText(duration_text)
 
         # current time label
         self._lbl_cur_time.setText(cur_text)
