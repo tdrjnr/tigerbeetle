@@ -143,6 +143,10 @@ extern "C" void onInit(CurrentState& state,
         std::cout << "params[bool]: " << config["bool"].asBool() << std::endl;
     }
 
+    if (config.hasParam("float")) {
+        std::cout << "params[float]: " << config["float"].asFloat() << std::endl;
+    }
+
     if (adapter.registerEventCallback("lttng-kernel", "sched_switch", onSchedSwitch)) {
         std::cout << "successfully registered callback for lttng-kernel/sched_switch" << std::endl;
     } else {
