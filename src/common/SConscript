@@ -35,6 +35,7 @@ stateprov_sources = [
     'AbstractStateProviderFile.cpp',
     'DynamicLibraryStateProvider.cpp',
     'PythonStateProvider.cpp',
+    'StateProviderParamValue.cpp',
 ]
 
 mq_sources = [

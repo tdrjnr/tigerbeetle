@@ -118,42 +118,43 @@ bool onSysEvent(CurrentState& state, const Event& event)
 
 extern "C" void onInit(CurrentState& state,
                        const TraceSet* traceSet,
-                       DynamicLibraryStateProvider::StateProviderConfig& config)
+                       DynamicLibraryStateProvider::Adapter& adapter)
 {
     std::cout << "hello from linux.so: onInit()" << std::endl;
-    std::cout << "  my instance name is: \"" << config.getInstanceName() << "\"" << std::endl;
+    std::cout << "  my name is: \"" << adapter.getConfig().getName() << "\"" << std::endl;
+    std::cout << "  my instance name is: \"" << adapter.getConfig().getInstanceName() << "\"" << std::endl;
 
-    if (config.registerEventCallback("lttng-kernel", "sched_switch", onSchedSwitch)) {
+    if (adapter.registerEventCallback("lttng-kernel", "sched_switch", onSchedSwitch)) {
         std::cout << "successfully registered callback for lttng-kernel/sched_switch" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/sched_switch" << std::endl;
     }
 
-    if (config.registerEventCallback("lttng-kernel", "sys_open", onSysOpen)) {
+    if (adapter.registerEventCallback("lttng-kernel", "sys_open", onSysOpen)) {
         std::cout << "successfully registered callback for lttng-kernel/sys_open" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/sys_open" << std::endl;
     }
 
-    if (config.registerEventCallback("lttng-kernel", "sys_close", onSysClose)) {
+    if (adapter.registerEventCallback("lttng-kernel", "sys_close", onSysClose)) {
         std::cout << "successfully registered callback for lttng-kernel/sys_close" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/sys_close" << std::endl;
     }
 
-    if (config.registerEventCallback("lttng-kernel", "meowmix", onSysClose)) {
+    if (adapter.registerEventCallback("lttng-kernel", "meowmix", onSysClose)) {
         std::cout << "successfully registered callback for lttng-kernel/meowmix" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/meowmix" << std::endl;
     }
 
-    if (config.registerEventCallbackRegex("lttng-(?:kernel|ust)$", "^sys_(\\w|\\d)+$", onSysEvent)) {
+    if (adapter.registerEventCallbackRegex("lttng-(?:kernel|ust)$", "^sys_(\\w|\\d)+$", onSysEvent)) {
         std::cout << "successfully registered callback for lttng-(?:kernel|ust)$/^sys_(\\w|\\d)+$" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-(?:kernel|ust)$/^sys_\\w+$" << std::endl;
     }
 
-    if (config.registerEventCallback("lttng-kernel", "", onEvent)) {
+    if (adapter.registerEventCallback("lttng-kernel", "", onEvent)) {
         std::cout << "successfully registered callback for lttng-kernel/*" << std::endl;
     } else {
         std::cout << "could not register callback for lttng-kernel/*" << std::endl;

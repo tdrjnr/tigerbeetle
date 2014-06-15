@@ -33,6 +33,7 @@ struct Arguments
 {
     std::vector<std::string> traces;
     std::vector<std::string> stateProviders;
+    std::vector<std::string> stateProvidersParams;
     std::string bindProgress;
     std::string dbDir;
     bool verbose;

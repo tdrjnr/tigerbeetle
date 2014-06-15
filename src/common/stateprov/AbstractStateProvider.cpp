@@ -24,8 +24,8 @@ namespace tibee
 namespace common
 {
 
-AbstractStateProvider::AbstractStateProvider(const std::string& instance) :
-    _instance {instance}
+AbstractStateProvider::AbstractStateProvider(const StateProviderConfig& config) :
+    _config {config}
 {
 }
 

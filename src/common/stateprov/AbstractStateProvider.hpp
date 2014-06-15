@@ -25,6 +25,7 @@
 
 #include <common/BasicTypes.hpp>
 #include <common/state/CurrentState.hpp>
+#include <common/stateprov/StateProviderConfig.hpp>
 #include <common/trace/Event.hpp>
 #include <common/trace/TraceSet.hpp>
 
@@ -53,12 +54,9 @@ public:
     /**
      * Builds a state provider.
      *
-     * An empty string for the instance name (\p instance) means no
-     * instance name.
-     *
-     * @param instance State provider instance name
+     * @param config State provider configuration
      */
-    AbstractStateProvider(const std::string& instance);
+    AbstractStateProvider(const StateProviderConfig& config);
 
     virtual ~AbstractStateProvider();
 
@@ -87,16 +85,13 @@ public:
     void onFini(CurrentState& state);
 
     /**
-     * Returns this state provider's instance name.
+     * Returns this state provider's configuration.
      *
-     * An empty instance name means this state provider has no instance
-     * name.
-     *
-     * @returns Instance name
+     * @returns State provider configuration
      */
-    const std::string& getInstanceName() const
+    const StateProviderConfig& getConfig() const
     {
-        return _instance;
+        return _config;
     }
 
 protected:
@@ -227,8 +222,8 @@ private:
     // current trace set, valid between onInit() and onFini() incl.
     const TraceSet* _curTraceSet;
 
-    // instance name
-    std::string _instance;
+    // configuration
+    StateProviderConfig _config;
 };
 
 }

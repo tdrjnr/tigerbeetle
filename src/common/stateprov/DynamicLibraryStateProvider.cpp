@@ -32,8 +32,8 @@ namespace common
 {
 
 DynamicLibraryStateProvider::DynamicLibraryStateProvider(const bfs::path& path,
-                                                         const std::string& instance) :
-    AbstractStateProviderFile {path, instance},
+                                                         const StateProviderConfig& config) :
+    AbstractStateProviderFile {path, config},
     _dlHandle {nullptr}
 {
     // try loading the dynamic library
@@ -80,11 +80,11 @@ void DynamicLibraryStateProvider::onInitImpl(CurrentState& state,
                                              const TraceSet* traceSet)
 {
     if (_dlOnInit) {
-        // build temporary state provider façade
-        DynamicLibraryStateProvider::StateProviderConfig config {this};
+        // build temporary state provider adapter
+        DynamicLibraryStateProvider::Adapter adapter {this};
 
         // delegate
-        _dlOnInit(state, traceSet, config);
+        _dlOnInit(state, traceSet, adapter);
     }
 }
 
@@ -96,28 +96,28 @@ void DynamicLibraryStateProvider::onFiniImpl(CurrentState& state)
     }
 }
 
-DynamicLibraryStateProvider::StateProviderConfig::StateProviderConfig(DynamicLibraryStateProvider* stateProvider) :
+DynamicLibraryStateProvider::Adapter::Adapter(DynamicLibraryStateProvider* stateProvider) :
     _stateProvider {stateProvider}
 {
 }
 
-bool DynamicLibraryStateProvider::StateProviderConfig::registerEventCallback(const std::string& traceType,
-                                                                             const std::string& eventName,
-                                                                             const OnEventFunc& onEvent)
+bool DynamicLibraryStateProvider::Adapter::registerEventCallback(const std::string& traceType,
+                                                                 const std::string& eventName,
+                                                                 const OnEventFunc& onEvent)
 {
     return _stateProvider->registerEventCallback(traceType, eventName, onEvent);
 }
 
-bool DynamicLibraryStateProvider::StateProviderConfig::registerEventCallbackRegex(const std::string& traceType,
-                                                                                  const std::string& eventName,
-                                                                                  const OnEventFunc& onEvent)
+bool DynamicLibraryStateProvider::Adapter::registerEventCallbackRegex(const std::string& traceType,
+                                                                      const std::string& eventName,
+                                                                      const OnEventFunc& onEvent)
 {
     return _stateProvider->registerEventCallbackRegex(traceType, eventName, onEvent);
 }
 
-const std::string& DynamicLibraryStateProvider::StateProviderConfig::getInstanceName()
+const StateProviderConfig& DynamicLibraryStateProvider::Adapter::getConfig() const
 {
-    return _stateProvider->getInstanceName();
+    return _stateProvider->getConfig();
 }
 
 }

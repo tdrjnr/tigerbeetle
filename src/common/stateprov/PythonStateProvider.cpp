@@ -29,8 +29,8 @@ namespace common
 {
 
 PythonStateProvider::PythonStateProvider(const boost::filesystem::path& path,
-                                         const std::string& instance) :
-    AbstractStateProviderFile {path, instance}
+                                         const StateProviderConfig& config) :
+    AbstractStateProviderFile {path, config}
 {
     std::cout << "python state provider: loading script " << path << std::endl;
 }

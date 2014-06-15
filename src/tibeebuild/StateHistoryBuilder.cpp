@@ -24,7 +24,8 @@
 #include <common/stateprov/AbstractStateProvider.hpp>
 #include <common/stateprov/DynamicLibraryStateProvider.hpp>
 #include <common/stateprov/PythonStateProvider.hpp>
- #include <common/ex/WrongStateProvider.hpp>
+#include <common/stateprov/StateProviderConfig.hpp>
+#include <common/ex/WrongStateProvider.hpp>
 #include "AbstractCacheBuilder.hpp"
 #include "StateHistoryBuilder.hpp"
 #include "ex/UnknownStateProviderType.hpp"
@@ -36,24 +37,24 @@ namespace tibee
 {
 
 StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
-                                         const std::vector<StateHistoryBuilder::StateProviderDescriptor>& providers) :
+                                         const std::vector<common::StateProviderConfig>& providers) :
     AbstractCacheBuilder {dbDir},
-    _providersDescriptors {providers}
+    _providersConfigs {providers}
 {
-    for (const auto& provider : _providersDescriptors) {
-        auto providerPath = bfs::path {provider.name};
-        const auto& instance = provider.instance;
+    for (const auto& providerConfig : _providersConfigs) {
+        auto providerPath = bfs::path {providerConfig.getName()};
+        const auto& instance = providerConfig.getInstanceName();
 
         // make sure the file exists
         if (!bfs::exists(providerPath)) {
-            throw ex::StateProviderNotFound {provider.name};
+            throw ex::StateProviderNotFound {providerConfig.getName()};
         }
 
         // only files are supported for the moment
         if (bfs::is_directory(providerPath)) {
             throw common::ex::WrongStateProvider {
                 "provider is a directory",
-                provider.name
+                providerConfig.getName()
             };
         }
 
@@ -64,14 +65,14 @@ StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
 
         if (extension == ".so" || extension == ".dll" || extension == ".dylib") {
             stateProvider = common::AbstractStateProvider::UP {
-                new common::DynamicLibraryStateProvider {providerPath, instance}
+                new common::DynamicLibraryStateProvider {providerPath, providerConfig}
             };
         } else if (extension == ".py") {
             stateProvider = common::AbstractStateProvider::UP {
-                new common::PythonStateProvider {providerPath, instance}
+                new common::PythonStateProvider {providerPath, providerConfig}
             };
         } else {
-            throw ex::UnknownStateProviderType {provider.name};
+            throw ex::UnknownStateProviderType {providerConfig.getName()};
         }
 
         _providers.push_back(std::move(stateProvider));

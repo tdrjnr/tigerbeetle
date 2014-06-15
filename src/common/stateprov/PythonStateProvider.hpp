@@ -42,11 +42,11 @@ public:
     /**
      * Builds a Python state provider.
      *
-     * @param path     Python script path
-     * @param instance State provider instance name
+     * @param path   Python script path
+     * @param config State provider configuration
      */
     PythonStateProvider(const boost::filesystem::path& path,
-                        const std::string& instance);
+                        const StateProviderConfig& config);
 
     ~PythonStateProvider();
 

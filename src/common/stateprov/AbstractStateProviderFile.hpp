@@ -40,11 +40,11 @@ public:
     /**
      * Builds a state provider file.
      *
-     * @param path     State provider file path
-     * @param instance State provider instance name
+     * @param path   State provider file path
+     * @param config State provider configuration
      */
     AbstractStateProviderFile(const boost::filesystem::path& path,
-                              const std::string& instance);
+                              const StateProviderConfig& config);
 
     /**
      * Returns this provider path.

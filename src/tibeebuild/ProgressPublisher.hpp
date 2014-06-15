@@ -26,6 +26,7 @@
 #include <common/BasicTypes.hpp>
 #include <common/trace/TraceSet.hpp>
 #include <common/trace/Event.hpp>
+#include <common/stateprov/StateProviderConfig.hpp>
 #include <common/mq/MqContext.hpp>
 #include "AbstractTracePlaybackListener.hpp"
 #include "StateHistoryBuilder.hpp"
@@ -64,7 +65,7 @@ public:
     ProgressPublisher(const std::string& bindAddr,
                       common::timestamp_t beginTs, common::timestamp_t endTs,
                       const std::vector<boost::filesystem::path>& tracesPaths,
-                      const std::vector<StateHistoryBuilder::StateProviderDescriptor>& stateProviders,
+                      const std::vector<common::StateProviderConfig>& stateProviders,
                       const StateHistoryBuilder* stateHistoryBuilder,
                       std::size_t updatePeriodEvents,
                       std::size_t updatePeriodMs);

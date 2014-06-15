@@ -41,14 +41,14 @@ class DynamicLibraryStateProvider :
 {
 public:
     /**
-     * This is a façade for dynamically loaded state providers.
+     * This is an adapter for dynamically loaded state providers.
      *
      * It's safer to pass this to dynamically loaded state providers
      * than the whole DynamicLibraryStateProvider since the set of
      * methods are limited here. Also, this restricted interface is
-     * simpler to understand.
+     * simpler to understand for the end user.
      */
-    class StateProviderConfig
+    class Adapter
     {
         friend class DynamicLibraryStateProvider;
 
@@ -79,21 +79,21 @@ public:
          *
          * @see AbstractStateProvider::getInstanceName()
          */
-        const std::string& getInstanceName();
+        const StateProviderConfig& getConfig() const;
 
     private:
         /**
-         * Builds a state provider configuration.
+         * Builds a state provider adapter.
          *
          * This constructor is private to only allow the
          * DynamicLibraryStateProvider parent to build this.
          *
-         * Methods of StateProviderConfig are forwarded to the
+         * Methods of the Adapter are forwarded to the
          * DynamicLibraryStateProvider parent.
          *
          * @param stateProvider Parent dynamic library state provider
          */
-        StateProviderConfig(DynamicLibraryStateProvider* stateProvider);
+        Adapter(DynamicLibraryStateProvider* stateProvider);
 
     private:
         // state provider parent
@@ -104,11 +104,11 @@ public:
     /**
      * Builds a dynamic library state provider.
      *
-     * @param path     Dynamic library path
-     * @param instance State provider instance name
+     * @param path   Dynamic library path
+     * @param config State provider configuration
      */
     DynamicLibraryStateProvider(const boost::filesystem::path& path,
-                                const std::string& instance);
+                                const StateProviderConfig& config);
 
     ~DynamicLibraryStateProvider();
 
@@ -137,7 +137,7 @@ private:
     void* _dlHandle;
 
     // DL resolved symbols
-    void (*_dlOnInit)(CurrentState&, const TraceSet*, StateProviderConfig&);
+    void (*_dlOnInit)(CurrentState&, const TraceSet*, Adapter&);
     void (*_dlOnFini)(CurrentState&);
 };
 

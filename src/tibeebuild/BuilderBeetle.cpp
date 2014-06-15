@@ -24,6 +24,7 @@
 #include <boost/regex.hpp>
 
 #include <common/trace/TraceSet.hpp>
+#include <common/stateprov/StateProviderConfig.hpp>
 #include <common/ex/WrongStateProvider.hpp>
 #include "StateHistoryBuilder.hpp"
 #include "ProgressPublisher.hpp"
@@ -107,14 +108,18 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
             name = fullStateProvider;
         }
 
-        _stateProviders.push_back({name, instance});
+        _stateProviders.push_back({
+            name,
+            instance,
+            common::StateProviderConfig::Params {}
+        });
     }
 
     // make sure all state provider instance names are unique
     std::set<std::string> set;
 
-    for (const auto& stateProviderDescriptor : _stateProviders) {
-        const auto& instance = stateProviderDescriptor.instance;
+    for (const auto& stateProviderConfig : _stateProviders) {
+        const auto& instance = stateProviderConfig.getInstanceName();
 
         if (!instance.empty()) {
             if (set.find(instance) != set.end()) {

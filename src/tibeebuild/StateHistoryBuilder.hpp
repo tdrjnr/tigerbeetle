@@ -27,6 +27,7 @@
 #include <common/trace/Event.hpp>
 #include "AbstractCacheBuilder.hpp"
 #include <common/stateprov/AbstractStateProvider.hpp>
+#include <common/stateprov/StateProviderConfig.hpp>
 
 namespace tibee
 {
@@ -44,23 +45,13 @@ class StateHistoryBuilder :
 {
 public:
     /**
-     * State provider descriptor.
-     */
-    struct StateProviderDescriptor
-    {
-        std::string name;
-        std::string instance;
-    };
-
-public:
-    /**
      * Builds a state history builder.
      *
      * @param dbDir     Cache directory
-     * @param providers List of state providers descriptors
+     * @param providers List of state providers configurations
      */
     StateHistoryBuilder(const boost::filesystem::path& dbDir,
-                        const std::vector<StateProviderDescriptor>& providers);
+                        const std::vector<common::StateProviderConfig>& providers);
 
     ~StateHistoryBuilder();
 
@@ -80,7 +71,7 @@ private:
     bool onStopImpl();
 
 private:
-    std::vector<StateProviderDescriptor> _providersDescriptors;
+    std::vector<common::StateProviderConfig> _providersConfigs;
     std::vector<common::AbstractStateProvider::UP> _providers;
     std::unique_ptr<common::StateHistorySink> _stateHistorySink;
 };
