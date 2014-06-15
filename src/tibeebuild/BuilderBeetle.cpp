@@ -91,15 +91,15 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
     bfs::create_directories(_dbDir);
 
     // extract instance names from state provider names and keep them
-    boost::regex re {"([A-Za-z0-9_][A-Za-z0-9_-]*):(.+)"};
+    boost::regex spRe {"([A-Za-z0-9_][A-Za-z0-9_-]*):(.+)"};
 
     for (const auto& fullStateProvider : args.stateProviders) {
-        // has instance name?
         boost::smatch m;
         std::string instance;
         std::string name;
 
-        auto hasInstance = boost::regex_match(fullStateProvider, m, re);
+        // has instance name?
+        auto hasInstance = boost::regex_match(fullStateProvider, m, spRe);
 
         if (hasInstance) {
             instance = m[1];
@@ -110,8 +110,7 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
 
         _stateProviders.push_back({
             name,
-            instance,
-            common::StateProviderConfig::Params {}
+            instance
         });
     }
 
@@ -135,6 +134,56 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
         }
     }
 
+    // evaluate state providers parameters
+
+    // empty values are valid, hence (.*)
+    boost::regex gpRe {"([A-Za-z0-9_][A-Za-z0-9_-]*)=(.*)"};
+    boost::regex inspRe {"([A-Za-z0-9_][A-Za-z0-9_-]*):([A-Za-z0-9_][A-Za-z0-9_-]*)=(.*)"};
+
+    for (const auto& fullParam : args.stateProvidersParams) {
+        boost::smatch m;
+
+        if (boost::regex_match(fullParam, m, gpRe)) {
+            // global
+            for (auto& stateProviderConfig : _stateProviders) {
+                auto& params = stateProviderConfig.getParams();
+
+                params[m[1]] = common::StateProviderParamValue {m[2]};
+            }
+        } else if (boost::regex_match(fullParam, m, inspRe)) {
+            // specific to instance
+            bool found = false;
+
+            // omg, linear search: we should survive
+            for (auto& stateProviderConfig : _stateProviders) {
+                if (stateProviderConfig.getInstanceName() == m[1]) {
+                    auto& params = stateProviderConfig.getParams();
+
+                    params[m[2]] = common::StateProviderParamValue {m[3]};
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                std::stringstream ss;
+
+                ss << "cannot find state provider instance \"" <<
+                      m[1] << "\" for parameter \"" <<
+                      fullParam << "\"";
+
+                throw ex::InvalidArgument {ss.str()};
+            }
+        } else {
+            // wrong format
+            std::stringstream ss;
+
+            ss << "wrong state provider parameter format: \"" <<
+                  fullParam << "\"";
+
+            throw ex::InvalidArgument {ss.str()};
+        }
+    }
 
     // bind address for progress publishing
     _bindProgress = args.bindProgress;
@@ -159,39 +208,42 @@ bool BuilderBeetle::run()
     // create a list of trace listeners
     std::vector<AbstractTracePlaybackListener::UP> listeners;
 
-    // create a state history builder
+    // create a state history builder (if we have at least one provider)
     std::unique_ptr<StateHistoryBuilder> stateHistoryBuilder;
-    try {
-        stateHistoryBuilder = std::unique_ptr<StateHistoryBuilder> {
-            new StateHistoryBuilder {
-                _dbDir,
-                _stateProviders
-            }
-        };
-    } catch (const common::ex::WrongStateProvider& ex) {
-        std::stringstream ss;
 
-        ss << "wrong state provider: \"" << ex.getName() << "\"" << std::endl <<
-              "  " << ex.what();
+    if (!_stateProviders.empty()) {
+        try {
+            stateHistoryBuilder = std::unique_ptr<StateHistoryBuilder> {
+                new StateHistoryBuilder {
+                    _dbDir,
+                    _stateProviders
+                }
+            };
+        } catch (const common::ex::WrongStateProvider& ex) {
+            std::stringstream ss;
 
-        throw ex::BuilderBeetleError {ss.str()};
-    } catch (const ex::UnknownStateProviderType& ex) {
-        std::stringstream ss;
+            ss << "wrong state provider: \"" << ex.getName() << "\"" << std::endl <<
+                  "  " << ex.what();
 
-        ss << "unknown state provider type: \"" << ex.getName() << "\"";
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (const ex::UnknownStateProviderType& ex) {
+            std::stringstream ss;
 
-        throw ex::BuilderBeetleError {ss.str()};
-    } catch (const ex::StateProviderNotFound& ex) {
-        std::stringstream ss;
+            ss << "unknown state provider type: \"" << ex.getName() << "\"";
 
-        ss << "cannot find state provider \"" << ex.getName() << "\"";
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (const ex::StateProviderNotFound& ex) {
+            std::stringstream ss;
 
-        throw ex::BuilderBeetleError {ss.str()};
-    } catch (...) {
-        throw ex::BuilderBeetleError {"unknown error"};
+            ss << "cannot find state provider \"" << ex.getName() << "\"";
+
+            throw ex::BuilderBeetleError {ss.str()};
+        } catch (...) {
+            throw ex::BuilderBeetleError {"unknown error"};
+        }
+
+        listeners.push_back(std::move(stateHistoryBuilder));
     }
-
-    listeners.push_back(std::move(stateHistoryBuilder));
 
     // create a progress publisher
     if (!_bindProgress.empty()) {
@@ -220,7 +272,7 @@ bool BuilderBeetle::run()
         listeners.push_back(std::move(progressPublisher));
     }
 
-    // ready for the deck
+    // ready for playback!
     return _traceDeck.play(traceSet.get(), listeners);
 }
 

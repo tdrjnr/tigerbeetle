@@ -53,7 +53,7 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
         ("traces", bpo::value<std::vector<std::string>>())
         ("verbose,v", bpo::bool_switch()->default_value(false))
         ("stateprov,s", bpo::value<std::vector<std::string>>())
-        ("stateprovparam,p", bpo::value<std::vector<std::string>>())
+        ("param,p", bpo::value<std::vector<std::string>>())
         ("bind-progress,b", bpo::value<std::string>())
         ("db-dir,d", bpo::value<std::string>())
         ("force,f", bpo::bool_switch()->default_value(false))
@@ -87,9 +87,10 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
             "                              (default: \"./tibee\")" << std::endl <<
             "  -f, --force                 force database writing, even if the output" << std::endl <<
             "                              directory already exists" << std::endl <<
-            "  -s [<inst>:]<name>          state provider <name> (at least one) with" << std::endl <<
-            "                              optional unique instance name <inst>; <name>" << std::endl <<
-            "                              may be a file path" << std::endl <<
+            "  -p [<inst>:]<key>=<val>     state provider parameter" << std::endl <<
+            "  -s [<inst>:]<name>          state provider name with" << std::endl <<
+            "                              optional unique instance name <inst>;" << std::endl <<
+            "                              <name> may be a file path" << std::endl <<
             "  -v, --verbose               verbose" << std::endl;
 
         return -1;
@@ -116,12 +117,14 @@ int parseOptions(int argc, char* argv[], tibee::Arguments& args)
     }
 
     // state providers
-    if (vm["stateprov"].empty()) {
-        tberror() << "command line error: need at least one state provider to work with" << tbendl();
-        return 1;
+    if (!vm["stateprov"].empty()) {
+        args.stateProviders = vm["stateprov"].as<std::vector<std::string>>();
     }
 
-    args.stateProviders = vm["stateprov"].as<std::vector<std::string>>();
+    // state providers parameters
+    if (!vm["param"].empty()) {
+        args.stateProvidersParams = vm["param"].as<std::vector<std::string>>();
+    }
 
     // bind progress
     if (!vm["bind-progress"].empty()) {

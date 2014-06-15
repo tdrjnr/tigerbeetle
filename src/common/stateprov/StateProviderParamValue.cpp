@@ -27,6 +27,10 @@ StateProviderParamValue::StateProviderParamValue(const std::string& val) :
 {
 }
 
+StateProviderParamValue::StateProviderParamValue()
+{
+}
+
 std::int64_t StateProviderParamValue::asSint() const
 {
     try {
@@ -63,6 +67,11 @@ bool StateProviderParamValue::asBool() const
     }
 
     return static_cast<bool>(this->asUint());
+}
+
+std::ostream& operator<<(std::ostream& os, const StateProviderParamValue& val)
+{
+    return os << val.asString();
 }
 
 }

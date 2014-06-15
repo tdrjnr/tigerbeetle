@@ -18,6 +18,7 @@
 #ifndef _TIBEE_COMMON_STATEPROVIDERPARAMVALUE_HPP
 #define _TIBEE_COMMON_STATEPROVIDERPARAMVALUE_HPP
 
+#include <iostream>
 #include <string>
 #include <cstdint>
 
@@ -34,6 +35,11 @@ namespace common
 class StateProviderParamValue
 {
 public:
+    /**
+     * Builds an empty state provider parameter value.
+     */
+    StateProviderParamValue();
+
     /**
      * Builds a state provider parameter value.
      *
@@ -98,6 +104,11 @@ public:
 private:
     std::string _val;
 };
+
+/**
+ * Output to stream.
+ */
+std::ostream& operator<<(std::ostream& os, const StateProviderParamValue& val);
 
 }
 }

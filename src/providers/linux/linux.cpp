@@ -120,9 +120,28 @@ extern "C" void onInit(CurrentState& state,
                        const TraceSet* traceSet,
                        DynamicLibraryStateProvider::Adapter& adapter)
 {
+    auto& config = adapter.getConfig();
+
     std::cout << "hello from linux.so: onInit()" << std::endl;
-    std::cout << "  my name is: \"" << adapter.getConfig().getName() << "\"" << std::endl;
-    std::cout << "  my instance name is: \"" << adapter.getConfig().getInstanceName() << "\"" << std::endl;
+    std::cout << "  my name is: \"" << config.getName() << "\"" << std::endl;
+    std::cout << "  my instance name is: \"" << config.getInstanceName() << "\"" << std::endl;
+    std::cout << "  and here are my parameters:" << std::endl;
+
+    for (const auto& keyValuePair : config.getParams()) {
+        std::cout << "    " << keyValuePair.first << " = " << keyValuePair.second << std::endl;
+    }
+
+    if (config.hasParam("sint")) {
+        std::cout << "params[sint]: " << config["sint"].asSint() << std::endl;
+    }
+
+    if (config.hasParam("uint")) {
+        std::cout << "params[uint]: " << config["uint"].asUint() << std::endl;
+    }
+
+    if (config.hasParam("bool")) {
+        std::cout << "params[bool]: " << config["bool"].asBool() << std::endl;
+    }
 
     if (adapter.registerEventCallback("lttng-kernel", "sched_switch", onSchedSwitch)) {
         std::cout << "successfully registered callback for lttng-kernel/sched_switch" << std::endl;

@@ -120,8 +120,11 @@ void ProgressPublisher::publish()
 {
     // update RPC notification object
     _rpcNotification->setCurTs(_lastTs);
-    _rpcNotification->setStateChanges(_stateHistoryBuilder->getStateChanges());
     _rpcNotification->setProcessedEvents(_evCount);
+
+    if (_stateHistoryBuilder) {
+        _rpcNotification->setStateChanges(_stateHistoryBuilder->getStateChanges());
+    }
 
     // get JSON-RPC notification
     auto json = _rpcMessageEncoder->encodeProgressUpdateRpcNotification(*_rpcNotification);

@@ -29,7 +29,7 @@ namespace common
 {
 
 /**
- * Immutable state provider configuration.
+ * State provider configuration.
  */
 class StateProviderConfig
 {
@@ -49,11 +49,9 @@ public:
      * @param params   State provider parameters
      */
     StateProviderConfig(const std::string& name,
-                        const std::string& instance,
-                        const Params& params) :
+                        const std::string& instance) :
         _name {name},
-        _instance {instance},
-        _params {params}
+        _instance {instance}
     {
     }
 
@@ -98,6 +96,52 @@ public:
     const Params& getParams() const
     {
         return _params;
+    }
+
+    /**
+     * Returns the same provider parameters for editing.
+     *
+     * @returns State provider parameters
+     */
+    Params& getParams()
+    {
+        return _params;
+    }
+
+    /**
+     * Sets the state provider parameters.
+     *
+     * @param params State provider parameters
+     */
+    void setParams(const Params& params)
+    {
+        _params = params;
+    }
+
+    /**
+     * Returns the parameter value for key \p key.
+     *
+     * The underlying parameters map may throw if the key does not
+     * exist. You should use hasParam() before using this method if
+     * you're not sure.
+     *
+     * @param key Parameter key to look up
+     * @returns   Value for this key
+     */
+    const StateProviderParamValue& operator[](const std::string& key) const
+    {
+        return _params.at(key);
+    }
+
+    /**
+     * Returns whether or not the key \p key refers to an existing
+     * parameter.
+     *
+     * @returns True if \p key refers to an existing parameter
+     */
+    bool hasParam(const std::string& key) const
+    {
+        return _params.find(key) != _params.end();
     }
 
 private:
