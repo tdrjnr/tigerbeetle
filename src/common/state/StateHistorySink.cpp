@@ -414,8 +414,7 @@ void StateHistorySink::writeInterval(const StateNode& node)
     }
 
     // add to interval history
-    //_intervalFileSink->addInterval(delo::AbstractInterval::UP {interval});
-    std::cout << "would add " << *interval << std::endl;
+    _intervalFileSink->addInterval(delo::AbstractInterval::UP {interval});
 
     // update internal statistics
     _stateChangesCount++;
