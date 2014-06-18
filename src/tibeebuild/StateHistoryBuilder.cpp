@@ -91,7 +91,7 @@ bool StateHistoryBuilder::onStartImpl(const common::TraceSet* traceSet)
             this->getCacheDir() / "state-paths-quarks.db",
             this->getCacheDir() / "state-values-quarks.db",
             this->getCacheDir() / "state-nodes.json",
-            this->getCacheDir() / "state-history",
+            this->getCacheDir() / "state-history.delo",
             traceSet->getBegin()
         }
     };
