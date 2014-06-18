@@ -133,7 +133,7 @@ public:
      *
      * @param stateChanges State changes so far
      */
-    void setStateChanges(unsigned int stateChanges)
+    void setStateChanges(std::size_t stateChanges)
     {
         _stateChanges = stateChanges;
     }
@@ -193,7 +193,7 @@ private:
     common::timestamp_t _beginTs;
     common::timestamp_t _endTs;
     common::timestamp_t _curTs;
-    unsigned int _stateChanges;
+    std::size_t _stateChanges;
     std::vector<boost::filesystem::path> _tracesPaths;
     std::vector<common::StateProviderConfig> _stateProviders;
 };

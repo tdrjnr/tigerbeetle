@@ -60,10 +60,7 @@ public:
      *
      * @returns State changes so far
      */
-    unsigned int getStateChanges() const
-    {
-        return 0;
-    }
+    std::size_t getStateChanges() const;
 
 private:
     bool onStartImpl(const common::TraceSet* traceSet);

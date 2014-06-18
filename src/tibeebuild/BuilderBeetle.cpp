@@ -288,6 +288,9 @@ bool BuilderBeetle::run()
     // create a state history builder (if we have at least one provider)
     std::unique_ptr<StateHistoryBuilder> stateHistoryBuilder;
 
+    // this if for the progress publisher
+    const StateHistoryBuilder* shbPtr = nullptr;
+
     if (!_stateProviders.empty()) {
         try {
             stateHistoryBuilder = std::unique_ptr<StateHistoryBuilder> {
@@ -319,6 +322,9 @@ bool BuilderBeetle::run()
             throw ex::BuilderBeetleError {"unknown error"};
         }
 
+        // reference for progress publisher before moving it
+        shbPtr = stateHistoryBuilder.get();
+
         listeners.push_back(std::move(stateHistoryBuilder));
     }
 
@@ -334,9 +340,9 @@ bool BuilderBeetle::run()
                     traceSet->getEnd(),
                     _tracesPaths,
                     _stateProviders,
-                    stateHistoryBuilder.get(),
+                    shbPtr,
                     2801,
-                    200
+                    100
                 }
             };
         } catch (const ex::MqBindError& ex) {

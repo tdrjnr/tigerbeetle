@@ -125,4 +125,13 @@ bool StateHistoryBuilder::onStopImpl()
     return true;
 }
 
+std::size_t StateHistoryBuilder::getStateChanges() const
+{
+    if (_stateHistorySink) {
+        return _stateHistorySink->getStateChangesCount();
+    }
+
+    return 0;
+}
+
 }
