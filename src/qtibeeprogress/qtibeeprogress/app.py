@@ -139,7 +139,7 @@ def _register_sigint(app):
 
 
 def _configure_logging(args):
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
 
 def _parse_args():
