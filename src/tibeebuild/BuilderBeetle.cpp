@@ -89,8 +89,13 @@ void BuilderBeetle::validateSaveArguments(const Arguments& args)
               "  (use -f to overwrite files)";
 
         throw ex::InvalidArgument {ss.str()};
-    } else if (args.force && !bfs::is_directory(_dbDir)) {
-        throw ex::InvalidArgument {"database directory has to be a directory"};
+    } else if (args.force && bfs::exists(_dbDir) && !bfs::is_directory(_dbDir)) {
+        std::stringstream ss;
+
+        ss << "the specified database directory " <<
+              _dbDir << " exists and is not a directory";
+
+        throw ex::InvalidArgument {ss.str()};
     }
 
     // create specified directory now
