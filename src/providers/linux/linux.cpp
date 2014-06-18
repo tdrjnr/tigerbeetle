@@ -40,6 +40,7 @@ namespace
 {
 
 // constant subpath quarks
+quark_t QUARK_P_LINUX;
 quark_t QUARK_P_THREADS;
 quark_t QUARK_P_CPUS;
 quark_t QUARK_P_CUR_THREAD;
@@ -84,7 +85,7 @@ StateNode& getCurrentCpuNode(StateNode& root, const Event& event)
 {
     auto& cpu = getEventCpu(event);
 
-    return root[QUARK_P_CPUS][cpu.asUintValue()];
+    return root[QUARK_P_LINUX][QUARK_P_CPUS][cpu.asUintValue()];
 }
 
 StateNode& getCpuCurrentThreadNode(StateNode& root, const Event& event)
@@ -100,21 +101,21 @@ StateNode& getThreadsCurrentThreadNode(StateNode& root, const Event& event)
         return root;
     }
 
-    return root[QUARK_P_THREADS][cpuCurrentThreadNode.asSint32Value()];
+    return root[QUARK_P_LINUX][QUARK_P_THREADS][cpuCurrentThreadNode.asSint32Value()];
 }
 
 StateNode& getCurrentIrqNode(StateNode& root, const Event& event)
 {
     auto& irq = event["irq"];
 
-    return root[QUARK_P_RESOURCES][QUARK_P_IRQS][irq.asSintValue()];
+    return root[QUARK_P_LINUX][QUARK_P_RESOURCES][QUARK_P_IRQS][irq.asSintValue()];
 }
 
 StateNode& getCurrentSoftIrqNode(StateNode& root, const Event& event)
 {
     auto& vec = event["vec"];
 
-    return root[QUARK_P_RESOURCES][QUARK_P_SOFT_IRQS][vec.asUintValue()];
+    return root[QUARK_P_LINUX][QUARK_P_RESOURCES][QUARK_P_SOFT_IRQS][vec.asUintValue()];
 }
 
 bool onExitSyscall(CurrentState& state, const Event& event)
@@ -266,6 +267,7 @@ void registerEventCallbacks(DynamicLibraryStateProvider::Adapter& adapter)
 void getConstantQuarks(CurrentState& state)
 {
     // subpath quarks
+    QUARK_P_LINUX = state.getSubpathQuark("linux");
     QUARK_P_THREADS = state.getSubpathQuark("threads");
     QUARK_P_CPUS = state.getSubpathQuark("cpus");
     QUARK_P_CUR_THREAD = state.getSubpathQuark("cur-thread");
