@@ -266,6 +266,29 @@ bool onSoftIrqRaise(CurrentState& state, const Event& event)
 
 bool onSchedSwitch(CurrentState& state, const Event& event)
 {
+    auto& root = state.getRoot();
+    auto& prevState = event["prev_state"];
+    auto& prevTid = event["prev_tid"];
+    auto& nextTid = event["next_tid"];
+    auto& nextComm = event["next_comm"];
+
+    if (prevState.asSint() == 0) {
+        root[QP_THREADS][prevTid.asSintValue()][QP_STATUS] = QV_WAIT_FOR_CPU;
+    } else {
+        root[QP_THREADS][prevTid.asSintValue()][QP_STATUS] = QV_WAIT_BLOCKED;
+    }
+
+    auto& newCurrentThread = root[QP_THREADS][nextTid.asSintValue()];
+
+    // new current thread's run mode
+    if (!newCurrentThread[QP_SYSCALL]) {
+        newCurrentThread[QP_STATUS] = QV_RUN_USERMODE;
+    } else {
+        newCurrentThread[QP_STATUS] = QV_RUN_SYSCALL;
+    }
+
+    // thread's exec name
+    newCurrentThread[QP_EXEC_NAME] = nextComm.asArray().getString();
 
     return true;
 }
