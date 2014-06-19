@@ -243,6 +243,11 @@ private:
      */
     void writeInterval(const StateNode& node);
 
+    /**
+     * Nullifies all nodes of the state tree.
+     */
+    void nullifyAllNodes();
+
 private:
     // paths to files to create
     boost::filesystem::path _subpathStrDbPath;

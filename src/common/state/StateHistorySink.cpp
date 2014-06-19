@@ -161,6 +161,27 @@ private:
     const StateHistorySink* _stateHistorySink;
 };
 
+/**
+ * State node visitor that nullifies all nodes in order to create
+ * intervals for all of them at the current timestamp.
+ *
+ * @author Philippe Proulx
+ */
+class StateNodeNullifierVisitor :
+    public AbstractStateNodeVisitor
+{
+public:
+    StateNodeNullifierVisitor()
+    {
+    }
+
+private:
+    void visitEnterImpl(quark_t quark, StateNode& node)
+    {
+        node.setNull();
+    }
+};
+
 StateHistorySink::StateHistorySink(const bfs::path& subpathStrDbPath,
                                    const bfs::path& valueStrDbPath,
                                    const boost::filesystem::path& nodesMapPath,
@@ -329,7 +350,7 @@ void StateHistorySink::close()
     }
 
     // write all remaining state values as intervals
-    // FIXME
+    this->nullifyAllNodes();
 
     // write files
     _intervalFileSink->close();
@@ -504,6 +525,15 @@ void StateHistorySink::writeNodesMap()
 
     // free YAJL geenrator context
     ::yajl_gen_free(yajlGen);
+}
+
+void StateHistorySink::nullifyAllNodes()
+{
+    std::unique_ptr<StateNodeNullifierVisitor> visitor {
+        new StateNodeNullifierVisitor
+    };
+
+    _root->accept(*visitor, 0xffffffff);
 }
 
 }

@@ -56,9 +56,27 @@ public:
      */
     void visitLeave(quark_t quark, const StateNode& node);
 
+    /**
+     * Visits the node \p node with subpath quark \p quark.
+     *
+     * @param quark Subpath quark of node \p node
+     * @param node  Node to visit
+     */
+    void visitEnter(quark_t quark, StateNode& node);
+
+    /**
+     * Leaves the visit of node \p node with subpath quark \p quark.
+     *
+     * @param quark Left subpath quark of node \p node
+     * @param node  Left node
+     */
+    void visitLeave(quark_t quark, StateNode& node);
+
 private:
     virtual void visitEnterImpl(quark_t quark, const StateNode& node);
     virtual void visitLeaveImpl(quark_t quark, const StateNode& node);
+    virtual void visitEnterImpl(quark_t quark, StateNode& node);
+    virtual void visitLeaveImpl(quark_t quark, StateNode& node);
 };
 
 }

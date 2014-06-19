@@ -950,7 +950,25 @@ private:
      * @param quark   Quark of visited node
      */
     void accept(AbstractStateNodeVisitor& visitor,
-                quark_t quark) const;
+                quark_t quark)
+    {
+        StateNode::acceptImpl(*this, visitor, quark);
+    }
+
+    /**
+     * Const version of accept(AbstractStateNodeVisitor&, quark_t).
+     *
+     * @see accept(AbstractStateNodeVisitor&, quark_t)
+     */
+    void accept(AbstractStateNodeVisitor& visitor,
+                quark_t quark) const
+    {
+        StateNode::acceptImpl(*this, visitor, quark);
+    }
+
+    template<typename T>
+    static void acceptImpl(T& stateNode, AbstractStateNodeVisitor& visitor,
+                           quark_t quark);
 
     void writeInterval();
     timestamp_t getCurrentSinkTimestamp();
@@ -985,6 +1003,22 @@ StateNode& StateNode::operator=(const T& value)
     this->_stateValue = AbstractStateValue::UP {new T{value}};
 
     return *this;
+}
+
+template<typename T>
+void StateNode::acceptImpl(T& stateNode, AbstractStateNodeVisitor& visitor,
+                           quark_t quark)
+{
+    // me first
+    visitor.visitEnter(quark, stateNode);
+
+    // then my children
+    for (auto& quarkNodePair : stateNode._children) {
+        quarkNodePair.second->accept(visitor, quarkNodePair.first);
+    }
+
+    // leaving
+    visitor.visitLeave(quark, stateNode);
 }
 
 }

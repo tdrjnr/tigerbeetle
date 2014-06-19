@@ -36,11 +36,29 @@ void AbstractStateNodeVisitor::visitLeave(quark_t quark, const StateNode& node)
     this->visitLeaveImpl(quark, node);
 }
 
+void AbstractStateNodeVisitor::visitEnter(quark_t quark, StateNode& node)
+{
+    this->visitEnterImpl(quark, node);
+}
+
+void AbstractStateNodeVisitor::visitLeave(quark_t quark, StateNode& node)
+{
+    this->visitLeaveImpl(quark, node);
+}
+
 void AbstractStateNodeVisitor::visitEnterImpl(quark_t quark, const StateNode& node)
 {
 }
 
 void AbstractStateNodeVisitor::visitLeaveImpl(quark_t quark, const StateNode& node)
+{
+}
+
+void AbstractStateNodeVisitor::visitEnterImpl(quark_t quark, StateNode& node)
+{
+}
+
+void AbstractStateNodeVisitor::visitLeaveImpl(quark_t quark, StateNode& node)
 {
 }
 
