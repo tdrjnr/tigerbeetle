@@ -40,29 +40,29 @@ namespace
 {
 
 // constant subpath quarks
-quark_t QUARK_P_LINUX;
-quark_t QUARK_P_THREADS;
-quark_t QUARK_P_CPUS;
-quark_t QUARK_P_CUR_THREAD;
-quark_t QUARK_P_RESOURCES;
-quark_t QUARK_P_IRQS;
-quark_t QUARK_P_SOFT_IRQS;
-quark_t QUARK_P_SYSCALL;
-quark_t QUARK_P_STATUS;
-quark_t QUARK_P_PPID;
-quark_t QUARK_P_EXEC_NAME;
+quark_t QP_LINUX;
+quark_t QP_THREADS;
+quark_t QP_CPUS;
+quark_t QP_CUR_THREAD;
+quark_t QP_RESOURCES;
+quark_t QP_IRQS;
+quark_t QP_SOFT_IRQS;
+quark_t QP_SYSCALL;
+quark_t QP_STATUS;
+quark_t QP_PPID;
+quark_t QP_EXEC_NAME;
 
 // constant string value quarks
-quark_t QUARK_V_IDLE;
-quark_t QUARK_V_RUN_USERMODE;
-quark_t QUARK_V_RUN_SYSCALL;
-quark_t QUARK_V_IRQ;
-quark_t QUARK_V_SOFT_IRQ;
-quark_t QUARK_V_UNKNOWN;
-quark_t QUARK_V_WAIT_BLOCKED;
-quark_t QUARK_V_INTERRUPTED;
-quark_t QUARK_V_WAIT_FOR_CPU;
-quark_t QUARK_V_SOFT_IRQ_RAISED;
+quark_t QV_IDLE;
+quark_t QV_RUN_USERMODE;
+quark_t QV_RUN_SYSCALL;
+quark_t QV_IRQ;
+quark_t QV_SOFT_IRQ;
+quark_t QV_UNKNOWN;
+quark_t QV_WAIT_BLOCKED;
+quark_t QV_INTERRUPTED;
+quark_t QV_WAIT_FOR_CPU;
+quark_t QV_SOFT_IRQ_RAISED;
 
 const AbstractEventValue& getEventCpu(const Event& event)
 {
@@ -85,12 +85,12 @@ StateNode& getCurrentCpuNode(StateNode& root, const Event& event)
 {
     auto& cpu = getEventCpu(event);
 
-    return root[QUARK_P_LINUX][QUARK_P_CPUS][cpu.asUintValue()];
+    return root[QP_LINUX][QP_CPUS][cpu.asUintValue()];
 }
 
 StateNode& getCpuCurrentThreadNode(StateNode& root, const Event& event)
 {
-    return getCurrentCpuNode(root, event)[QUARK_P_CUR_THREAD];
+    return getCurrentCpuNode(root, event)[QP_CUR_THREAD];
 }
 
 StateNode& getThreadsCurrentThreadNode(StateNode& root, const Event& event)
@@ -101,21 +101,21 @@ StateNode& getThreadsCurrentThreadNode(StateNode& root, const Event& event)
         return root;
     }
 
-    return root[QUARK_P_LINUX][QUARK_P_THREADS][cpuCurrentThreadNode.asSint32Value()];
+    return root[QP_LINUX][QP_THREADS][cpuCurrentThreadNode.asSint32Value()];
 }
 
 StateNode& getCurrentIrqNode(StateNode& root, const Event& event)
 {
     auto& irq = event["irq"];
 
-    return root[QUARK_P_LINUX][QUARK_P_RESOURCES][QUARK_P_IRQS][irq.asSintValue()];
+    return root[QP_LINUX][QP_RESOURCES][QP_IRQS][irq.asSintValue()];
 }
 
 StateNode& getCurrentSoftIrqNode(StateNode& root, const Event& event)
 {
     auto& vec = event["vec"];
 
-    return root[QUARK_P_LINUX][QUARK_P_RESOURCES][QUARK_P_SOFT_IRQS][vec.asUintValue()];
+    return root[QP_LINUX][QP_RESOURCES][QP_SOFT_IRQS][vec.asUintValue()];
 }
 
 bool onExitSyscall(CurrentState& state, const Event& event)
@@ -126,14 +126,14 @@ bool onExitSyscall(CurrentState& state, const Event& event)
 
     if (currentThreadNode != root) {
         // remove current thread's syscall
-        currentThreadNode[QUARK_P_SYSCALL].setNull();
+        currentThreadNode[QP_SYSCALL].setNull();
 
         // set current thread's status
-        currentThreadNode[QUARK_P_STATUS] = QUARK_V_RUN_USERMODE;
+        currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
     }
 
     // set current CPU status
-    currentCpuNode[QUARK_P_STATUS] = QUARK_V_RUN_USERMODE;
+    currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
 
     return true;
 }
@@ -151,11 +151,11 @@ bool onIrqHandlerEntry(CurrentState& state, const Event& event)
 
     if (currentThreadNode != root) {
         // set current thread's status
-        currentThreadNode[QUARK_P_STATUS] = QUARK_V_INTERRUPTED;
+        currentThreadNode[QP_STATUS] = QV_INTERRUPTED;
     }
 
     // set current CPU's status
-    currentCpuNode[QUARK_P_STATUS] = QUARK_V_IRQ;
+    currentCpuNode[QP_STATUS] = QV_IRQ;
 
     return true;
 }
@@ -171,19 +171,19 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
     currentIrqNode.setNull();
 
     if (currentThreadNode != root) {
-        if (!currentThreadNode[QUARK_P_SYSCALL]) {
-            currentThreadNode[QUARK_P_STATUS] = QUARK_V_RUN_USERMODE;
-            currentCpuNode[QUARK_P_STATUS] = QUARK_V_RUN_USERMODE;
+        if (!currentThreadNode[QP_SYSCALL]) {
+            currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
+            currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
         } else {
-            currentThreadNode[QUARK_P_STATUS] = QUARK_V_RUN_SYSCALL;
-            currentCpuNode[QUARK_P_STATUS] = QUARK_V_RUN_SYSCALL;
+            currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
+            currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
         }
     }
 
-    if (!currentCpuNode[QUARK_P_CUR_THREAD]) {
-        currentCpuNode[QUARK_P_STATUS] = QUARK_V_IDLE;
-    } else if (currentCpuNode[QUARK_P_CUR_THREAD].asSint32() == 0) {
-        currentCpuNode[QUARK_P_STATUS] = QUARK_V_IDLE;
+    if (!currentCpuNode[QP_CUR_THREAD]) {
+        currentCpuNode[QP_STATUS] = QV_IDLE;
+    } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
+        currentCpuNode[QP_STATUS] = QV_IDLE;
     }
 
     return true;
@@ -191,6 +191,23 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
 
 bool onSoftIrqEntry(CurrentState& state, const Event& event)
 {
+    auto& root = state.getRoot();
+    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
+    auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+    auto& cpu = getEventCpu(event);
+
+    // set current soft IRQ's CPU
+    currentSoftIrqNode.setInt(asUint32(cpu.asUintValue()));
+
+    if (currentThreadNode != root) {
+        // set current thread's status
+        currentThreadNode[QP_STATUS] = QV_INTERRUPTED;
+    }
+
+    // set current CPU's status
+    currentCpuNode[QP_STATUS] = QV_SOFT_IRQ;
+
     return true;
 }
 
@@ -267,29 +284,29 @@ void registerEventCallbacks(DynamicLibraryStateProvider::Adapter& adapter)
 void getConstantQuarks(CurrentState& state)
 {
     // subpath quarks
-    QUARK_P_LINUX = state.getSubpathQuark("linux");
-    QUARK_P_THREADS = state.getSubpathQuark("threads");
-    QUARK_P_CPUS = state.getSubpathQuark("cpus");
-    QUARK_P_CUR_THREAD = state.getSubpathQuark("cur-thread");
-    QUARK_P_RESOURCES = state.getSubpathQuark("resources");
-    QUARK_P_IRQS = state.getSubpathQuark("irqs");
-    QUARK_P_SOFT_IRQS = state.getSubpathQuark("soft-irqs");
-    QUARK_P_SYSCALL = state.getSubpathQuark("syscall");
-    QUARK_P_STATUS = state.getSubpathQuark("status");
-    QUARK_P_PPID = state.getSubpathQuark("ppid");
-    QUARK_P_EXEC_NAME = state.getSubpathQuark("exec-name");
+    QP_LINUX = state.getSubpathQuark("linux");
+    QP_THREADS = state.getSubpathQuark("threads");
+    QP_CPUS = state.getSubpathQuark("cpus");
+    QP_CUR_THREAD = state.getSubpathQuark("cur-thread");
+    QP_RESOURCES = state.getSubpathQuark("resources");
+    QP_IRQS = state.getSubpathQuark("irqs");
+    QP_SOFT_IRQS = state.getSubpathQuark("soft-irqs");
+    QP_SYSCALL = state.getSubpathQuark("syscall");
+    QP_STATUS = state.getSubpathQuark("status");
+    QP_PPID = state.getSubpathQuark("ppid");
+    QP_EXEC_NAME = state.getSubpathQuark("exec-name");
 
     // string value quarks
-    QUARK_V_IDLE = state.getStringValueQuark("idle");
-    QUARK_V_RUN_USERMODE = state.getStringValueQuark("usermode");
-    QUARK_V_RUN_SYSCALL = state.getStringValueQuark("syscall");
-    QUARK_V_IRQ = state.getStringValueQuark("irq");
-    QUARK_V_SOFT_IRQ = state.getStringValueQuark("soft-irq");
-    QUARK_V_UNKNOWN = state.getStringValueQuark("unknown");
-    QUARK_V_WAIT_BLOCKED = state.getStringValueQuark("wait-blocked");
-    QUARK_V_INTERRUPTED = state.getStringValueQuark("interrupted");
-    QUARK_V_WAIT_FOR_CPU = state.getStringValueQuark("wait-for-cpu");
-    QUARK_V_SOFT_IRQ_RAISED = state.getStringValueQuark("soft-irq-raised");
+    QV_IDLE = state.getStringValueQuark("idle");
+    QV_RUN_USERMODE = state.getStringValueQuark("usermode");
+    QV_RUN_SYSCALL = state.getStringValueQuark("syscall");
+    QV_IRQ = state.getStringValueQuark("irq");
+    QV_SOFT_IRQ = state.getStringValueQuark("soft-irq");
+    QV_UNKNOWN = state.getStringValueQuark("unknown");
+    QV_WAIT_BLOCKED = state.getStringValueQuark("wait-blocked");
+    QV_INTERRUPTED = state.getStringValueQuark("interrupted");
+    QV_WAIT_FOR_CPU = state.getStringValueQuark("wait-for-cpu");
+    QV_SOFT_IRQ_RAISED = state.getStringValueQuark("soft-irq-raised");
 }
 
 }
