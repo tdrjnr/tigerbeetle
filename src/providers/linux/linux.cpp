@@ -43,6 +43,7 @@ namespace
 quark_t QP_LINUX;
 quark_t QP_THREADS;
 quark_t QP_CPUS;
+quark_t QP_CUR_CPU;
 quark_t QP_CUR_THREAD;
 quark_t QP_RESOURCES;
 quark_t QP_IRQS;
@@ -62,7 +63,7 @@ quark_t QV_UNKNOWN;
 quark_t QV_WAIT_BLOCKED;
 quark_t QV_INTERRUPTED;
 quark_t QV_WAIT_FOR_CPU;
-quark_t QV_SOFT_IRQ_RAISED;
+quark_t QV_RAISED;
 
 const AbstractEventValue& getEventCpu(const Event& event)
 {
@@ -147,7 +148,7 @@ bool onIrqHandlerEntry(CurrentState& state, const Event& event)
     auto& cpu = getEventCpu(event);
 
     // set current IRQ's CPU
-    currentIrqNode.setInt(asUint32(cpu.asUintValue()));
+    currentIrqNode[QP_CUR_CPU].setInt(asUint32(cpu.asUintValue()));
 
     if (currentThreadNode != root) {
         // set current thread's status
@@ -168,7 +169,7 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
     auto& currentIrqNode = getCurrentIrqNode(root, event);
 
     // reset current IRQ's CPU
-    currentIrqNode.setNull();
+    currentIrqNode[QP_CUR_CPU].setNull();
 
     if (currentThreadNode != root) {
         if (!currentThreadNode[QP_SYSCALL]) {
@@ -201,7 +202,10 @@ bool onSoftIrqEntry(CurrentState& state, const Event& event)
     auto& cpu = getEventCpu(event);
 
     // set current soft IRQ's CPU
-    currentSoftIrqNode.setInt(asUint32(cpu.asUintValue()));
+    currentSoftIrqNode[QP_CUR_CPU].setInt(asUint32(cpu.asUintValue()));
+
+    // reset current soft IRQ's status
+    currentSoftIrqNode[QP_STATUS].setNull();
 
     if (currentThreadNode != root) {
         // set current thread's status
@@ -222,7 +226,10 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
     auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
 
     // reset current soft IRQ's CPU
-    currentSoftIrqNode.setNull();
+    currentSoftIrqNode[QP_CUR_CPU].setNull();
+
+    // reset current soft IRQ's status
+    currentSoftIrqNode[QP_STATUS].setNull();
 
     if (currentThreadNode != root) {
         if (!currentThreadNode[QP_SYSCALL]) {
@@ -248,6 +255,12 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
 
 bool onSoftIrqRaise(CurrentState& state, const Event& event)
 {
+    auto& root = state.getRoot();
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+
+    // current soft IRQ's status: raised
+    currentSoftIrqNode[QP_STATUS] = QV_RAISED;
+
     return true;
 }
 
@@ -317,6 +330,7 @@ void getConstantQuarks(CurrentState& state)
     QP_LINUX = state.getSubpathQuark("linux");
     QP_THREADS = state.getSubpathQuark("threads");
     QP_CPUS = state.getSubpathQuark("cpus");
+    QP_CUR_CPU = state.getSubpathQuark("cur-cpu");
     QP_CUR_THREAD = state.getSubpathQuark("cur-thread");
     QP_RESOURCES = state.getSubpathQuark("resources");
     QP_IRQS = state.getSubpathQuark("irqs");
@@ -336,7 +350,7 @@ void getConstantQuarks(CurrentState& state)
     QV_WAIT_BLOCKED = state.getStringValueQuark("wait-blocked");
     QV_INTERRUPTED = state.getStringValueQuark("interrupted");
     QV_WAIT_FOR_CPU = state.getStringValueQuark("wait-for-cpu");
-    QV_SOFT_IRQ_RAISED = state.getStringValueQuark("soft-irq-raised");
+    QV_RAISED = state.getStringValueQuark("raised");
 }
 
 }
