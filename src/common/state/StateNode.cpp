@@ -452,6 +452,36 @@ StateNode& StateNode::operator-=(std::int64_t dec)
     return *this;
 }
 
+void StateNode::acceptUpdate(AbstractStateNodeVisitor& visitor,
+                             quark_t quark)
+{
+    // me first
+    visitor.visitUpdateEnter(quark, *this);
+
+    // then my children
+    for (auto& quarkNodePair : _children) {
+        quarkNodePair.second->acceptUpdate(visitor, quarkNodePair.first);
+    }
+
+    // leaving
+    visitor.visitUpdateLeave(quark, *this);
+}
+
+void StateNode::acceptRead(AbstractStateNodeVisitor& visitor,
+                           quark_t quark) const
+{
+    // me first
+    visitor.visitReadEnter(quark, *this);
+
+    // then my children
+    for (auto& quarkNodePair : _children) {
+        quarkNodePair.second->acceptRead(visitor, quarkNodePair.first);
+    }
+
+    // leaving
+    visitor.visitReadLeave(quark, *this);
+}
+
 void StateNode::writeInterval()
 {
     _stateHistorySink->writeInterval(*this);

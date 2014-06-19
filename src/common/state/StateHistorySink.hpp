@@ -225,7 +225,7 @@ private:
     /**
      * Writes the map of state node IDs to paths to a file.
      */
-    void writeNodesMap();
+    void writeNodesMap() const;
 
     /**
      * Builds a new state node, with a fresh, unused unique node ID.

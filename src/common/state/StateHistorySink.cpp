@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    void visitEnterImpl(quark_t quark, const StateNode& node)
+    void visitReadEnterImpl(quark_t quark, const StateNode& node)
     {
         if (node) {
             _count++;
@@ -109,7 +109,7 @@ public:
     }
 
 private:
-    void visitEnterImpl(quark_t quark, const StateNode& node)
+    void visitReadEnterImpl(quark_t quark, const StateNode& node)
     {
         if (quark != 0xffffffff) {
             // not root: output child node subpath
@@ -142,7 +142,7 @@ private:
         }
     }
 
-    void visitLeaveImpl(quark_t quark, const StateNode& node)
+    void visitReadLeaveImpl(quark_t quark, const StateNode& node)
     {
         // close children map (if it has any)
         if (node.getAllChildrenCount() > 0) {
@@ -176,7 +176,7 @@ public:
     }
 
 private:
-    void visitEnterImpl(quark_t quark, StateNode& node)
+    void visitUpdateEnterImpl(quark_t quark, StateNode& node)
     {
         node.setNull();
     }
@@ -490,12 +490,12 @@ std::size_t StateHistorySink::getNodesCount() const
         new StateNodeCounterVisitor
     };
 
-    _root->accept(*visitor, 0xffffffff);
+    _root->acceptRead(*visitor, 0xffffffff);
 
     return visitor->getCount();
 }
 
-void StateHistorySink::writeNodesMap()
+void StateHistorySink::writeNodesMap() const
 {
     // YAJL generator context
     auto yajlGen = ::yajl_gen_alloc(nullptr);
@@ -504,7 +504,7 @@ void StateHistorySink::writeNodesMap()
         new TreeToJsonStateNodeVisitor {yajlGen, this}
     };
 
-    _root->accept(*visitor, 0xffffffff);
+    _root->acceptRead(*visitor, 0xffffffff);
 
     // write this JSON string to a file
     const unsigned char* buf;
@@ -533,7 +533,7 @@ void StateHistorySink::nullifyAllNodes()
         new StateNodeNullifierVisitor
     };
 
-    _root->accept(*visitor, 0xffffffff);
+    _root->acceptUpdate(*visitor, 0xffffffff);
 }
 
 }
