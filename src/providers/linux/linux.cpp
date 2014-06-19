@@ -125,7 +125,7 @@ bool onExitSyscall(CurrentState& state, const Event& event)
     auto& currentCpuNode = getCurrentCpuNode(root, event);
 
     if (currentThreadNode != root) {
-        // remove current thread's syscall
+        // reset current thread's syscall
         currentThreadNode[QP_SYSCALL].setNull();
 
         // set current thread's status
@@ -167,20 +167,23 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
     auto& currentCpuNode = getCurrentCpuNode(root, event);
     auto& currentIrqNode = getCurrentIrqNode(root, event);
 
-    // remove current IRQ's CPU
+    // reset current IRQ's CPU
     currentIrqNode.setNull();
 
     if (currentThreadNode != root) {
         if (!currentThreadNode[QP_SYSCALL]) {
+            // syscall not set for current thread: running in usermode
             currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
             currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
         } else {
+            // syscall set for current thread: running a syscall
             currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
             currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
         }
     }
 
     if (!currentCpuNode[QP_CUR_THREAD]) {
+        // no current thread for this CPU: CPU is idle
         currentCpuNode[QP_STATUS] = QV_IDLE;
     } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
         currentCpuNode[QP_STATUS] = QV_IDLE;
@@ -213,6 +216,33 @@ bool onSoftIrqEntry(CurrentState& state, const Event& event)
 
 bool onSoftIrqExit(CurrentState& state, const Event& event)
 {
+    auto& root = state.getRoot();
+    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
+    auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+
+    // reset current soft IRQ's CPU
+    currentSoftIrqNode.setNull();
+
+    if (currentThreadNode != root) {
+        if (!currentThreadNode[QP_SYSCALL]) {
+            // syscall not set for current thread: running in usermode
+            currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
+            currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
+        } else {
+            // syscall set for current thread: running a syscall
+            currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
+            currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
+        }
+    }
+
+    if (!currentCpuNode[QP_CUR_THREAD]) {
+        // no current thread for this CPU: CPU is idle
+        currentCpuNode[QP_STATUS] = QV_IDLE;
+    } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
+        currentCpuNode[QP_STATUS] = QV_IDLE;
+    }
+
     return true;
 }
 
