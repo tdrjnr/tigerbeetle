@@ -326,7 +326,7 @@ void StateHistorySink::initTranslators()
 void StateHistorySink::open()
 {
     // open history sink
-    _intervalFileSink->open(_historyPath);
+    _intervalFileSink->open(_historyPath, 1024, 16);
 
     // reset stuff
     _ts = _beginTs;
@@ -435,7 +435,8 @@ void StateHistorySink::writeInterval(const StateNode& node)
     }
 
     // add to interval history
-    _intervalFileSink->addInterval(delo::AbstractInterval::UP {interval});
+    delo::AbstractInterval::SP intervalSp {interval};
+    _intervalFileSink->addInterval(intervalSp);
 
     // update internal statistics
     _stateChangesCount++;

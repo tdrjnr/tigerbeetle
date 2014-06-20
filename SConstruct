@@ -11,7 +11,6 @@ ccflags = [
     '-std=c++11',
     '-Wall',
     '-g',
-    '-O2',
 ]
 
 # this is to allow colorgcc

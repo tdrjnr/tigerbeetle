@@ -226,28 +226,28 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
     auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
 
     // reset current soft IRQ's CPU
-    currentSoftIrqNode[QP_CUR_CPU].setNull();
+    //currentSoftIrqNode[QP_CUR_CPU].setNull();
 
     // reset current soft IRQ's status
-    currentSoftIrqNode[QP_STATUS].setNull();
+    //currentSoftIrqNode[QP_STATUS].setNull();
 
     if (currentThreadNode != root) {
         if (!currentThreadNode[QP_SYSCALL]) {
             // syscall not set for current thread: running in usermode
-            currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
-            currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
+            //currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
+            //currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
         } else {
             // syscall set for current thread: running a syscall
-            currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
-            currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
+            //currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
+            //currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
         }
     }
 
     if (!currentCpuNode[QP_CUR_THREAD]) {
         // no current thread for this CPU: CPU is idle
-        currentCpuNode[QP_STATUS] = QV_IDLE;
+        //currentCpuNode[QP_STATUS] = QV_IDLE;
     } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
-        currentCpuNode[QP_STATUS] = QV_IDLE;
+        //currentCpuNode[QP_STATUS] = QV_IDLE;
     }
 
     return true;
@@ -259,7 +259,7 @@ bool onSoftIrqRaise(CurrentState& state, const Event& event)
     auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
 
     // current soft IRQ's status: raised
-    currentSoftIrqNode[QP_STATUS] = QV_RAISED;
+    //currentSoftIrqNode[QP_STATUS] = QV_RAISED;
 
     return true;
 }
@@ -288,8 +288,14 @@ bool onSchedSwitch(CurrentState& state, const Event& event)
     }
 
     // exec name
-    std::cout << "setting next comm: " << nextComm.asArray().getString() << std::endl;
-    newCurrentThread[QP_EXEC_NAME] = nextComm.asArray().getString();
+
+    //std::cout << "setting next comm: " << nextComm.asArray().getString() << std::endl;
+    //std::cout << "size:              " << std::string(nextComm.asArray().getString()).size() << std::endl;
+
+    //newCurrentThread[QP_EXEC_NAME] = "allo";
+    newCurrentThread[QP_EXEC_NAME].setInt(3434);
+
+    //newCurrentThread[QP_EXEC_NAME] = nextComm.asArray().getString();
 
     return true;
 }
