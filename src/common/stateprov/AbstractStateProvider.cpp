@@ -25,6 +25,7 @@ namespace common
 {
 
 AbstractStateProvider::AbstractStateProvider(const StateProviderConfig& config) :
+    _curTraceSet {nullptr},
     _config {config}
 {
 }
@@ -101,8 +102,6 @@ bool AbstractStateProvider::registerEventCallback(const std::string& traceType,
     bool matchLatch = false;
 
     for (const auto& traceInfos : tracesInfos) {
-        EventIdCallbackMap callbackMap;
-
         if (AbstractStateProvider::namesMatchSimple(traceType, traceInfos->getTraceType())) {
             for (const auto& eventNameIdPair : *traceInfos->getEventMap()) {
                 if (AbstractStateProvider::namesMatchSimple(eventName, eventNameIdPair.first)) {
@@ -143,8 +142,6 @@ bool AbstractStateProvider::registerEventCallbackRegex(const std::string& traceT
     bool matchLatch = false;
 
     for (const auto& traceInfos : tracesInfos) {
-        EventIdCallbackMap callbackMap;
-
         if (boost::regex_search(traceInfos->getTraceType(), traceTypeBre)) {
             for (const auto& eventNameIdPair : *traceInfos->getEventMap()) {
                 if (boost::regex_search(eventNameIdPair.first, eventNameBre)) {

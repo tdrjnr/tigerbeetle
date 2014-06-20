@@ -43,7 +43,6 @@ StateHistoryBuilder::StateHistoryBuilder(const bfs::path& dbDir,
 {
     for (const auto& providerConfig : _providersConfigs) {
         auto providerPath = bfs::path {providerConfig.getName()};
-        const auto& instance = providerConfig.getInstanceName();
 
         // make sure the file exists
         if (!bfs::exists(providerPath)) {

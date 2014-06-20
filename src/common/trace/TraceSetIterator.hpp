@@ -83,6 +83,7 @@ private:
     ::bt_ctf_event* _btEvent;
 
     // our only Event object (constantly updated, not reallocated)
+    // TODO: use shared_ptr here because the iterator may be copied
     std::unique_ptr<Event> _event;
 
     // the value factory used by this iterator and its event

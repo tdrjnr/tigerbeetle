@@ -73,6 +73,7 @@ TraceSetIterator& TraceSetIterator::operator=(const TraceSetIterator& rhs)
      */
     _btIter = rhs._btIter;
     _btCtfIter = rhs._btCtfIter;
+    _btEvent = rhs._btEvent;
 
     return *this;
 }

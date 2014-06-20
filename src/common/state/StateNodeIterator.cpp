@@ -60,7 +60,7 @@ void StateNodeIterator::findNextValidNode()
 
 StateNodeIterator& StateNodeIterator::StateNodeIterator::operator++()
 {
-    _it++;
+    ++_it;
 
     /* Raison d'être of StateNodeIterator: some state nodes are
      * null, and we don't want to consider them here, since a null

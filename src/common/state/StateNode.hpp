@@ -952,7 +952,7 @@ private:
     void accept(AbstractStateNodeVisitor& visitor,
                 quark_t quark)
     {
-        StateNode::acceptImpl(*this, visitor, quark);
+        acceptImpl(*this, visitor, quark);
     }
 
     /**
@@ -963,7 +963,7 @@ private:
     void accept(AbstractStateNodeVisitor& visitor,
                 quark_t quark) const
     {
-        StateNode::acceptImpl(*this, visitor, quark);
+        acceptImpl(*this, visitor, quark);
     }
 
     template<typename T>
