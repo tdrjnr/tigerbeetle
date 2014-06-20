@@ -3,6 +3,10 @@ language: cpp
 compiler:
   - gcc
 
+env:
+  - BUILD_MODE=debug
+  - BUILD_MODE=release
+
 before_install:
   # support C++11
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -41,4 +45,4 @@ script:
   - export CXX=g++-4.8
   - ./bootstrap.sh
   - source ./setenv.sh
-  - scons
+  - scons mode=$BUILD_MODE
