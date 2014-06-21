@@ -73,14 +73,14 @@ const UintEventValue& getEventCpu(const Event& event)
     return event.getStreamPacketContext()["cpu_id"].asUintValue();
 }
 
-std::int32_t asSint32(const AbstractEventValue& event)
+std::int32_t asSint32(const SintEventValue& event)
 {
-    return static_cast<std::int32_t>(event.asSint());
+    return static_cast<std::int32_t>(event.getValue());
 }
 
-std::uint32_t asUint32(const AbstractEventValue& event)
+std::uint32_t asUint32(const UintEventValue& event)
 {
-    return static_cast<std::uint32_t>(event.asUint());
+    return static_cast<std::uint32_t>(event.getValue());
 }
 
 StateNode& getLinuxNode(StateNode& root)
@@ -300,7 +300,7 @@ bool onSchedSwitch(CurrentState& state, const Event& event)
     newCurrentThread[QP_EXEC_NAME] = nextComm.asArray().getString();
 
     // current CPU's current thread
-    currentCpuNode[QP_CUR_THREAD] = nextTid;
+    currentCpuNode[QP_CUR_THREAD].setInt(asSint32(nextTid));
 
     // current CPU's status
     if (nextTid != 0L) {
@@ -326,7 +326,7 @@ bool onSchedProcessFork(CurrentState& state, const Event& event)
     auto& threadsChildTidNode = linuxNode[QP_THREADS][childTid];
 
     // child thread's parent TID
-    threadsChildTidNode[QP_PPID] = parentTid;
+    threadsChildTidNode[QP_PPID].setInt(asSint32(parentTid));
 
     // child thread's exec name
     threadsChildTidNode[QP_EXEC_NAME] = childComm.getString();
@@ -357,6 +357,37 @@ bool onSchedProcessFree(CurrentState& state, const Event& event)
 
 bool onLttngStatedumpProcessState(CurrentState& state, const Event& event)
 {
+    auto& linuxNode = getLinuxNode(state.getRoot());
+    auto& tid = event["tid"].asSintValue();
+    auto& ppid = event["ppid"].asSintValue();
+    auto& status = event["status"].asSintValue();
+    auto& name = event["name"].asArray();
+    auto& threadsTidNode = linuxNode[QP_THREADS][tid];
+    auto& threadsTidExecNameNode = threadsTidNode[QP_EXEC_NAME];
+    auto& threadsTidPpid = threadsTidNode[QP_PPID];
+    auto& threadsTidStatus = threadsTidNode[QP_STATUS];
+
+    // initialize thread's exec name
+    if (!threadsTidExecNameNode) {
+        threadsTidExecNameNode = name.getString();
+    }
+
+    // initialize thread's parent TID
+    if (!threadsTidPpid) {
+        threadsTidPpid.setInt(asSint32(ppid));
+    }
+
+    // initialize thread's status
+    if (!threadsTidStatus) {
+        if (status == 2L) {
+            threadsTidStatus = QV_WAIT_FOR_CPU;
+        } else if (status == 5L) {
+            threadsTidStatus = QV_WAIT_BLOCKED;
+        } else {
+            threadsTidStatus = QV_UNKNOWN;
+        }
+    }
+
     return true;
 }
 

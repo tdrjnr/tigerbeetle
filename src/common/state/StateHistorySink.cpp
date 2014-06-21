@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with tigerbeetle.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cassert>
 #include <cstdint>
 #include <boost/filesystem/path.hpp>
 #include <fstream>
