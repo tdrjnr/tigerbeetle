@@ -323,7 +323,7 @@ bool onLttngStatedumpProcessState(CurrentState& state, const Event& event)
     return true;
 }
 
-bool onSchedWakeup(CurrentState& state, const Event& event)
+bool onSchedWakeupEvent(CurrentState& state, const Event& event)
 {
     return true;
 }
@@ -357,7 +357,7 @@ void registerEventCallbacks(DynamicLibraryStateProvider::Adapter& adapter)
     registerSimpleEventCallback(adapter, "sched_process_fork", onSchedProcessFork);
     registerSimpleEventCallback(adapter, "sched_process_free", onSchedProcessFree);
     registerSimpleEventCallback(adapter, "lttng_statedump_process_state", onLttngStatedumpProcessState);
-    registerSimpleEventCallback(adapter, "sched_wakeup", onSchedWakeup);
+    adapter.registerEventCallbackRegex("^lttng-kernel$", "^sched_wakeup", onSchedWakeupEvent);
     adapter.registerEventCallbackRegex("^lttng-kernel$", "^sys_", onSysEvent);
     adapter.registerEventCallbackRegex("^lttng-kernel$", "^compat_sys_", onCompatSysEvent);
 }
