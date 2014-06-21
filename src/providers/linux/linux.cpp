@@ -172,6 +172,7 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
     auto& root = state.getRoot();
     auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
     auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(root, event);
     auto& currentIrqNode = getCurrentIrqNode(root, event);
 
     // reset current IRQ's CPU
@@ -189,10 +190,10 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
         }
     }
 
-    if (!currentCpuNode[QP_CUR_THREAD]) {
+    if (!cpuCurrentThreadNode) {
         // no current thread for this CPU: CPU is idle
         currentCpuNode[QP_STATUS] = QV_IDLE;
-    } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
+    } else if (cpuCurrentThreadNode.asSint32() == 0) {
         currentCpuNode[QP_STATUS] = QV_IDLE;
     }
 
@@ -229,6 +230,7 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
     auto& root = state.getRoot();
     auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
     auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(root, event);
     auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
 
     // reset current soft IRQ's CPU
@@ -249,10 +251,10 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
         }
     }
 
-    if (!currentCpuNode[QP_CUR_THREAD]) {
+    if (!cpuCurrentThreadNode) {
         // no current thread for this CPU: CPU is idle
         currentCpuNode[QP_STATUS] = QV_IDLE;
-    } else if (currentCpuNode[QP_CUR_THREAD].asSint32() == 0) {
+    } else if (cpuCurrentThreadNode.asSint32() == 0) {
         currentCpuNode[QP_STATUS] = QV_IDLE;
     }
 
@@ -412,11 +414,17 @@ bool onSchedWakeupEvent(CurrentState& state, const Event& event)
 
 bool onSysEvent(CurrentState& state, const Event& event)
 {
-    return true;
-}
+    auto& root = state.getRoot();
+    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
+    auto& currentCpuNode = getCurrentCpuNode(root, event);
 
-bool onCompatSysEvent(CurrentState& state, const Event& event)
-{
+    if (currentThreadNode != root) {
+        currentThreadNode[QP_SYSCALL] = event.getName();
+        currentThreadNode[QP_STATUS] = QV_RUN_SYSCALL;
+    }
+
+    currentCpuNode[QP_STATUS] = QV_RUN_SYSCALL;
+
     return true;
 }
 
@@ -441,7 +449,7 @@ void registerEventCallbacks(DynamicLibraryStateProvider::Adapter& adapter)
     registerSimpleEventCallback(adapter, "lttng_statedump_process_state", onLttngStatedumpProcessState);
     adapter.registerEventCallbackRegex("^lttng-kernel$", "^sched_wakeup", onSchedWakeupEvent);
     adapter.registerEventCallbackRegex("^lttng-kernel$", "^sys_", onSysEvent);
-    adapter.registerEventCallbackRegex("^lttng-kernel$", "^compat_sys_", onCompatSysEvent);
+    adapter.registerEventCallbackRegex("^lttng-kernel$", "^compat_sys_", onSysEvent);
 }
 
 void getConstantQuarks(CurrentState& state)
