@@ -246,6 +246,50 @@ public:
      */
     std::int64_t operator/(const AbstractIntegerEventValue<std::uint64_t, EventValueType::UINT>& val) const;
 
+    /**
+     * Compares the integer value of this event value and a provided
+     * signed integer.
+     *
+     * @param value Value to compare with
+     * @returns     True if both values are equal
+     */
+    bool operator==(std::int64_t value) const
+    {
+        return static_cast<std::int64_t>(this->getValue()) == value;
+    }
+
+    /**
+     * Opposite of operator==(std::int64_t).
+     *
+     * @see operator==(std::int64_t)
+     */
+    bool operator!=(std::int64_t value) const
+    {
+        return !(*this == value);
+    }
+
+    /**
+     * Compares the integer value of this event value and a provided
+     * unsigned integer.
+     *
+     * @param value Value to compare with
+     * @returns     True if both values are equal
+     */
+    bool operator==(std::uint64_t value) const
+    {
+        return static_cast<std::uint64_t>(this->getValue()) == value;
+    }
+
+    /**
+     * Opposite of operator==(std::uint64_t).
+     *
+     * @see operator==(std::uint64_t)
+     */
+    bool operator!=(std::uint64_t value) const
+    {
+        return !(*this == value);
+    }
+
 protected:
     const ::bt_definition* getDef() const {
         return _btDef;
