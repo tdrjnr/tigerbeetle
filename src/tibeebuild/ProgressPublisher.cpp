@@ -79,16 +79,16 @@ bool ProgressPublisher::onStartImpl(const common::TraceSet* traceSet)
 {
     std::cout << "progress publisher: publishing start" << std::endl;
 
-    // first publication
+    // update last/start time
+    _lastTime = bptime::microsec_clock::local_time();
+    _startTime = _lastTime;
+
+    // initial publication
     _evCount = 0;
     _tmpEvCounter = 0;
     _lastTs = _rpcNotification->getBeginTs();
     _rpcNotification->setStateChanges(0);
     this->publish();
-
-    // update last/start time
-    _lastTime = bptime::microsec_clock::local_time();
-    _startTime = _lastTime;
 
     return true;
 }
