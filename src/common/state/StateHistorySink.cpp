@@ -426,6 +426,11 @@ void StateHistorySink::writeInterval(const StateNode& node)
         return;
     }
 
+    // if the interval to be created has a zero-length, forget it
+    if (_ts - node.getBeginTs() == 0) {
+        return;
+    }
+
     // translate from state value to interval
     auto type = static_cast<std::size_t>(stateValue.getType());
     auto interval = _translators[type](node);
