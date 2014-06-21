@@ -44,6 +44,7 @@ bool BuilderJsonRpcMessageEncoder::encodeProgressUpdateRpcNotificationParams(con
     TIBEE_DEF_YAJL_STR(STATE_CHANGES, "state-changes");
     TIBEE_DEF_YAJL_STR(TRACES_PATHS, "traces-paths");
     TIBEE_DEF_YAJL_STR(STATE_PROVIDERS, "state-providers");
+    TIBEE_DEF_YAJL_STR(ELAPSED_TIME, "elapsed-time");
 
     // open object
     ::yajl_gen_map_open(yajlGen);
@@ -63,6 +64,10 @@ bool BuilderJsonRpcMessageEncoder::encodeProgressUpdateRpcNotificationParams(con
     // trace set current timestamp
     ::yajl_gen_string(yajlGen, TRACES_CUR_TS, TRACES_CUR_TS_LEN);
     ::yajl_gen_integer(yajlGen, static_cast<long long int>(pu.getCurTs()));
+
+    // elapsed time (ms)
+    ::yajl_gen_string(yajlGen, ELAPSED_TIME, ELAPSED_TIME_LEN);
+    ::yajl_gen_integer(yajlGen, static_cast<long long int>(pu.getElapsedTime()));
 
     // state changes
     ::yajl_gen_string(yajlGen, STATE_CHANGES, STATE_CHANGES_LEN);

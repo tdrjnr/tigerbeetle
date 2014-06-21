@@ -109,6 +109,9 @@ private:
     // last system time
     boost::posix_time::ptime _lastTime;
 
+    // start time
+    boost::posix_time::ptime _startTime;
+
     // message queue context
     std::unique_ptr<common::MqContext> _mqContext;
 

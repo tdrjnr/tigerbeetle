@@ -22,6 +22,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
 
     def _setup_labels(self):
         self._labels = [
+            self._lbl_elapsed_time,
             self._lbl_begin_time,
             self._lbl_end_time,
             self._lbl_duration,
@@ -42,6 +43,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         palette.setColor(QtGui.QPalette.WindowText, QtGui.QColor('#999'))
 
         caption_labels = [
+            self._lbl_elapsed_time_caption,
             self._lbl_begin_time_caption,
             self._lbl_end_time_caption,
             self._lbl_duration_caption,
@@ -184,3 +186,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
 
         # progress widget value
         self._progress_widget.set_value(done)
+
+        # elapsed time
+        elapsed_time = update.get_elapsed_time() / 1000
+        self._lbl_elapsed_time.setText('{:.2f} s'.format(elapsed_time))

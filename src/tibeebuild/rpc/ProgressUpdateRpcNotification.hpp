@@ -149,6 +149,27 @@ public:
     }
 
     /**
+     * Sets the elapsed time for the whole process.
+     *
+     * @param ms Number of elapsed milliseconds since beginning of process
+     */
+    void setElapsedTime(std::size_t ms)
+    {
+        _elapsedTimeMs = ms;
+    }
+
+    /**
+     * Returns the number of elapsed milliseconds since the beginning of
+     * the whole process.
+     *
+     * @returns Elapsed time since beginning of process in milliseconds
+     */
+    std::size_t getElapsedTime() const
+    {
+        return _elapsedTimeMs;
+    }
+
+    /**
      * Sets the traces paths used to build the caches.
      *
      * @param tracesPaths Trace paths
@@ -193,6 +214,7 @@ private:
     common::timestamp_t _beginTs;
     common::timestamp_t _endTs;
     common::timestamp_t _curTs;
+    std::size_t _elapsedTimeMs;
     std::size_t _stateChanges;
     std::vector<boost::filesystem::path> _tracesPaths;
     std::vector<common::StateProviderConfig> _stateProviders;

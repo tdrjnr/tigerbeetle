@@ -42,6 +42,9 @@ class ProgressUpdate:
     def get_cur_ts(self):
         return self._infos['traces-cur-ts']
 
+    def get_elapsed_time(self):
+        return self._infos['elapsed-time']
+
     def get_processed_events(self):
         return self._infos['processed-events']
 

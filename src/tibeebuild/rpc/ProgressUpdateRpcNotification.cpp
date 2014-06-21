@@ -26,6 +26,7 @@ ProgressUpdateRpcNotification::ProgressUpdateRpcNotification() :
     _beginTs {0},
     _endTs {0},
     _curTs {0},
+    _elapsedTimeMs {0},
     _stateChanges {0}
 {
 }

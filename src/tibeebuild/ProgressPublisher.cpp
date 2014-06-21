@@ -86,8 +86,9 @@ bool ProgressPublisher::onStartImpl(const common::TraceSet* traceSet)
     _rpcNotification->setStateChanges(0);
     this->publish();
 
-    // update last time
+    // update last/start time
     _lastTime = bptime::microsec_clock::local_time();
+    _startTime = _lastTime;
 
     return true;
 }
@@ -125,6 +126,12 @@ void ProgressPublisher::publish()
     if (_stateHistoryBuilder) {
         _rpcNotification->setStateChanges(_stateHistoryBuilder->getStateChanges());
     }
+
+    bptime::ptime curTime {bptime::microsec_clock::local_time()};
+    auto diffTime = curTime - _startTime;
+    auto diffTimeMs = diffTime.total_milliseconds();
+
+    _rpcNotification->setElapsedTime(diffTimeMs);
 
     // get JSON-RPC notification
     auto json = _rpcMessageEncoder->encodeProgressUpdateRpcNotification(*_rpcNotification);
