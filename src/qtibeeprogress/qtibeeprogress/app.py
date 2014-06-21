@@ -39,7 +39,7 @@ class _App(Qt.QApplication):
     def _show_progress_main_window(self):
         res = Qt.QDesktopWidget().screenGeometry()
 
-        self._main_wnd_progress = QProgressMainWindow()
+        self._main_wnd_progress = QProgressMainWindow(self._addr)
         x = (res.width() - self._main_wnd_progress.width()) // 2
         y = (res.height() - self._main_wnd_progress.height()) // 2
 

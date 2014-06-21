@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>523</height>
+    <height>542</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -55,17 +55,40 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <layout class="QFormLayout" name="_fl_general_infos">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
          <property name="horizontalSpacing">
           <number>15</number>
          </property>
          <item row="0" column="0">
+          <widget class="QLabel" name="_lbl_builder_addr_caption">
+           <property name="text">
+            <string>Builder address:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="_lbl_builder_addr">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
           <widget class="QLabel" name="_lbl_elapsed_time_caption">
            <property name="text">
             <string>Elapsed time:</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="1" column="1">
           <widget class="QLabel" name="_lbl_elapsed_time">
            <property name="font">
             <font>

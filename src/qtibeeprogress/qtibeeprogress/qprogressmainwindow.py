@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
-    def __init__(self):
+    def __init__(self, builder_addr):
         super().__init__()
+
+        self._builder_addr = builder_addr
 
         self._setup_ui()
 
@@ -21,6 +23,8 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         layout.insertWidget(0, self._progress_widget)
 
     def _setup_labels(self):
+        self._lbl_builder_addr.setText(self._builder_addr)
+
         self._labels = [
             self._lbl_elapsed_time,
             self._lbl_begin_time,
@@ -43,6 +47,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         palette.setColor(QtGui.QPalette.WindowText, QtGui.QColor('#999'))
 
         caption_labels = [
+            self._lbl_builder_addr_caption,
             self._lbl_elapsed_time_caption,
             self._lbl_begin_time_caption,
             self._lbl_end_time_caption,
@@ -58,9 +63,14 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         for label in caption_labels:
             label.setPalette(palette)
 
+    def _setup_title(self):
+        self._title_suffix = self._builder_addr + ' - ' + self.windowTitle()
+        self.setWindowTitle(self._title_suffix)
+
     def _setup_ui(self):
         self._load_ui('main_wnd_progress')
         self._setup_style()
+        self._setup_title()
         self._setup_labels()
         self._setup_edits()
         self._add_progress_widget()
@@ -173,7 +183,9 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         self._lbl_processed_events.setText(str(processed_events))
 
         # percent label
-        self._lbl_percent.setText('{:.2f} %'.format(done * 100))
+        percent_text = '{:.2f} %'.format(done * 100)
+        self._lbl_percent.setText(percent_text)
+        self.setWindowTitle(percent_text + ' - ' + self._title_suffix)
 
         # state changes label
         self._lbl_state_changes.setText(str(state_changes))
