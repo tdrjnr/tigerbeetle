@@ -180,7 +180,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         self._lbl_cur_time.setText(cur_text)
 
         # processed events label
-        self._lbl_processed_events.setText(str(processed_events))
+        self._lbl_processed_events.setText('{0:,}'.format(processed_events))
 
         # percent label
         percent_text = '{:.2f} %'.format(done * 100)
@@ -188,7 +188,7 @@ class QProgressMainWindow(Qt.QMainWindow, utils.QtUiLoad):
         self.setWindowTitle(percent_text + ' - ' + self._title_suffix)
 
         # state changes label
-        self._lbl_state_changes.setText(str(state_changes))
+        self._lbl_state_changes.setText('{0:,}'.format(state_changes))
 
         # traces edit
         self._txt_traces.setPlainText('\n'.join(traces))
