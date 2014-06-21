@@ -347,7 +347,7 @@ bool BuilderBeetle::run()
                     _stateProviders,
                     shbPtr,
                     2801,
-                    100
+                    250
                 }
             };
         } catch (const ex::MqBindError& ex) {
