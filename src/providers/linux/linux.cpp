@@ -393,6 +393,20 @@ bool onLttngStatedumpProcessState(CurrentState& state, const Event& event)
 
 bool onSchedWakeupEvent(CurrentState& state, const Event& event)
 {
+    auto& linuxNode = getLinuxNode(state.getRoot());
+    auto& tid = event["tid"].asSintValue();
+    auto& threadsTidStatus = linuxNode[QP_THREADS][tid][QP_STATUS];
+
+    if (threadsTidStatus.isQuark()) {
+        if (threadsTidStatus.asQuark() != QV_RUN_USERMODE &&
+                threadsTidStatus.asQuark() != QV_RUN_SYSCALL) {
+            threadsTidStatus = QV_WAIT_FOR_CPU;
+        }
+    } else {
+        // TODO: is this right?
+        threadsTidStatus = QV_WAIT_FOR_CPU;
+    }
+
     return true;
 }
 
