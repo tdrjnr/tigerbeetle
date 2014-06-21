@@ -64,6 +64,7 @@ quark_t QV_WAIT_BLOCKED;
 quark_t QV_INTERRUPTED;
 quark_t QV_WAIT_FOR_CPU;
 quark_t QV_RAISED;
+quark_t QV_SYS_CLONE;
 
 const UintEventValue& getEventCpu(const Event& event)
 {
@@ -129,11 +130,11 @@ bool onExitSyscall(CurrentState& state, const Event& event)
         // reset current thread's syscall
         currentThreadNode[QP_SYSCALL].setNull();
 
-        // set current thread's status
+        // current thread's status
         currentThreadNode[QP_STATUS] = QV_RUN_USERMODE;
     }
 
-    // set current CPU status
+    // current CPU status
     currentCpuNode[QP_STATUS] = QV_RUN_USERMODE;
 
     return true;
@@ -147,15 +148,15 @@ bool onIrqHandlerEntry(CurrentState& state, const Event& event)
     auto& currentIrqNode = getCurrentIrqNode(root, event);
     auto& cpu = getEventCpu(event);
 
-    // set current IRQ's CPU
+    // current IRQ's CPU
     currentIrqNode[QP_CUR_CPU].setInt(asUint32(cpu));
 
     if (currentThreadNode != root) {
-        // set current thread's status
+        // current thread's status
         currentThreadNode[QP_STATUS] = QV_INTERRUPTED;
     }
 
-    // set current CPU's status
+    // current CPU's status
     currentCpuNode[QP_STATUS] = QV_IRQ;
 
     return true;
@@ -201,18 +202,18 @@ bool onSoftIrqEntry(CurrentState& state, const Event& event)
     auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
     auto& cpu = getEventCpu(event);
 
-    // set current soft IRQ's CPU
+    // current soft IRQ's CPU
     currentSoftIrqNode[QP_CUR_CPU].setInt(asUint32(cpu));
 
     // reset current soft IRQ's status
     currentSoftIrqNode[QP_STATUS].setNull();
 
     if (currentThreadNode != root) {
-        // set current thread's status
+        // current thread's status
         currentThreadNode[QP_STATUS] = QV_INTERRUPTED;
     }
 
-    // set current CPU's status
+    // current CPU's status
     currentCpuNode[QP_STATUS] = QV_SOFT_IRQ;
 
     return true;
@@ -272,11 +273,12 @@ bool onSchedSwitch(CurrentState& state, const Event& event)
     auto& nextTid = event["next_tid"].asSintValue();
     auto& nextComm = event["next_comm"];
     auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& threadsPrevTidStatusNode = root[QP_THREADS][prevTid][QP_STATUS];
 
     if (prevState.asSint() == 0) {
-        root[QP_THREADS][prevTid][QP_STATUS] = QV_WAIT_FOR_CPU;
+        threadsPrevTidStatusNode = QV_WAIT_FOR_CPU;
     } else {
-        root[QP_THREADS][prevTid][QP_STATUS] = QV_WAIT_BLOCKED;
+        threadsPrevTidStatusNode = QV_WAIT_BLOCKED;
     }
 
     auto& newCurrentThread = root[QP_THREADS][nextTid];
@@ -310,6 +312,28 @@ bool onSchedSwitch(CurrentState& state, const Event& event)
 
 bool onSchedProcessFork(CurrentState& state, const Event& event)
 {
+    auto& root = state.getRoot();
+    auto& childTid = event["child_tid"].asSintValue();
+    auto& parentTid = event["parent_tid"].asSintValue();
+    auto& childComm = event["child_comm"].asArray();
+    auto& threadsChildTidNode = root[QP_THREADS][childTid];
+
+    // child thread's parent TID
+    threadsChildTidNode[QP_PPID] = parentTid;
+
+    // child thread's exec name
+    threadsChildTidNode[QP_EXEC_NAME] = childComm.getString();
+
+    // child thread's status
+    threadsChildTidNode[QP_STATUS] = QV_WAIT_FOR_CPU;
+
+    // child thread's syscall
+    threadsChildTidNode[QP_SYSCALL] = root[QP_THREADS][parentTid][QP_SYSCALL];
+
+    if (!threadsChildTidNode[QP_SYSCALL]) {
+        threadsChildTidNode[QP_SYSCALL] = QV_SYS_CLONE;
+    }
+
     return true;
 }
 
@@ -389,6 +413,7 @@ void getConstantQuarks(CurrentState& state)
     QV_INTERRUPTED = state.getStringValueQuark("interrupted");
     QV_WAIT_FOR_CPU = state.getStringValueQuark("wait-for-cpu");
     QV_RAISED = state.getStringValueQuark("raised");
+    QV_SYS_CLONE = state.getStringValueQuark("sys_clone");
 }
 
 }
