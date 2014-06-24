@@ -29,32 +29,22 @@ CurrentState::CurrentState(StateHistorySink* sink) :
 {
 }
 
-quark_t CurrentState::getSubpathQuark(const char* subpath) const
+Quark CurrentState::getSubpathQuark(const std::string& subpath) const
 {
     return _sink->getSubpathQuark(subpath);
 }
 
-quark_t CurrentState::getSubpathQuark(const std::string& subpath) const
-{
-    return _sink->getSubpathQuark(subpath);
-}
-
-quark_t CurrentState::getStringValueQuark(const char* string) const
+Quark CurrentState::getStringValueQuark(const std::string& string) const
 {
     return _sink->getStringValueQuark(string);
 }
 
-quark_t CurrentState::getStringValueQuark(const std::string& string) const
-{
-    return _sink->getStringValueQuark(string);
-}
-
-const std::string& CurrentState::getSubpathString(quark_t quark) const
+const std::string& CurrentState::getSubpathString(Quark quark) const
 {
     return _sink->getSubpathString(quark);
 }
 
-const std::string& CurrentState::getStringValueString(quark_t quark) const
+const std::string& CurrentState::getStringValueString(Quark quark) const
 {
     return _sink->getStringValueString(quark);
 }

@@ -36,6 +36,8 @@
 #include <common/state/NullStateValue.hpp>
 #include <common/state/CurrentState.hpp>
 #include <common/state/StateNode.hpp>
+#include <common/state/AbstractStateValue.hpp>
+#include <common/state/Quark.hpp>
 
 namespace tibee
 {
@@ -121,7 +123,7 @@ public:
      * @param subpath Subpath string for which to get the quark
      * @returns       Quark for given subpath
      */
-    quark_t getSubpathQuark(const std::string& subpath);
+    Quark getSubpathQuark(const std::string& subpath);
 
     /**
      * Returns a quark for a given string state value, created if needed.
@@ -131,7 +133,7 @@ public:
      * @param value String for which to get the quark
      * @returns     Quark for given value
      */
-    quark_t getStringValueQuark(const std::string& value);
+    Quark getStringValueQuark(const std::string& value);
 
     /**
      * Returns the subpath associated with subpath quark \p quark or
@@ -139,7 +141,7 @@ public:
      *
      * @returns Subpath string associated with subpath quark \p quark
      */
-    const std::string& getSubpathString(quark_t quark) const;
+    const std::string& getSubpathString(Quark quark) const;
 
     /**
      * Returns the string value associated with quark \p quark or
@@ -147,7 +149,7 @@ public:
      *
      * @returns String value associated with string value quark \p quark
      */
-    const std::string& getStringValueString(quark_t quark) const;
+    const std::string& getStringValueString(Quark quark) const;
 
     /**
      * Returns a reference to the "current state", which is an adapter

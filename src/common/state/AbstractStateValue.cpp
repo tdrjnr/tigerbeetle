@@ -108,7 +108,7 @@ const QuarkStateValue& AbstractStateValue::asQuarkValue() const
     return static_cast<const QuarkStateValue&>(*this);
 }
 
-quark_t AbstractStateValue::asQuark() const
+Quark AbstractStateValue::asQuark() const
 {
     return this->asQuarkValue().getValue();
 }

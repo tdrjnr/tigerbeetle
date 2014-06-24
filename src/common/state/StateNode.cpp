@@ -53,18 +53,18 @@ const AbstractStateValue& StateNode::getValue() const
     }
 }
 
-StateNode& StateNode::operator[](quark_t quark)
+StateNode& StateNode::operator[](Quark quark)
 {
     // child exists?
-    if (this->childExists(quark)) {
-        return *_children[quark];
+    if (this->childExists(quark.get())) {
+        return *_children[quark.get()];
     }
 
     auto newNode = _stateHistorySink->buildStateNode();
 
-    _children[quark] = std::move(newNode);
+    _children[quark.get()] = std::move(newNode);
 
-    return *_children[quark];
+    return *_children[quark.get()];
 }
 
 StateNode& StateNode::operator[](const std::string& key)
@@ -81,34 +81,39 @@ StateNode& StateNode::operator[](const char* key)
     return this->operator[](std::string(key));
 }
 
-StateNode& StateNode::getIntChild(std::int64_t key)
+StateNode& StateNode::operator[](std::int64_t key)
 {
     return this->operator[](std::to_string(key));
 }
 
-StateNode& StateNode::getIntChild(std::uint64_t key)
+StateNode& StateNode::operator[](std::uint64_t key)
 {
     return this->operator[](std::to_string(key));
 }
 
-StateNode& StateNode::getIntChild(std::int32_t key)
+StateNode& StateNode::operator[](std::int32_t key)
 {
     return this->operator[](std::to_string(key));
 }
 
-StateNode& StateNode::getIntChild(std::uint32_t key)
+StateNode& StateNode::operator[](std::uint32_t key)
+{
+    return this->operator[](std::to_string(key));
+}
+
+StateNode& StateNode::operator[](float key)
 {
     return this->operator[](std::to_string(key));
 }
 
 StateNode& StateNode::operator[](const SintEventValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const UintEventValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const StringEventValue& value)
@@ -119,9 +124,9 @@ StateNode& StateNode::operator[](const StringEventValue& value)
 StateNode& StateNode::operator[](const AbstractEventValue& value)
 {
     if (value.isSint()) {
-        return this->getIntChild(value.asSint());
+        return this->operator[](value.asSint());
     } else if (value.isUint()) {
-        return this->getIntChild(value.asUint());
+        return this->operator[](value.asUint());
     } else if (value.isString()) {
         return this->operator[](value.asString());
     } else {
@@ -131,22 +136,22 @@ StateNode& StateNode::operator[](const AbstractEventValue& value)
 
 StateNode& StateNode::operator[](const Sint32StateValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const Sint64StateValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const Uint32StateValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const Uint64StateValue& value)
 {
-    return this->getIntChild(value.getValue());
+    return this->operator[](value.getValue());
 }
 
 StateNode& StateNode::operator[](const Float32StateValue& value)
@@ -182,12 +187,12 @@ StateNode::Iterator StateNode::end()
     };
 }
 
-bool StateNode::hasChild(quark_t quark) const
+bool StateNode::hasChild(Quark quark) const
 {
     // does the child event exists?
-    if (this->childExists(quark)) {
+    if (this->childExists(quark.get())) {
         // get it and check if it's not marked as removed
-        return !_children.at(quark)->isNull();
+        return !_children.at(quark.get())->isNull();
     }
 
     return false;
@@ -207,24 +212,24 @@ bool StateNode::hasChild(const char* key) const
     return this->hasChild(std::string(key));
 }
 
-bool StateNode::hasIntChild(std::int64_t key) const
+bool StateNode::hasChild(std::int64_t key) const
 {
     return this->hasChild(std::to_string(key));
 }
 
-bool StateNode::hasIntChild(std::uint64_t key) const
+bool StateNode::hasChild(std::uint64_t key) const
 {
     return this->hasChild(std::to_string(key));
 }
 
 bool StateNode::hasChild(const SintEventValue& key) const
 {
-    return this->hasIntChild(key.getValue());
+    return this->hasChild(key.getValue());
 }
 
 bool StateNode::hasChild(const UintEventValue& key) const
 {
-    return this->hasIntChild(key.getValue());
+    return this->hasChild(key.getValue());
 }
 
 bool StateNode::hasChild(const StringEventValue& key) const
@@ -235,9 +240,9 @@ bool StateNode::hasChild(const StringEventValue& key) const
 bool StateNode::hasChild(const AbstractEventValue& key) const
 {
     if (key.isSint()) {
-        return this->hasIntChild(key.asSint());
+        return this->hasChild(key.asSint());
     } else if (key.isUint()) {
-        return this->hasIntChild(key.asUint());
+        return this->hasChild(key.asUint());
     } else if (key.isString()) {
         return this->hasChild(key.asString());
     }
@@ -289,7 +294,7 @@ StateNode& StateNode::operator=(const StateNode& node)
     return (*this = node.getValue());
 }
 
-StateNode& StateNode::operator=(quark_t quark)
+StateNode& StateNode::operator=(Quark quark)
 {
     return (*this = QuarkStateValue {quark});
 }
@@ -308,22 +313,22 @@ StateNode& StateNode::operator=(const char* value)
     return (*this = std::string(value));
 }
 
-StateNode& StateNode::setInt(std::int32_t value)
+StateNode& StateNode::operator=(std::int32_t value)
 {
     return (*this = Sint32StateValue {value});
 }
 
-StateNode& StateNode::setInt(std::uint32_t value)
+StateNode& StateNode::operator=(std::uint32_t value)
 {
     return (*this = Uint32StateValue {value});
 }
 
-StateNode& StateNode::setInt(std::int64_t value)
+StateNode& StateNode::operator=(std::int64_t value)
 {
     return (*this = Sint64StateValue {value});
 }
 
-StateNode& StateNode::setInt(std::uint64_t value)
+StateNode& StateNode::operator=(std::uint64_t value)
 {
     return (*this = Uint64StateValue {value});
 }
@@ -358,9 +363,9 @@ StateNode& StateNode::operator=(const StringEventValue& value)
 StateNode& StateNode::operator=(const AbstractEventValue& value)
 {
     if (value.isSint()) {
-        return this->setInt(value.asSint());
+        return this->operator=(value.asSint());
     } else if (value.isUint()) {
-        return this->setInt(value.asUint());
+        return this->operator=(value.asUint());
     } else if (value.isString()) {
         return (*this = value.asString());
     } else if (value.isFloat()) {
@@ -407,19 +412,19 @@ StateNode& StateNode::operator+=(std::int64_t inc)
     if (_stateValue->isSint32()) {
         auto curValue = _stateValue->asSint32();
 
-        return this->setInt(static_cast<std::int32_t>(curValue + inc));
+        return this->operator=(static_cast<std::int32_t>(curValue + inc));
     } else if (_stateValue->isUint32()) {
         auto curValue = _stateValue->asUint32();
 
-        return this->setInt(static_cast<std::uint32_t>(curValue + inc));
+        return this->operator=(static_cast<std::uint32_t>(curValue + inc));
     } else if (_stateValue->isSint64()) {
         auto curValue = _stateValue->asSint64();
 
-        return this->setInt(static_cast<std::int64_t>(curValue + inc));
+        return this->operator=(static_cast<std::int64_t>(curValue + inc));
     } else if (_stateValue->isUint64()) {
         auto curValue = _stateValue->asUint64();
 
-        return this->setInt(static_cast<std::uint64_t>(curValue + inc));
+        return this->operator=(static_cast<std::uint64_t>(curValue + inc));
     }
 
     return *this;
@@ -434,19 +439,19 @@ StateNode& StateNode::operator-=(std::int64_t dec)
     if (_stateValue->isSint32()) {
         auto curValue = _stateValue->asSint32();
 
-        return this->setInt(static_cast<std::int32_t>(curValue - dec));
+        return this->operator=(static_cast<std::int32_t>(curValue - dec));
     } else if (_stateValue->isUint32()) {
         auto curValue = _stateValue->asUint32();
 
-        return this->setInt(static_cast<std::uint32_t>(curValue - dec));
+        return this->operator=(static_cast<std::uint32_t>(curValue - dec));
     } else if (_stateValue->isSint64()) {
         auto curValue = _stateValue->asSint64();
 
-        return this->setInt(static_cast<std::int64_t>(curValue - dec));
+        return this->operator=(static_cast<std::int64_t>(curValue - dec));
     } else if (_stateValue->isUint64()) {
         auto curValue = _stateValue->asUint64();
 
-        return this->setInt(static_cast<std::uint64_t>(curValue - dec));
+        return this->operator=(static_cast<std::uint64_t>(curValue - dec));
     }
 
     return *this;

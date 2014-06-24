@@ -23,6 +23,7 @@
 #include <boost/utility.hpp>
 
 #include <common/state/AbstractStateValue.hpp>
+#include <common/state/Quark.hpp>
 #include <common/BasicTypes.hpp>
 
 
@@ -54,32 +55,22 @@ public:
     /**
      * @see StateHistorySink::getSubpathQuark()
      */
-    quark_t getSubpathQuark(const char* subpath) const;
-
-    /**
-     * @see StateHistorySink::getSubpathQuark()
-     */
-    quark_t getSubpathQuark(const std::string& subpath) const;
+    Quark getSubpathQuark(const std::string& subpath) const;
 
     /**
      * @see StateHistorySink::getStringValueQuark()
      */
-    quark_t getStringValueQuark(const char* string) const;
-
-    /**
-     * @see StateHistorySink::getStringValueQuark()
-     */
-    quark_t getStringValueQuark(const std::string& string) const;
+    Quark getStringValueQuark(const std::string& string) const;
 
     /**
      * @see StateHistorySink::getSubpathString()
      */
-    const std::string& getSubpathString(quark_t quark) const;
+    const std::string& getSubpathString(Quark quark) const;
 
     /**
      * @see StateHistorySink::getStringValueString()
      */
-    const std::string& getStringValueString(quark_t quark) const;
+    const std::string& getStringValueString(Quark quark) const;
 
     /**
      * @see StateHistorySink::getStateChangesCount()

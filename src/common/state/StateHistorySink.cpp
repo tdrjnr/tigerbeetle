@@ -114,7 +114,7 @@ private:
     {
         if (quark != 0xffffffff) {
             // not root: output child node subpath
-            const auto& subpath = _stateHistorySink->getSubpathString(quark);
+            const auto& subpath = _stateHistorySink->getSubpathString(Quark(quark));
 
             ::yajl_gen_string(_yajlGen,
                               reinterpret_cast<const unsigned char*>(subpath.c_str()),
@@ -305,7 +305,7 @@ void StateHistorySink::initTranslators()
             static_cast<delo::interval_key_t>(node.getId())
         };
 
-        interval->setValue(node.getValue().asQuark());
+        interval->setValue(node.getValue().asQuark().get());
 
         return interval;
     };
@@ -396,24 +396,24 @@ const std::string& StateHistorySink::getQuarkString(const StringDb& stringDb,
     return it->second;
 }
 
-quark_t StateHistorySink::getSubpathQuark(const std::string& subpath)
+Quark StateHistorySink::getSubpathQuark(const std::string& subpath)
 {
-    return this->getQuark(_subpathsDb, subpath, _nextPathQuark);
+    return Quark(this->getQuark(_subpathsDb, subpath, _nextPathQuark));
 }
 
-quark_t StateHistorySink::getStringValueQuark(const std::string& value)
+Quark StateHistorySink::getStringValueQuark(const std::string& value)
 {
-    return this->getQuark(_strValuesDb, value, _nextStrValueQuark);
+    return Quark(this->getQuark(_strValuesDb, value, _nextStrValueQuark));
 }
 
-const std::string& StateHistorySink::getSubpathString(quark_t quark) const
+const std::string& StateHistorySink::getSubpathString(Quark quark) const
 {
-    return StateHistorySink::getQuarkString(_subpathsDb, quark);
+    return StateHistorySink::getQuarkString(_subpathsDb, quark.get());
 }
 
-const std::string& StateHistorySink::getStringValueString(quark_t quark) const
+const std::string& StateHistorySink::getStringValueString(Quark quark) const
 {
-    return StateHistorySink::getQuarkString(_strValuesDb, quark);
+    return StateHistorySink::getQuarkString(_strValuesDb, quark.get());
 }
 
 void StateHistorySink::writeInterval(const StateNode& node)

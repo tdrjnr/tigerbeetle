@@ -36,7 +36,7 @@ typedef std::uint64_t   timestamp_t;
 /// Trace cycles
 typedef std::uint64_t   trace_cycles_t;
 
-/// State quark
+/// Real quark (make sure to use Quark wrapper for any public interface)
 typedef std::uint32_t   quark_t;
 
 /// State node ID

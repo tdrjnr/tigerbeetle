@@ -254,7 +254,7 @@ public:
      *
      * @see AbstractStateValue::asQuark()
      */
-    quark_t asQuark() const
+    Quark asQuark() const
     {
         return _stateValue->asQuark();
     }
@@ -355,13 +355,13 @@ public:
      * @param quark Quark to look up
      * @returns     Child node with quark \p quark
      */
-    StateNode& operator[](quark_t quark);
+    StateNode& operator[](Quark quark);
 
     /**
      * Convenience method that gets the quark of string \p key and
-     * calls operator[](quark_t) with the result.
+     * calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param key Child key to look up
      * @returns   Child node with quark of \p key
@@ -375,37 +375,42 @@ public:
 
     /**
      * Convenience method that converts the integer \p key to a string,
-     * gets the quark of this string and calls operator[](quark_t)
+     * gets the quark of this string and calls operator[](Quark)
      * with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param key Child key to look up
      * @returns   Child node with quark of \p key (as a string)
      */
-    StateNode& getIntChild(std::int64_t key);
+    StateNode& operator[](std::int64_t key);
 
     /**
      * @see operator[](std::int64_t)
      */
-    StateNode& getIntChild(std::uint64_t key);
+    StateNode& operator[](std::uint64_t key);
 
     /**
-     * @see operator[](std::int32_t)
+     * @see operator[](std::int64_t)
      */
-    StateNode& getIntChild(std::int32_t key);
+    StateNode& operator[](std::int32_t key);
 
     /**
-     * @see operator[](std::uint32_t)
+     * @see operator[](std::int64_t)
      */
-    StateNode& getIntChild(std::uint32_t key);
+    StateNode& operator[](std::uint32_t key);
+
+    /**
+     * @see operator[](std::int64_t)
+     */
+    StateNode& operator[](float key);
 
     /**
      * Convenience method that converts the signed integer event value
      * \p value to a string, gets the quark of this string and calls
-     * operator[](quark_t) with the result.
+     * operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value Signed integer event value to look up
      * @returns     Child node with quark of \p value (as a string)
@@ -415,9 +420,9 @@ public:
     /**
      * Convenience method that converts the unsigned integer event value
      * \p value to a string, gets the quark of this string and calls
-     * operator[](quark_t) with the result.
+     * operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value Unsigned integer event value to look up
      * @returns     Child node with quark of \p value (as a string)
@@ -427,9 +432,9 @@ public:
     /**
      * Convenience method that gets the string value of the string
      * event value \p value, gets the quark of this string and calls
-     * operator[](quark_t) with the result.
+     * operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value String event value to look up
      * @returns     Child node with quark of \p value
@@ -459,9 +464,9 @@ public:
     /**
      * Convenience method that converts the 32-bit signed integer
      * value of the state value \p value to a string, gets the quark
-     * of this string and calls operator[](quark_t) with the result.
+     * of this string and calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -471,9 +476,9 @@ public:
     /**
      * Convenience method that converts the 64-bit signed integer
      * value of the state value \p value to a string, gets the quark
-     * of this string and calls operator[](quark_t) with the result.
+     * of this string and calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -483,9 +488,9 @@ public:
     /**
      * Convenience method that converts the 32-bit unsigned integer
      * value of the state value \p value to a string, gets the quark
-     * of this string and calls operator[](quark_t) with the result.
+     * of this string and calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -495,9 +500,9 @@ public:
     /**
      * Convenience method that converts the 64-bit unsigned integer
      * value of the state value \p value to a string, gets the quark
-     * of this string and calls operator[](quark_t) with the result.
+     * of this string and calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -507,10 +512,10 @@ public:
     /**
      * Convenience method that converts the 32-bit floating point
      * number value of the state value \p value to a string, gets
-     * the quark of this string and calls operator[](quark_t) with
+     * the quark of this string and calls operator[](Quark) with
      * the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -520,9 +525,9 @@ public:
     /**
      * Convenience method that gets the string value of string value
      * quark contained in \p value, gets the subpath quark of this
-     * string and calls operator[](quark_t) with the result.
+     * string and calls operator[](Quark) with the result.
      *
-     * @see operator[](quark_t)
+     * @see operator[](Quark)
      *
      * @param value State value containing key
      * @returns     Child node with quark of \p value (as a string)
@@ -553,13 +558,13 @@ public:
      * @param quark Quark to look up
      * @returns     True if a child node exists with quark \p quark
      */
-    bool hasChild(quark_t quark) const;
+    bool hasChild(Quark quark) const;
 
     /**
      * Convenience method that gets the quark for the string \p key,
-     * calls hasChild(quark_t) and returns this result.
+     * calls hasChild(Quark) and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key Child key to look up
      * @returns   True if a child node exists with key \p key
@@ -573,34 +578,34 @@ public:
 
     /**
      * Convenience method that converts the signed integer \p key to
-     * a string, gets the quark for this string, calls hasChild(quark_t)
+     * a string, gets the quark for this string, calls hasChild(Quark)
      * and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key Child key to look up
      * @returns   True if a child node exists with key \p key
      */
-    bool hasIntChild(std::int64_t key) const;
+    bool hasChild(std::int64_t key) const;
 
     /**
      * Convenience method that converts the unsigned integer \p key to
-     * a string, gets the quark for this string, calls hasChild(quark_t)
+     * a string, gets the quark for this string, calls hasChild(Quark)
      * and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key Child key to look up
      * @returns   True if a child node exists with key \p key
      */
-    bool hasIntChild(std::uint64_t key) const;
+    bool hasChild(std::uint64_t key) const;
 
     /**
      * Convenience method that converts the signed integer event value
      * \p key to a string, gets the quark of this string, calls
-     * hasChild(quark_t) and returns this result.
+     * hasChild(Quark) and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key Signed integer event value to look up
      * @returns   True if a child node exists with key \p key
@@ -610,9 +615,9 @@ public:
     /**
      * Convenience method that converts the unsigned integer event value
      * \p key to a string, gets the quark of this string, calls
-     * hasChild(quark_t) and returns this result.
+     * hasChild(Quark) and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key Unsigned integer event value to look up
      * @returns   True if a child node exists with key \p key
@@ -621,9 +626,9 @@ public:
 
     /**
      * Convenience method that gets the quark of the string event value
-     * \p key, calls hasChild(quark_t) and returns this result.
+     * \p key, calls hasChild(Quark) and returns this result.
      *
-     * @see hasChild(quark_t)
+     * @see hasChild(Quark)
      *
      * @param key String event value to look up
      * @returns   True if a child node exists with key \p key
@@ -714,7 +719,7 @@ public:
      * @param quark String value quark
      * @returns     This node
      */
-    StateNode& operator=(quark_t quark);
+    StateNode& operator=(Quark quark);
 
     /**
      * Gets the string value quark of \p value and assigns it to this
@@ -736,7 +741,7 @@ public:
      * @param value 32-bit signed integer to assign to this node
      * @returns     This node
      */
-    StateNode& setInt(std::int32_t value);
+    StateNode& operator=(std::int32_t value);
 
     /**
      * Assigns the 32-bit unsigned integer \p value to this node.
@@ -744,7 +749,7 @@ public:
      * @param value 32-bit unsigned integer to assign to this node
      * @returns     This node
      */
-    StateNode& setInt(std::uint32_t value);
+    StateNode& operator=(std::uint32_t value);
 
     /**
      * Assigns the 64-bit signed integer \p value to this node.
@@ -752,7 +757,7 @@ public:
      * @param value 64-bit signed integer to assign to this node
      * @returns     This node
      */
-    StateNode& setInt(std::int64_t value);
+    StateNode& operator=(std::int64_t value);
 
     /**
      * Assigns the 64-bit unsigned integer \p value to this node.
@@ -760,7 +765,7 @@ public:
      * @param value 64-bit unsigned integer to assign to this node
      * @returns     This node
      */
-    StateNode& setInt(std::uint64_t value);
+    StateNode& operator=(std::uint64_t value);
 
     /**
      * Assigns the single-precision floating point number \p value
@@ -804,9 +809,9 @@ public:
 
     /**
      * Gets the string value quark of \p value and calls
-     * operator=(quark_t).
+     * operator=(Quark).
      *
-     * @see operator=(quark_t)
+     * @see operator=(Quark)
      *
      * @param value String event value to assign to this node
      * @returns     This node

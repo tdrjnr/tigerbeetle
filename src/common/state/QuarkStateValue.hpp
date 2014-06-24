@@ -21,9 +21,9 @@
 #include <memory>
 #include <cstdint>
 
-#include <common/BasicTypes.hpp>
-#include <common/state/SimpleStateValue.hpp>
+#include <common/state/AbstractStateValue.hpp>
 #include <common/state/StateValueType.hpp>
+#include <common/state/Quark.hpp>
 
 namespace tibee
 {
@@ -37,14 +37,36 @@ namespace common
  * @author Philippe Proulx
  */
 class QuarkStateValue :
-    public SimpleStateValue<quark_t, StateValueType::QUARK>
+    public AbstractStateValue
 {
 public:
     typedef std::shared_ptr<QuarkStateValue> SP;
     typedef std::unique_ptr<QuarkStateValue> UP;
 
 public:
-    using SimpleStateValue::SimpleStateValue;
+    /**
+     * Builds a quark state value.
+     *
+     * @param quark Quark value
+     */
+    QuarkStateValue(Quark quark) :
+        AbstractStateValue {StateValueType::QUARK},
+        _quark {quark}
+    {
+    }
+
+    /**
+     * Returns the actual quark value.
+     *
+     * @returns Quark value
+     */
+    Quark getValue() const
+    {
+        return _quark;
+    }
+
+private:
+    Quark _quark;
 };
 
 }

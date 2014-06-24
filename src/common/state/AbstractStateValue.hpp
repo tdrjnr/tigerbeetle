@@ -24,6 +24,7 @@
 
 #include <common/BasicTypes.hpp>
 #include <common/state/StateValueType.hpp>
+#include <common/state/Quark.hpp>
 
 namespace tibee
 {
@@ -196,7 +197,7 @@ public:
      *
      * @returns This state value as a quark
      */
-    quark_t asQuark() const;
+    Quark asQuark() const;
 
     /**
      * Returns whether or not this is a 32-bit signed integer
