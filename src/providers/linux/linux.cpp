@@ -64,11 +64,31 @@ Quark Q_WAIT_FOR_CPU;
 Quark Q_RAISED;
 Quark Q_SYS_CLONE;
 
+// 0 to 65535 integers
+Quark Q_INT[65536];
+
+Quark getIntQ(const CurrentState& state, std::int64_t x)
+{
+    // optimization for pretty much all integers used in this provider
+    if (x >= 0 && x < 65536) {
+        return Q_INT[x];
+    }
+
+    return state.getQuark(std::to_string(x));
+}
+
 const UintEventValue& getEventCpu(const Event& event)
 {
     assert(event.getStreamPacketContext());
 
     return event.getStreamPacketContext()["cpu_id"].asUintValue();
+}
+
+Quark getEventCpuQuark(const CurrentState& state, const Event& event)
+{
+    const auto& cpu = getEventCpu(event);
+
+    return getIntQ(state, cpu.asUint());
 }
 
 std::int32_t asSint32(const SintEventValue& event)
@@ -81,53 +101,57 @@ std::uint32_t asUint32(const UintEventValue& event)
     return static_cast<std::uint32_t>(event.getValue());
 }
 
-StateNode& getLinuxNode(StateNode& root)
+StateNode& getLinuxNode(CurrentState& state)
 {
-    return root[Q_LINUX];
+    return state.getRoot()[Q_LINUX];
 }
 
-StateNode& getCurrentCpuNode(StateNode& root, const Event& event)
+StateNode& getCurrentCpuNode(CurrentState& state, const Event& event)
 {
-    auto& cpu = getEventCpu(event);
+    auto qCpu = getEventCpuQuark(state, event);
 
-    return getLinuxNode(root)[Q_CPUS][cpu];
+    return getLinuxNode(state)[Q_CPUS][qCpu];
 }
 
-StateNode& getCpuCurrentThreadNode(StateNode& root, const Event& event)
+StateNode& getCpuCurrentThreadNode(CurrentState& state, const Event& event)
 {
-    return getCurrentCpuNode(root, event)[Q_CUR_THREAD];
+    return getCurrentCpuNode(state, event)[Q_CUR_THREAD];
 }
 
-StateNode& getThreadsCurrentThreadNode(StateNode& root, const Event& event)
+StateNode& getThreadsCurrentThreadNode(CurrentState& state, const Event& event)
 {
-    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(root, event);
+    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(state, event);
 
-    if (cpuCurrentThreadNode == root || !cpuCurrentThreadNode) {
-        return root;
+    if (!cpuCurrentThreadNode) {
+        return state.getRoot();
     }
 
-    return getLinuxNode(root)[Q_THREADS][cpuCurrentThreadNode.asSint32Value()];
+    auto qCurrentThread = getIntQ(state, cpuCurrentThreadNode.asSint32());
+
+    return getLinuxNode(state)[Q_THREADS][qCurrentThread];
 }
 
-StateNode& getCurrentIrqNode(StateNode& root, const Event& event)
+StateNode& getCurrentIrqNode(CurrentState& state, const Event& event)
 {
-    auto& irq = event["irq"].asSintValue();
+    auto& irq = event["irq"];
+    auto qIrq = getIntQ(state, irq.asSint());
 
-    return getLinuxNode(root)[Q_RESOURCES][Q_IRQS][irq];
+    return getLinuxNode(state)[Q_RESOURCES][Q_IRQS][qIrq];
 }
 
-StateNode& getCurrentSoftIrqNode(StateNode& root, const Event& event)
+StateNode& getCurrentSoftIrqNode(CurrentState& state, const Event& event)
 {
-    auto& vec = event["vec"].asUintValue();
+    auto& vec = event["vec"];
+    auto qVec = getIntQ(state, vec.asUint());
 
-    return getLinuxNode(root)[Q_RESOURCES][Q_SOFT_IRQS][vec];
+    return getLinuxNode(state)[Q_RESOURCES][Q_SOFT_IRQS][qVec];
 }
 
 bool onExitSyscall(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
 
     if (currentThreadNode != root) {
         // reset current thread's syscall
@@ -146,9 +170,9 @@ bool onExitSyscall(CurrentState& state, const Event& event)
 bool onIrqHandlerEntry(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
-    auto& currentIrqNode = getCurrentIrqNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
+    auto& currentIrqNode = getCurrentIrqNode(state, event);
     auto& cpu = getEventCpu(event);
 
     // current IRQ's CPU
@@ -168,10 +192,10 @@ bool onIrqHandlerEntry(CurrentState& state, const Event& event)
 bool onIrqHandlerExit(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
-    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(root, event);
-    auto& currentIrqNode = getCurrentIrqNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
+    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(state, event);
+    auto& currentIrqNode = getCurrentIrqNode(state, event);
 
     // reset current IRQ's CPU
     currentIrqNode[Q_CUR_CPU].setNull();
@@ -201,9 +225,9 @@ bool onIrqHandlerExit(CurrentState& state, const Event& event)
 bool onSoftIrqEntry(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
-    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(state, event);
     auto& cpu = getEventCpu(event);
 
     // current soft IRQ's CPU
@@ -226,10 +250,10 @@ bool onSoftIrqEntry(CurrentState& state, const Event& event)
 bool onSoftIrqExit(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
-    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(root, event);
-    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
+    auto& cpuCurrentThreadNode = getCpuCurrentThreadNode(state, event);
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(state, event);
 
     // reset current soft IRQ's CPU
     currentSoftIrqNode[Q_CUR_CPU].setNull();
@@ -261,8 +285,7 @@ bool onSoftIrqExit(CurrentState& state, const Event& event)
 
 bool onSoftIrqRaise(CurrentState& state, const Event& event)
 {
-    auto& root = state.getRoot();
-    auto& currentSoftIrqNode = getCurrentSoftIrqNode(root, event);
+    auto& currentSoftIrqNode = getCurrentSoftIrqNode(state, event);
 
     // current soft IRQ's status: raised
     currentSoftIrqNode[Q_STATUS] = Q_RAISED;
@@ -273,13 +296,14 @@ bool onSoftIrqRaise(CurrentState& state, const Event& event)
 bool onSchedSwitch(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& linuxNode = getLinuxNode(root);
-    auto& prevState = event["prev_state"].asSintValue();
-    auto& prevTid = event["prev_tid"].asSintValue();
+    auto& linuxNode = getLinuxNode(state);
+    auto& prevState = event["prev_state"];
+    auto& prevTid = event["prev_tid"];
+    auto qPrevTid = getIntQ(state, prevTid.asSint());
     auto& nextTid = event["next_tid"].asSintValue();
     auto& nextComm = event["next_comm"];
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
-    auto& threadsPrevTidStatusNode = linuxNode[Q_THREADS][prevTid][Q_STATUS];
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
+    auto& threadsPrevTidStatusNode = linuxNode[Q_THREADS][qPrevTid][Q_STATUS];
 
     if (prevState.asSint() == 0) {
         threadsPrevTidStatusNode = Q_WAIT_FOR_CPU;
@@ -318,12 +342,13 @@ bool onSchedSwitch(CurrentState& state, const Event& event)
 
 bool onSchedProcessFork(CurrentState& state, const Event& event)
 {
-    auto& root = state.getRoot();
-    auto& linuxNode = getLinuxNode(root);
-    auto& childTid = event["child_tid"].asSintValue();
+    auto& linuxNode = getLinuxNode(state);
+    auto& childTid = event["child_tid"];
+    auto qChildTid = getIntQ(state, childTid.asSint());
     auto& parentTid = event["parent_tid"].asSintValue();
+    auto qParentTid = getIntQ(state, parentTid.asSint());
     auto& childComm = event["child_comm"].asArray();
-    auto& threadsChildTidNode = linuxNode[Q_THREADS][childTid];
+    auto& threadsChildTidNode = linuxNode[Q_THREADS][qChildTid];
 
     // child thread's parent TID
     threadsChildTidNode[Q_PPID] = asSint32(parentTid);
@@ -335,7 +360,7 @@ bool onSchedProcessFork(CurrentState& state, const Event& event)
     threadsChildTidNode[Q_STATUS] = Q_WAIT_FOR_CPU;
 
     // child thread's syscall
-    threadsChildTidNode[Q_SYSCALL] = linuxNode[Q_THREADS][parentTid][Q_SYSCALL];
+    threadsChildTidNode[Q_SYSCALL] = linuxNode[Q_THREADS][qParentTid][Q_SYSCALL];
 
     if (!threadsChildTidNode[Q_SYSCALL]) {
         threadsChildTidNode[Q_SYSCALL] = Q_SYS_CLONE;
@@ -346,23 +371,23 @@ bool onSchedProcessFork(CurrentState& state, const Event& event)
 
 bool onSchedProcessFree(CurrentState& state, const Event& event)
 {
-    auto& linuxNode = getLinuxNode(state.getRoot());
-    auto& tid = event["tid"].asSintValue();
+    auto& linuxNode = getLinuxNode(state);
+    auto qTid = getIntQ(state, event["tid"].asSint());
 
     // nullify thread subtree
-    linuxNode[Q_THREADS][tid].setNullRecursive();
+    linuxNode[Q_THREADS][qTid].setNullRecursive();
 
     return true;
 }
 
 bool onLttngStatedumpProcessState(CurrentState& state, const Event& event)
 {
-    auto& linuxNode = getLinuxNode(state.getRoot());
-    auto& tid = event["tid"].asSintValue();
+    auto& linuxNode = getLinuxNode(state);
+    auto qTid = getIntQ(state, event["tid"].asSint());
     auto& ppid = event["ppid"].asSintValue();
     auto& status = event["status"].asSintValue();
     auto& name = event["name"].asArray();
-    auto& threadsTidNode = linuxNode[Q_THREADS][tid];
+    auto& threadsTidNode = linuxNode[Q_THREADS][qTid];
     auto& threadsTidExecNameNode = threadsTidNode[Q_EXEC_NAME];
     auto& threadsTidPpidNode = threadsTidNode[Q_PPID];
     auto& threadsTidStatusNode = threadsTidNode[Q_STATUS];
@@ -393,9 +418,9 @@ bool onLttngStatedumpProcessState(CurrentState& state, const Event& event)
 
 bool onSchedWakeupEvent(CurrentState& state, const Event& event)
 {
-    auto& linuxNode = getLinuxNode(state.getRoot());
-    auto& tid = event["tid"].asSintValue();
-    auto& threadsTidStatusNode = linuxNode[Q_THREADS][tid][Q_STATUS];
+    auto& linuxNode = getLinuxNode(state);
+    auto qTid = getIntQ(state, event["tid"].asSint());
+    auto& threadsTidStatusNode = linuxNode[Q_THREADS][qTid][Q_STATUS];
 
     if (threadsTidStatusNode.isQuark()) {
         if (threadsTidStatusNode.asQuark() != Q_RUN_USERMODE &&
@@ -413,8 +438,8 @@ bool onSchedWakeupEvent(CurrentState& state, const Event& event)
 bool onSysEvent(CurrentState& state, const Event& event)
 {
     auto& root = state.getRoot();
-    auto& currentThreadNode = getThreadsCurrentThreadNode(root, event);
-    auto& currentCpuNode = getCurrentCpuNode(root, event);
+    auto& currentThreadNode = getThreadsCurrentThreadNode(state, event);
+    auto& currentCpuNode = getCurrentCpuNode(state, event);
 
     if (currentThreadNode != root) {
         currentThreadNode[Q_SYSCALL] = event.getName();
@@ -475,6 +500,11 @@ void getConstantQuarks(CurrentState& state)
     Q_WAIT_FOR_CPU = state.getQuark("wait-for-cpu");
     Q_RAISED = state.getQuark("raised");
     Q_SYS_CLONE = state.getQuark("sys_clone");
+
+    // 0 to 65535 integers
+    for (int x = 0; x < 65536; ++x) {
+        Q_INT[x] = state.getQuark(std::to_string(x));
+    }
 }
 
 }
