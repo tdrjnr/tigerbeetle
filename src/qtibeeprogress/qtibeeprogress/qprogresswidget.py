@@ -48,9 +48,14 @@ class QProgressWidget(Qt.QWidget):
         # total dots to draw
         draw_dots = round(total_dots * self._value)
 
+        # space wasted by incomplete dots
+        swx = iw - (total_dots_w * ds + (total_dots_w - 1) * dp)
+        swy = ih - (total_dots_h * ds + (total_dots_h - 1) * dp)
+
         # draw dots
-        cx = p
-        cy = p
+        cx = p + round(swx / 2)
+        ocy = p + round(swy / 2)
+        cy = ocy
         dots_y = 0
         dots = 0
         painter.setBrush(config.theme_foreground)
@@ -58,7 +63,7 @@ class QProgressWidget(Qt.QWidget):
             if dots_y >= total_dots_h:
                 dots_y = 0
                 cx += (ds + dp)
-                cy = p
+                cy = ocy
             painter.drawRect(cx, cy, ds, ds)
             cy += (ds + dp)
             dots_y += 1
