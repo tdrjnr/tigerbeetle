@@ -122,7 +122,6 @@ bool StateHistoryBuilder::onStopImpl()
 
     // close history file sink
     _stateHistorySink->close();
-    _stateHistorySink = nullptr;
 
     return true;
 }
