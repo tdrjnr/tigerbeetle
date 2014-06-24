@@ -70,7 +70,7 @@ StateNode& StateNode::operator[](Quark quark)
 StateNode& StateNode::operator[](const std::string& key)
 {
     // get quark for this subpath
-    auto quark = _stateHistorySink->getSubpathQuark(key);
+    auto quark = _stateHistorySink->getQuark(key);
 
     // delegate
     return this->operator[](quark);
@@ -162,10 +162,10 @@ StateNode& StateNode::operator[](const Float32StateValue& value)
 StateNode& StateNode::operator[](const QuarkStateValue& value)
 {
     // get string value for this string value quark
-    const auto& str = _stateHistorySink->getStringValueString(value.getValue());
+    const auto& str = _stateHistorySink->getString(value.getValue());
 
     // get subpath quark for this string
-    auto subpathQuark = _stateHistorySink->getSubpathQuark(str);
+    auto subpathQuark = _stateHistorySink->getQuark(str);
 
     // delegate
     return this->operator[](subpathQuark);
@@ -201,7 +201,7 @@ bool StateNode::hasChild(Quark quark) const
 bool StateNode::hasChild(const std::string& key) const
 {
     // get quark for this subpath
-    auto quark = _stateHistorySink->getSubpathQuark(key);
+    auto quark = _stateHistorySink->getQuark(key);
 
     // delegate
     return this->hasChild(quark);
@@ -302,7 +302,7 @@ StateNode& StateNode::operator=(Quark quark)
 StateNode& StateNode::operator=(const std::string& value)
 {
     // get quark for this string value
-    auto quark = _stateHistorySink->getStringValueQuark(value);
+    auto quark = _stateHistorySink->getQuark(value);
 
     // delegate
     return (*this = quark);

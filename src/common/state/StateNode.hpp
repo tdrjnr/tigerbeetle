@@ -523,14 +523,13 @@ public:
     StateNode& operator[](const Float32StateValue& value);
 
     /**
-     * Convenience method that gets the string value of string value
-     * quark contained in \p value, gets the subpath quark of this
-     * string and calls operator[](Quark) with the result.
+     * Convenience method that calls operator[](Quark) with the
+     * quark value of \p value.
      *
      * @see operator[](Quark)
      *
-     * @param value State value containing key
-     * @returns     Child node with quark of \p value (as a string)
+     * @param value State value containing quark
+     * @returns     Child node with quark of \p value
      */
     StateNode& operator[](const QuarkStateValue& value);
 
@@ -713,10 +712,9 @@ public:
     StateNode& operator=(const StateNode& node);
 
     /**
-     * Assigns the STRING VALUE QUARK (beware, quarks of state
-     * values are not shared with quarks of subpaths) to this node.
+     * Assigns the quark \p quark to this node.
      *
-     * @param quark String value quark
+     * @param quark Quark
      * @returns     This node
      */
     StateNode& operator=(Quark quark);

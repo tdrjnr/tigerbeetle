@@ -114,7 +114,7 @@ private:
     {
         if (quark != 0xffffffff) {
             // not root: output child node subpath
-            const auto& subpath = _stateHistorySink->getSubpathString(Quark(quark));
+            const auto& subpath = _stateHistorySink->getString(Quark(quark));
 
             ::yajl_gen_string(_yajlGen,
                               reinterpret_cast<const unsigned char*>(subpath.c_str()),
@@ -183,13 +183,11 @@ private:
     }
 };
 
-StateHistorySink::StateHistorySink(const bfs::path& subpathStrDbPath,
-                                   const bfs::path& valueStrDbPath,
+StateHistorySink::StateHistorySink(const bfs::path& stringDbPath,
                                    const boost::filesystem::path& nodesMapPath,
                                    const bfs::path& historyPath,
                                    timestamp_t beginTs) :
-    _subpathStrDbPath {subpathStrDbPath},
-    _valueStrDbPath {valueStrDbPath},
+    _stringDbPath {stringDbPath},
     _nodesMapPath {nodesMapPath},
     _historyPath {historyPath},
     _beginTs {beginTs},
@@ -331,8 +329,7 @@ void StateHistorySink::open()
 
     // reset stuff
     _ts = _beginTs;
-    _subpathsDb.clear();
-    _strValuesDb.clear();
+    _stringDb.clear();
     _nextPathQuark = 0;
     _nextStrValueQuark = 0;
     _stateChangesCount = 0;
@@ -355,13 +352,11 @@ void StateHistorySink::close()
 
     // write files
     _intervalFileSink->close();
-    this->writeStringDb(_subpathsDb, _subpathStrDbPath);
-    this->writeStringDb(_strValuesDb, _valueStrDbPath);
+    this->writeStringDb(_stringDb, _stringDbPath);
     this->writeNodesMap();
 
     // clear string databases
-    _subpathsDb.clear();
-    _strValuesDb.clear();
+    _stringDb.clear();
 
     // set as closed
     _open = false;
@@ -396,24 +391,14 @@ const std::string& StateHistorySink::getQuarkString(const StringDb& stringDb,
     return it->second;
 }
 
-Quark StateHistorySink::getSubpathQuark(const std::string& subpath)
+Quark StateHistorySink::getQuark(const std::string& subpath)
 {
-    return Quark(this->getQuark(_subpathsDb, subpath, _nextPathQuark));
+    return Quark(this->getQuark(_stringDb, subpath, _nextPathQuark));
 }
 
-Quark StateHistorySink::getStringValueQuark(const std::string& value)
+const std::string& StateHistorySink::getString(Quark quark) const
 {
-    return Quark(this->getQuark(_strValuesDb, value, _nextStrValueQuark));
-}
-
-const std::string& StateHistorySink::getSubpathString(Quark quark) const
-{
-    return StateHistorySink::getQuarkString(_subpathsDb, quark.get());
-}
-
-const std::string& StateHistorySink::getStringValueString(Quark quark) const
-{
-    return StateHistorySink::getQuarkString(_strValuesDb, quark.get());
+    return StateHistorySink::getQuarkString(_stringDb, quark.get());
 }
 
 void StateHistorySink::writeInterval(const StateNode& node)

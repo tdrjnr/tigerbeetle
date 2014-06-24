@@ -68,14 +68,12 @@ public:
      *
      * The current history timestamp is initialized with 0.
      *
-     * @param subpathStrDbPath  Path to subpath string database file (to be created)
-     * @param valueStrDbPath    Path to value string database file (to be created)
-     * @param nodesMapPath      Path to map of state nodes IDs to paths (to be created)
-     * @param historyPath       Path to history file (to be created)
-     * @param beginTs           Begin timestamp to use
+     * @param stringDbPath  Path to string database file (to be created)
+     * @param nodesMapPath   Path to map of state nodes IDs to paths (to be created)
+     * @param historyPath    Path to history file (to be created)
+     * @param beginTs        Begin timestamp to use
      */
-    StateHistorySink(const boost::filesystem::path& subpathStrDbPath,
-                     const boost::filesystem::path& valueStrDbPath,
+    StateHistorySink(const boost::filesystem::path& stringDbPath,
                      const boost::filesystem::path& nodesMapPath,
                      const boost::filesystem::path& historyPath,
                      timestamp_t beginTs);
@@ -116,40 +114,22 @@ public:
     void close();
 
     /**
-     * Returns a quark for a given subpath string, created if needed.
-     *
-     * The quark will always be the same for the same subpath.
-     *
-     * @param subpath Subpath string for which to get the quark
-     * @returns       Quark for given subpath
-     */
-    Quark getSubpathQuark(const std::string& subpath);
-
-    /**
-     * Returns a quark for a given string state value, created if needed.
+     * Returns a quark for a given string, created if needed.
      *
      * The quark will always be the same for the same string.
      *
-     * @param value String for which to get the quark
-     * @returns     Quark for given value
+     * @param string String for which to get the quark
+     * @returns      Quark for given string
      */
-    Quark getStringValueQuark(const std::string& value);
+    Quark getQuark(const std::string& string);
 
     /**
-     * Returns the subpath associated with subpath quark \p quark or
-     * throws ex::WrongQuark if no such subpath exists.
+     * Returns the string associated with quark \p quark or
+     * throws ex::WrongQuark if no such string exists.
      *
-     * @returns Subpath string associated with subpath quark \p quark
+     * @returns String associated with quark \p quark
      */
-    const std::string& getSubpathString(Quark quark) const;
-
-    /**
-     * Returns the string value associated with quark \p quark or
-     * throws ex::WrongQuark if no such string value exists.
-     *
-     * @returns String value associated with string value quark \p quark
-     */
-    const std::string& getStringValueString(Quark quark) const;
+    const std::string& getString(Quark quark) const;
 
     /**
      * Returns a reference to the "current state", which is an adapter
@@ -252,8 +232,7 @@ private:
 
 private:
     // paths to files to create
-    boost::filesystem::path _subpathStrDbPath;
-    boost::filesystem::path _valueStrDbPath;
+    boost::filesystem::path _stringDbPath;
     boost::filesystem::path _nodesMapPath;
     boost::filesystem::path _historyPath;
 
@@ -267,10 +246,7 @@ private:
     bool _open;
 
     // string database for state paths
-    StringDb _subpathsDb;
-
-    // string database for state values
-    StringDb _strValuesDb;
+    StringDb _stringDb;
 
     // current state path quark
     quark_t _nextPathQuark;

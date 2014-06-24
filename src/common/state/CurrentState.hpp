@@ -53,24 +53,14 @@ class CurrentState final :
 
 public:
     /**
-     * @see StateHistorySink::getSubpathQuark()
+     * @see StateHistorySink::getQuark()
      */
-    Quark getSubpathQuark(const std::string& subpath) const;
+    Quark getQuark(const std::string& subpath) const;
 
     /**
-     * @see StateHistorySink::getStringValueQuark()
+     * @see StateHistorySink::getString()
      */
-    Quark getStringValueQuark(const std::string& string) const;
-
-    /**
-     * @see StateHistorySink::getSubpathString()
-     */
-    const std::string& getSubpathString(Quark quark) const;
-
-    /**
-     * @see StateHistorySink::getStringValueString()
-     */
-    const std::string& getStringValueString(Quark quark) const;
+    const std::string& getString(Quark quark) const;
 
     /**
      * @see StateHistorySink::getStateChangesCount()
