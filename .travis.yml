@@ -46,3 +46,4 @@ script:
   - ./bootstrap.sh
   - source ./setenv.sh
   - scons mode=$BUILD_MODE
+  - ./tests/testall.sh
